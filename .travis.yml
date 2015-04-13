@@ -10,6 +10,7 @@ python:
 
 env:
   - NGHTTP2=true
+  - NGHTTP2=
 
 matrix:
   exclude:
