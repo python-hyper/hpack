@@ -9,7 +9,6 @@ python:
   - pypy
 
 env:
-  - NGHTTP2=false
   - NGHTTP2=true
 
 matrix:
