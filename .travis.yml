@@ -1,0 +1,27 @@
+language: python
+
+python:
+  - "2.7"
+  - "3.3"
+  - "3.4"
+  - pypy
+
+env:
+  - NGHTTP2=false
+  - NGHTTP2=true
+
+matrix:
+  exclude:
+    - env: NGHTTP2=true
+      python: pypy
+
+install:
+  - ".travis/install.sh"
+script:
+  - >
+      if [[ $TRAVIS_PYTHON_VERSION == pypy ]]; then
+        py.test test/
+      else
+        py.test -n 4 --cov hpack test/
+        coverage report -m --fail-under 100
+      fi
