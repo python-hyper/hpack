@@ -5,14 +5,22 @@ Development Lead
 
 - Cory Benfield <cory@lukasa.co.uk>
 
-Contributors
-````````````
-
+Contributors (hpack)
+````````````````````
 In chronological order:
 
 - Sriram Ganesan (@elricL)
 
   - Implemented the Huffman encoding/decoding logic.
+
+- Tatsuhiro Tsujikawa (@tatsuhiro-t)
+
+  - Improved compression efficiency.
+
+Contributors (hyper)
+````````````````````
+
+In chronological order:
 
 - Alek Storm (@alekstorm)
 
