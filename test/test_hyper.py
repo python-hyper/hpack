@@ -31,17 +31,19 @@ class TestHPACKEncoder(object):
             (n.encode('utf-8'), v.encode('utf-8')) for n, v in header_set.items()
         ]
 
-    def test_literal_header_field_without_indexing(self):
+    def test_indexed_literal_header_field_with_indexing(self):
         """
         The header field representation uses an indexed name and a literal
-        value.
+        value and performs incremental indexing.
         """
         e = Encoder()
         header_set = {':path': '/sample/path'}
-        result = b'\x04\x0c/sample/path'
+        result = b'\x44\x0c/sample/path'
 
         assert e.encode(header_set, huffman=False) == result
-        assert list(e.header_table) == []
+        assert list(e.header_table) == [
+            (n.encode('utf-8'), v.encode('utf-8')) for n, v in header_set.items()
+        ]
 
     def test_indexed_header_field(self):
         """
@@ -79,9 +81,9 @@ class TestHPACKEncoder(object):
             (':path', '/',),
             (':authority', 'www.example.com'),
         ]
-        # The first_header_table doesn't contain anything.
-        first_header_table = []
-        first_result = b'\x82\x86\x84\x01\x0fwww.example.com'
+        # We should have :authority in first_header_table since we index it
+        first_header_table = [(':authority', 'www.example.com')]
+        first_result = b'\x82\x86\x84\x41\x0fwww.example.com'
 
         assert e.encode(first_header_set, huffman=False) == first_result
         assert list(e.header_table) == [
@@ -95,12 +97,16 @@ class TestHPACKEncoder(object):
             (':authority', 'www.example.com',),
             ('cache-control', 'no-cache'),
         ]
-        second_result = (
-            b'\x82\x86\x84\x01\x0fwww.example.com\x0f\t\x08no-cache'
-        )
+        second_header_table = [
+            ('cache-control', 'no-cache'),
+            (':authority', 'www.example.com')
+        ]
+        second_result = b'\x82\x86\x84\xbeX\x08no-cache'
 
         assert e.encode(second_header_set, huffman=False) == second_result
-        assert list(e.header_table) == []
+        assert list(e.header_table) == [
+            (n.encode('utf-8'), v.encode('utf-8')) for n, v in second_header_table
+        ]
 
         third_header_set = [
             (':method', 'GET',),
@@ -110,13 +116,13 @@ class TestHPACKEncoder(object):
             ('custom-key', 'custom-value'),
         ]
         third_result = (
-            b'\x82\x87\x85\x01\x0fwww.example.com@\ncustom-key\x0ccustom-value'
+            b'\x82\x87\x85\xbf@\ncustom-key\x0ccustom-value'
         )
 
         assert e.encode(third_header_set, huffman=False) == third_result
         # Don't check the header table here, it's just too complex to be
         # reliable. Check its length though.
-        assert len(e.header_table) == 1
+        assert len(e.header_table) == 3
 
     def test_request_examples_with_huffman(self):
         """
@@ -130,13 +136,20 @@ class TestHPACKEncoder(object):
             (':path', '/',),
             (':authority', 'www.example.com'),
         ]
+        first_header_table = [(':authority', 'www.example.com')]
         first_result = (
-            b'\x82\x86\x84\x01\x8c\xf1\xe3\xc2\xe5\xf2:k\xa0\xab\x90\xf4\xff'
+            b'\x82\x86\x84\x41\x8c\xf1\xe3\xc2\xe5\xf2:k\xa0\xab\x90\xf4\xff'
         )
 
         assert e.encode(first_header_set, huffman=True) == first_result
-        assert list(e.header_table) == []
+        assert list(e.header_table) == [
+            (n.encode('utf-8'), v.encode('utf-8')) for n, v in first_header_table
+        ]
 
+        second_header_table = [
+            ('cache-control', 'no-cache'),
+            (':authority', 'www.example.com')
+        ]
         second_header_set = [
             (':method', 'GET',),
             (':scheme', 'http',),
@@ -144,13 +157,12 @@ class TestHPACKEncoder(object):
             (':authority', 'www.example.com',),
             ('cache-control', 'no-cache'),
         ]
-        second_result = (
-            b'\x82\x86\x84\x01\x8c\xf1\xe3\xc2\xe5\xf2:k\xa0\xab\x90\xf4\xff'
-            b'\x0f\t\x86\xa8\xeb\x10d\x9c\xbf'
-        )
+        second_result = b'\x82\x86\x84\xbeX\x86\xa8\xeb\x10d\x9c\xbf'
 
         assert e.encode(second_header_set, huffman=True) == second_result
-        assert list(e.header_table) == []
+        assert list(e.header_table) == [
+            (n.encode('utf-8'), v.encode('utf-8')) for n, v in second_header_table
+        ]
 
         third_header_set = [
             (':method', 'GET',),
@@ -160,12 +172,12 @@ class TestHPACKEncoder(object):
             ('custom-key', 'custom-value'),
         ]
         third_result = (
-            b'\x82\x87\x85\x01\x8c\xf1\xe3\xc2\xe5\xf2:k\xa0\xab\x90\xf4\xff@'
-            b'\x88%\xa8I\xe9[\xa9}\x7f\x89%\xa8I\xe9[\xb8\xe8\xb4\xbf'
+            b'\x82\x87\x85\xbf'
+            b'@\x88%\xa8I\xe9[\xa9}\x7f\x89%\xa8I\xe9[\xb8\xe8\xb4\xbf'
         )
 
         assert e.encode(third_header_set, huffman=True) == third_result
-        assert len(e.header_table) == 1
+        assert len(e.header_table) == 3
 
     # These tests are custom, for hyper.
     def test_resizing_header_table(self):
