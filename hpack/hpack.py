@@ -234,19 +234,19 @@ class Encoder(object):
         if isinstance(headers, dict):
             headers = headers.items()
 
-        # Next, walk across the headers and turn them all into bytestrings.
-        headers = [(_to_bytes(n), _to_bytes(v)) for n, v in headers]
-
         # Before we begin, if the header table size has been changed we need
         # to signal that appropriately.
         if self._table_size_changed:
             header_block.append(self._encode_table_size_change())
             self._table_size_changed = False
 
-        # We can now encode each header in the block.
-        header_block.extend(
-            (self.add(header, huffman) for header in headers)
-        )
+        # Add each header to the header block
+        for h in headers:
+            if(len(h) == 2):
+                h = (_to_bytes(h[0]),_to_bytes(h[1]),False)
+            else:
+                h = (_to_bytes(h[0]),_to_bytes(h[1]),h[2])
+            header_block.extend(self.add(h,huffman))
 
         header_block = b''.join(header_block)
 
@@ -260,16 +260,22 @@ class Encoder(object):
         """
         log.debug("Adding %s to the header table", to_add)
 
-        name, value = to_add
+        name, value, noindex = to_add
 
+        indexbit = INDEX_INCREMENTAL
+        if(noindex):
+            indexbit = INDEX_NEVER
+        # Strip out noindex tuple entry
+        to_add = (name, value)
         # Search for a matching header in the header table.
         match = self.matching_header(name, value)
 
         if match is None:
             # Not in the header table. Encode using the literal syntax,
             # and add it to the header table.
-            encoded = self._encode_literal(name, value, INDEX_INCREMENTAL, huffman)
-            self._add_to_header_table(to_add)
+            encoded = self._encode_literal(name, value, indexbit, huffman)
+            if(not noindex):
+                self._add_to_header_table(to_add)
             return encoded
 
         # The header is in the table, break out the values. If we matched
@@ -286,8 +292,9 @@ class Encoder(object):
             # filter out headers which are known to be ineffective for
             # indexing since they just take space in the table and
             # pushed out other valuable headers.
-            encoded = self._encode_indexed_literal(index, value, huffman=huffman)
-            self._add_to_header_table(to_add)
+            encoded = self._encode_indexed_literal(index, value, indexbit, huffman)
+            if(not noindex):
+                self._add_to_header_table(to_add)
 
         return encoded
 
