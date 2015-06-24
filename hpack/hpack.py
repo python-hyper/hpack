@@ -16,6 +16,9 @@ from .huffman_constants import (
 
 log = logging.getLogger(__name__)
 
+INDEX_NONE = 0x00;
+INDEX_NEVER = 0x10;
+INDEX_INCREMENTAL = 0x40;
 
 def encode_integer(integer, prefix_bits):
     """
@@ -265,7 +268,7 @@ class Encoder(object):
         if match is None:
             # Not in the header table. Encode using the literal syntax,
             # and add it to the header table.
-            encoded = self._encode_literal(name, value, True, huffman)
+            encoded = self._encode_literal(name, value, INDEX_INCREMENTAL, huffman)
             self._add_to_header_table(to_add)
             return encoded
 
@@ -283,7 +286,7 @@ class Encoder(object):
             # filter out headers which are known to be ineffective for
             # indexing since they just take space in the table and
             # pushed out other valuable headers.
-            encoded = self._encode_indexed_literal(index, value, huffman)
+            encoded = self._encode_indexed_literal(index, value, huffman=huffman)
             self._add_to_header_table(to_add)
 
         return encoded
@@ -343,14 +346,12 @@ class Encoder(object):
         field[0] = field[0] | 0x80  # we set the top bit
         return bytes(field)
 
-    def _encode_literal(self, name, value, indexing, huffman=False):
+    def _encode_literal(self, name, value, indexbit, huffman=False):
         """
         Encodes a header with a literal name and literal value. If ``indexing``
         is True, the header will be added to the header table: otherwise it
         will not.
         """
-        prefix = b'\x40' if indexing else b'\x00'
-
         if huffman:
             name = self.huffman_coder.encode(name)
             value = self.huffman_coder.encode(value)
@@ -362,15 +363,20 @@ class Encoder(object):
             name_len[0] |= 0x80
             value_len[0] |= 0x80
 
-        return b''.join([prefix, bytes(name_len), name, bytes(value_len), value])
+        return b''.join([chr(indexbit), bytes(name_len), name, bytes(value_len), value])
 
-    def _encode_indexed_literal(self, index, value, huffman=False):
+    def _encode_indexed_literal(self, index, value, indexbit=INDEX_INCREMENTAL, huffman=False):
         """
         Encodes a header with an indexed name and a literal value and performs
         incremental indexing.
         """
-        prefix = encode_integer(index, 6)
-        prefix[0] |= 0x40
+
+        if(indexbit == INDEX_NEVER or indexbit == INDEX_NONE):
+            prefix = encode_integer(index, 4)
+        else:
+            prefix = encode_integer(index, 6)
+        
+        prefix[0] |= indexbit
 
         if huffman:
             value = self.huffman_coder.encode(value)
