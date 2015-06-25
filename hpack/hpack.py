@@ -242,11 +242,12 @@ class Encoder(object):
 
         # Add each header to the header block
         for h in headers:
+            to_add = (_to_bytes(h[0]),_to_bytes(h[1]))
             if(len(h) == 2):
-                h = (_to_bytes(h[0]),_to_bytes(h[1]),False)
+                header_block.extend(self.add(to_add,False,huffman))
             else:
-                h = (_to_bytes(h[0]),_to_bytes(h[1]),h[2])
-            header_block.extend(self.add(h,huffman))
+                header_block.extend(self.add(to_add,h[2],huffman))
+
 
         header_block = b''.join(header_block)
 
@@ -254,19 +255,17 @@ class Encoder(object):
 
         return header_block
 
-    def add(self, to_add, huffman=False):
+    def add(self, to_add, sensitive, huffman=False):
         """
         This function takes a header key-value tuple and serializes it.
         """
         log.debug("Adding %s to the header table", to_add)
 
-        name, value, noindex = to_add
+        name, value = to_add
 
-        indexbit = INDEX_INCREMENTAL
-        if(noindex):
-            indexbit = INDEX_NEVER
-        # Strip out noindex tuple entry
-        to_add = (name, value)
+        # Set our indexing mode
+        indexbit = INDEX_INCREMENTAL if(not sensitive) else INDEX_NEVER
+
         # Search for a matching header in the header table.
         match = self.matching_header(name, value)
 
@@ -274,7 +273,7 @@ class Encoder(object):
             # Not in the header table. Encode using the literal syntax,
             # and add it to the header table.
             encoded = self._encode_literal(name, value, indexbit, huffman)
-            if(not noindex):
+            if(not sensitive):
                 self._add_to_header_table(to_add)
             return encoded
 
@@ -293,7 +292,7 @@ class Encoder(object):
             # indexing since they just take space in the table and
             # pushed out other valuable headers.
             encoded = self._encode_indexed_literal(index, value, indexbit, huffman)
-            if(not noindex):
+            if(not sensitive):
                 self._add_to_header_table(to_add)
 
         return encoded
