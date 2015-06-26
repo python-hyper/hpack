@@ -31,6 +31,12 @@ class TestHPACKEncoder(object):
             (n.encode('utf-8'), v.encode('utf-8')) for n, v in header_set.items()
         ]
 
+    def test_sensitive_headers(self):
+        """
+        Test encoding header values  
+        """
+        pass
+
     def test_indexed_literal_header_field_with_indexing(self):
         """
         The header field representation uses an indexed name and a literal
