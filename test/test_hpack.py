@@ -35,7 +35,15 @@ class TestHPACKEncoder(object):
         """
         Test encoding header values  
         """
-        pass
+        result = '\x82\x14\x88\x63\xa1\xa9\x32\x08\x73\xd0\xc7\x10\x87\x25\xa8\x49\xe9\xea\x5f\x5f\x89\x41\x6a\x41\x92\x6e\xe5\x35\x52\x9f'
+        header_set = 
+        [
+            (':method', 'GET', True),
+            (':path', '/jimiscool/', True),
+            ('customkey','sensitiveinfo',True) 
+        ]
+        assert e.encode(header_set, huffman=True) == result
+        
 
     def test_indexed_literal_header_field_with_indexing(self):
         """
