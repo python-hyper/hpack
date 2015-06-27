@@ -78,7 +78,7 @@ class TestHPACKEncoder(object):
         result = b'\x82'
 
         # Make sure we don't emit an encoding context update.
-        e._table_size_changed = False
+        e.header_table.resized = False
 
         assert e.encode(header_set, huffman=False) == result
         assert list(e.header_table) == []

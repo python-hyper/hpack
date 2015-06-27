@@ -98,22 +98,27 @@ class HeaderTable(deque):
         """
         Returns the entry specified by index
 
+        Note that the table is 1-based ie an index of 0 is
+        invalid.  This is due to the fact that a zero value
+        index signals that a completely unindexed header
+        follows.
+
         The entry will either be from the static table or
         the dynamic table depending on the value of index.
         """
         index -= 1
         if index < 0:
-            return None # TODO throw DecoderException here
+            return None # TODO throw HPACKException here
         if index < len(HeaderTable.STATIC_TABLE):
             return HeaderTable.STATIC_TABLE[index]
         index -= len(HeaderTable.STATIC_TABLE)
         if index < len(self):
             return deque.__getitem__(self,index)
-        return None # TODO throw DecoderException here
+        return None # TODO throw HPACKException here
 
     def __setitem__(self,index,value):
         """
-        We don't support direct index setting.
+        We don't support direct index setting
         """
         raise TypeError("'HeaderTable' object does not support item assignment, use add")
 
@@ -121,7 +126,7 @@ class HeaderTable(deque):
         rv = "HeaderTable("
         rv += str(self._maxsize)
         rv += ","+str(self.resized)
-        rv += ")(["
+        rv += ",["
         for entry in self:
             rv += str(entry)
         return rv+"])"
@@ -150,22 +155,24 @@ class HeaderTable(deque):
         value
 
         Returns one of the following:
-            None                  no match at all
-            (index, name, None)   partial match (on name)
-            (index, entry, value) perfect match
+            None                 no match at all
+            (index, name, None)  partial match (on name)
+            (index, name, value) perfect match
         """
-        partial = None
         offset = len(HeaderTable.STATIC_TABLE)
+        partial = None
         for (i, (n, v)) in enumerate(HeaderTable.STATIC_TABLE):
-            if n == name and v == value:
-                return (i + 1, n, v)
-            elif n == name:
-                partial = (i + 1, n, None)
+            if n == name:
+                if v == value:
+                    return (i + 1, n, v)
+                elif partial is None:
+                    partial = (i + 1, n, None)
         for (i, (n, v)) in enumerate(self):
-            if n == name and v == value:
-                return (i + offset + 1, n, v)
-            elif n == name:
-                partial = (i + offset + 1, n, None)
+            if n == name:
+                if v == value:
+                    return (i + offset + 1, n, v)
+                elif partial is None:
+                    partial = (i + offset + 1, n, None)
         return partial
 
     #
@@ -181,7 +188,8 @@ class HeaderTable(deque):
         newmax = int(newmax)
         oldmax = self._maxsize
         self._maxsize = newmax
-        self.resized = not newmax == oldmax
+        if newmax != oldmax:
+            self.resized = True
         if oldmax > newmax:
             self._shrink()
 

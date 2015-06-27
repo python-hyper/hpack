@@ -8,6 +8,7 @@ Implements the HPACK header compression algorithm as detailed by the IETF.
 import collections
 import logging
 
+from .HeaderTable import HeaderTable
 from .compat import to_byte
 from .huffman import HuffmanDecoder, HuffmanEncoder
 from .huffman_constants import (
@@ -84,93 +85,14 @@ def _to_bytes(string):
 
     return string if isinstance(string, bytes) else string.encode('utf-8')
 
-
-def header_table_size(table):
-    """
-    Calculates the 'size' of the header table as defined by the HTTP/2
-    specification.
-    """
-    # It's phenomenally frustrating that the specification feels it is able to
-    # tell me how large the header table is, considering that its calculations
-    # assume a very particular layout that most implementations will not have.
-    # I appreciate it's an attempt to prevent DoS attacks by sending lots of
-    # large headers in the header table, but it seems like a better approach
-    # would be to limit the size of headers. Ah well.
-    return sum(32 + len(name) + len(value) for name, value in table)
-
-
 class Encoder(object):
     """
     An HPACK encoder object. This object takes HTTP headers and emits encoded
     HTTP/2 header blocks.
     """
-    # This is the static table of header fields.
-    static_table = [
-        (b':authority', b''),
-        (b':method', b'GET'),
-        (b':method', b'POST'),
-        (b':path', b'/'),
-        (b':path', b'/index.html'),
-        (b':scheme', b'http'),
-        (b':scheme', b'https'),
-        (b':status', b'200'),
-        (b':status', b'204'),
-        (b':status', b'206'),
-        (b':status', b'304'),
-        (b':status', b'400'),
-        (b':status', b'404'),
-        (b':status', b'500'),
-        (b'accept-charset', b''),
-        (b'accept-encoding', b'gzip, deflate'),
-        (b'accept-language', b''),
-        (b'accept-ranges', b''),
-        (b'accept', b''),
-        (b'access-control-allow-origin', b''),
-        (b'age', b''),
-        (b'allow', b''),
-        (b'authorization', b''),
-        (b'cache-control', b''),
-        (b'content-disposition', b''),
-        (b'content-encoding', b''),
-        (b'content-language', b''),
-        (b'content-length', b''),
-        (b'content-location', b''),
-        (b'content-range', b''),
-        (b'content-type', b''),
-        (b'cookie', b''),
-        (b'date', b''),
-        (b'etag', b''),
-        (b'expect', b''),
-        (b'expires', b''),
-        (b'from', b''),
-        (b'host', b''),
-        (b'if-match', b''),
-        (b'if-modified-since', b''),
-        (b'if-none-match', b''),
-        (b'if-range', b''),
-        (b'if-unmodified-since', b''),
-        (b'last-modified', b''),
-        (b'link', b''),
-        (b'location', b''),
-        (b'max-forwards', b''),
-        (b'proxy-authenticate', b''),
-        (b'proxy-authorization', b''),
-        (b'range', b''),
-        (b'referer', b''),
-        (b'refresh', b''),
-        (b'retry-after', b''),
-        (b'server', b''),
-        (b'set-cookie', b''),
-        (b'strict-transport-security', b''),
-        (b'transfer-encoding', b''),
-        (b'user-agent', b''),
-        (b'vary', b''),
-        (b'via', b''),
-        (b'www-authenticate', b''),
-    ]
 
     def __init__(self):
-        self.header_table = collections.deque()
+        self.header_table = HeaderTable()
         self._header_table_size = 4096  # This value set by the standard.
         self.huffman_coder = HuffmanEncoder(
             REQUEST_CODES, REQUEST_CODES_LENGTH
@@ -187,32 +109,7 @@ class Encoder(object):
 
     @header_table_size.setter
     def header_table_size(self, value):
-        log.debug(
-            "Setting header table size to %d from %d",
-            value,
-            self._header_table_size
-        )
-
-        # If the new value is larger than the current one, no worries!
-        # Otherwise, we may need to shrink the header table.
-        if value < self._header_table_size:
-            current_size = header_table_size(self.header_table)
-
-            while value < current_size:
-                header = self.header_table.pop()
-                n, v = header
-                current_size -= (
-                    32 + len(n) + len(v)
-                )
-
-                log.debug(
-                    "Removed %s: %s from the encoder header table", n, v
-                )
-
-        if value != self._header_table_size:
-            self._table_size_changed = True
-
-        self._header_table_size = value
+        self.header_table.maxsize = value
 
     def encode(self, headers, huffman=True):
         """
@@ -236,9 +133,9 @@ class Encoder(object):
 
         # Before we begin, if the header table size has been changed we need
         # to signal that appropriately.
-        if self._table_size_changed:
+        if self.header_table.resized:
             header_block.append(self._encode_table_size_change())
-            self._table_size_changed = False
+            self.header_table.resized = False
 
         # Add each header to the header block
         for header in headers:
@@ -277,7 +174,7 @@ class Encoder(object):
         # The header is in the table, break out the values. If we matched
         # perfectly, we can use the indexed representation: otherwise we
         # can use the indexed literal.
-        index, perfect = match
+        index, hname, perfect = match
 
         if perfect:
             # Indexed representation.
@@ -302,44 +199,13 @@ class Encoder(object):
 
         Upsettingly, the header table is one-indexed, not zero-indexed.
         """
-        partial_match = None
-        static_table_len = len(Encoder.static_table)
-
-        for (i, (n, v)) in enumerate(Encoder.static_table):
-            if n == name:
-                if v == value:
-                    return (i + 1, Encoder.static_table[i])
-                elif partial_match is None:
-                    partial_match = (i + 1, None)
-
-        for (i, (n, v)) in enumerate(self.header_table):
-            if n == name:
-                if v == value:
-                    return (i + static_table_len + 1, self.header_table[i])
-                elif partial_match is None:
-                    partial_match = (i + static_table_len + 1, None)
-
-        return partial_match
+        return self.header_table.search(name,value)
 
     def _add_to_header_table(self, header):
         """
         Adds a header to the header table, evicting old ones if necessary.
         """
-        # Be optimistic: add the header straight away.
-        self.header_table.appendleft(header)
-
-        # Now, work out how big the header table is.
-        actual_size = header_table_size(self.header_table)
-
-        # Loop and remove whatever we need to.
-        while actual_size > self.header_table_size:
-            header = self.header_table.pop()
-            n, v = header
-            actual_size -= (
-                32 + len(n) + len(v)
-            )
-
-            log.debug("Evicted %s: %s from the header table", n, v)
+        self.header_table.add(header[0],header[1])
 
     def _encode_indexed(self, index):
         """
@@ -373,7 +239,6 @@ class Encoder(object):
         Encodes a header with an indexed name and a literal value and performs
         incremental indexing.
         """
-
         if indexbit != INDEX_INCREMENTAL:
             prefix = encode_integer(index, 4)
         else:
@@ -395,7 +260,7 @@ class Encoder(object):
         """
         Produces the encoded form of a header table size change context update.
         """
-        size_bytes = encode_integer(self.header_table_size, 5)
+        size_bytes = encode_integer(self.header_table.maxsize, 5)
         size_bytes[0] |= 0x20
         return bytes(size_bytes)
 
@@ -404,72 +269,9 @@ class Decoder(object):
     """
     An HPACK decoder object.
     """
-    static_table = [
-        (b':authority', b''),
-        (b':method', b'GET'),
-        (b':method', b'POST'),
-        (b':path', b'/'),
-        (b':path', b'/index.html'),
-        (b':scheme', b'http'),
-        (b':scheme', b'https'),
-        (b':status', b'200'),
-        (b':status', b'204'),
-        (b':status', b'206'),
-        (b':status', b'304'),
-        (b':status', b'400'),
-        (b':status', b'404'),
-        (b':status', b'500'),
-        (b'accept-charset', b''),
-        (b'accept-encoding', b'gzip, deflate'),
-        (b'accept-language', b''),
-        (b'accept-ranges', b''),
-        (b'accept', b''),
-        (b'access-control-allow-origin', b''),
-        (b'age', b''),
-        (b'allow', b''),
-        (b'authorization', b''),
-        (b'cache-control', b''),
-        (b'content-disposition', b''),
-        (b'content-encoding', b''),
-        (b'content-language', b''),
-        (b'content-length', b''),
-        (b'content-location', b''),
-        (b'content-range', b''),
-        (b'content-type', b''),
-        (b'cookie', b''),
-        (b'date', b''),
-        (b'etag', b''),
-        (b'expect', b''),
-        (b'expires', b''),
-        (b'from', b''),
-        (b'host', b''),
-        (b'if-match', b''),
-        (b'if-modified-since', b''),
-        (b'if-none-match', b''),
-        (b'if-range', b''),
-        (b'if-unmodified-since', b''),
-        (b'last-modified', b''),
-        (b'link', b''),
-        (b'location', b''),
-        (b'max-forwards', b''),
-        (b'proxy-authenticate', b''),
-        (b'proxy-authorization', b''),
-        (b'range', b''),
-        (b'referer', b''),
-        (b'refresh', b''),
-        (b'retry-after', b''),
-        (b'server', b''),
-        (b'set-cookie', b''),
-        (b'strict-transport-security', b''),
-        (b'transfer-encoding', b''),
-        (b'user-agent', b''),
-        (b'vary', b''),
-        (b'via', b''),
-        (b'www-authenticate', b''),
-    ]
 
     def __init__(self):
-        self.header_table = collections.deque()
+        self.header_table = HeaderTable()
         self._header_table_size = 4096  # This value set by the standard.
         self.huffman_coder = HuffmanDecoder(
             REQUEST_CODES, REQUEST_CODES_LENGTH
@@ -477,31 +279,11 @@ class Decoder(object):
 
     @property
     def header_table_size(self):
-        return self._header_table_size
+        return self.maxsize
 
     @header_table_size.setter
     def header_table_size(self, value):
-        log.debug(
-            "Resizing decoder header table to %d from %d",
-            value,
-            self._header_table_size
-        )
-
-        # If the new value is larger than the current one, no worries!
-        # Otherwise, we may need to shrink the header table.
-        if value < self._header_table_size:
-            current_size = header_table_size(self.header_table)
-
-            while value < current_size:
-                header = self.header_table.pop()
-                n, v = header
-                current_size -= (
-                    32 + len(n) + len(v)
-                )
-
-                log.debug("Evicting %s: %s from the header table", n, v)
-
-        self._header_table_size = value
+        self.header_table.maxsize = value
 
     def decode(self, data):
         """
@@ -551,25 +333,11 @@ class Decoder(object):
 
         return [(n.decode('utf-8'), v.decode('utf-8')) for n, v in headers]
 
-    def _add_to_header_table(self, new_header):
+    def _add_to_header_table(self, header):
         """
         Adds a header to the header table, evicting old ones if necessary.
         """
-        # Be optimistic: add the header straight away.
-        self.header_table.appendleft(new_header)
-
-        # Now, work out how big the header table is.
-        actual_size = header_table_size(self.header_table)
-
-        # Loop and remove whatever we need to.
-        while actual_size > self.header_table_size:
-            header = self.header_table.pop()
-            n, v = header
-            actual_size -= (
-                32 + len(n) + len(v)
-            )
-
-            log.debug("Evicting %s: %s from the header table", n, v)
+        self.header_table.add(header[0],header[1])
 
     def _update_encoding_context(self, data):
         """
@@ -577,7 +345,7 @@ class Decoder(object):
         """
         # We've been asked to resize the header table.
         new_size, consumed = decode_integer(data, 5)
-        self.header_table_size = new_size
+        self.header_table.maxsize = new_size
         return consumed
 
     def _decode_indexed(self, data):
@@ -585,14 +353,7 @@ class Decoder(object):
         Decodes a header represented using the indexed representation.
         """
         index, consumed = decode_integer(data, 7)
-        index -= 1  # Because this idiot table is 1-indexed. Ugh.
-
-        if index >= len(Decoder.static_table):
-            index -= len(Decoder.static_table)
-            header = self.header_table[index]
-        else:
-            header = Decoder.static_table[index]
-
+        header = self.header_table[index]
         log.debug("Decoded %s, consumed %d", header, consumed)
         return header, consumed
 
@@ -622,13 +383,7 @@ class Decoder(object):
         if indexed_name:
             # Indexed header name.
             index, consumed = decode_integer(data, name_len)
-            index -= 1
-
-            if index >= len(Decoder.static_table):
-                index -= len(Decoder.static_table)
-                name = self.header_table[index][0]
-            else:
-                name = Decoder.static_table[index][0]
+            name = self.header_table[index][0]
 
             total_consumed = consumed
             length = 0
