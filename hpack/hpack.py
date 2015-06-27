@@ -16,9 +16,6 @@ from .huffman_constants import (
 
 log = logging.getLogger(__name__)
 
-#INDEX_NONE = 0x00;
-#INDEX_NEVER = 0x10;
-#INDEX_INCREMENTAL = 0x40;
 INDEX_NONE = b'\x00';
 INDEX_NEVER = b'\x10';
 INDEX_INCREMENTAL = b'\x40';
