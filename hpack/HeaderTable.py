@@ -94,7 +94,7 @@ class HeaderTable(deque):
         self._maxsize = HeaderTable.DEFAULT_SIZE
         self.resized = False
 
-    def __getitem__(self,index):
+    def __getitem__(self, index):
         """
         Returns the entry specified by index
 
@@ -113,10 +113,10 @@ class HeaderTable(deque):
             return HeaderTable.STATIC_TABLE[index]
         index -= len(HeaderTable.STATIC_TABLE)
         if index < len(self):
-            return deque.__getitem__(self,index)
+            return deque.__getitem__(self, index)
         return None # TODO throw HPACKException here
 
-    def __setitem__(self,index,value):
+    def __setitem__(self, index, value):
         """
         We don't support direct index setting
         """
@@ -135,21 +135,21 @@ class HeaderTable(deque):
     # Public function zone
     #
 
-    def add(self,name,value):
+    def add(self, name, value):
         """
         Adds a new entry to the table
 
         We reduce the table size if the entry will make the
         table size greater than maxsize.
         """
-        entry = (name,value)
+        entry = (name, value)
         # Only append entries that are not in the static
         # table
         if entry not in HeaderTable.STATIC_TABLE:
             self.appendleft(entry)
             self._shrink()
 
-    def search(self,name,value):
+    def search(self, name, value):
         """
         Searchs the table for the entry spefied by name and
         value
@@ -184,12 +184,11 @@ class HeaderTable(deque):
         return self._maxsize
 
     @maxsize.setter
-    def maxsize(self,newmax):
+    def maxsize(self, newmax):
         newmax = int(newmax)
         oldmax = self._maxsize
         self._maxsize = newmax
-        if newmax != oldmax:
-            self.resized = True
+        self.resized = (newmax != oldmax)
         if oldmax > newmax:
             self._shrink()
 
@@ -197,7 +196,7 @@ class HeaderTable(deque):
     # Private function zone
     #
 
-    def _entry_size(self,name,value):
+    def _entry_size(self, name, value):
         """
         Calculates the size of a single entry
 
@@ -218,8 +217,8 @@ class HeaderTable(deque):
         See RFC7541 Section 4.1
         """
         size = 0
-        for (name,value) in self:
-            size += self._entry_size(name,value)
+        for (name, value) in self:
+            size += self._entry_size(name, value)
         return size
 
     def _shrink(self):
@@ -229,4 +228,4 @@ class HeaderTable(deque):
         cursize = self._size()
         while cursize > self._maxsize:
             (name, value) = self.pop()
-            cursize -= self._entry_size(name,value)
+            cursize -= self._entry_size(name, value)
