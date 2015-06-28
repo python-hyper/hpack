@@ -98,19 +98,6 @@ class Encoder(object):
             REQUEST_CODES, REQUEST_CODES_LENGTH
         )
 
-        # We need to keep track of whether the header table size has been
-        # changed since we last encoded anything. If it has, we need to signal
-        # that change in the HPACK block.
-        self._table_size_changed = False
-
-    @property
-    def header_table_size(self):
-        return self._header_table_size
-
-    @header_table_size.setter
-    def header_table_size(self, value):
-        self.header_table.maxsize = value
-
     def encode(self, headers, huffman=True):
         """
         Takes a set of headers and encodes them into a HPACK-encoded header
@@ -161,14 +148,14 @@ class Encoder(object):
         indexbit = INDEX_INCREMENTAL if not sensitive else INDEX_NEVER
 
         # Search for a matching header in the header table.
-        match = self.matching_header(name, value)
+        match = self.header_table.search(name, value)
 
         if match is None:
             # Not in the header table. Encode using the literal syntax,
             # and add it to the header table.
             encoded = self._encode_literal(name, value, indexbit, huffman)
             if not sensitive:
-                self._add_to_header_table(to_add)
+                self.header_table.add(name, value)
             return encoded
 
         # The header is in the table, break out the values. If we matched
@@ -187,25 +174,9 @@ class Encoder(object):
             # pushed out other valuable headers.
             encoded = self._encode_indexed_literal(index, value, indexbit, huffman)
             if not sensitive:
-                self._add_to_header_table(to_add)
+                self.header_table.add(name, value)
 
         return encoded
-
-    def matching_header(self, name, value):
-        """
-        Scans the header table and the static table. Returns a tuple, where the
-        first value is the index of the match, and the second is whether there
-        was a full match or not. Prefers full matches to partial ones.
-
-        Upsettingly, the header table is one-indexed, not zero-indexed.
-        """
-        return self.header_table.search(name,value)
-
-    def _add_to_header_table(self, header):
-        """
-        Adds a header to the header table, evicting old ones if necessary.
-        """
-        self.header_table.add(header[0],header[1])
 
     def _encode_indexed(self, index):
         """
@@ -277,14 +248,6 @@ class Decoder(object):
             REQUEST_CODES, REQUEST_CODES_LENGTH
         )
 
-    @property
-    def header_table_size(self):
-        return self.maxsize
-
-    @header_table_size.setter
-    def header_table_size(self, value):
-        self.header_table.maxsize = value
-
     def decode(self, data):
         """
         Takes an HPACK-encoded header block and decodes it into a header set.
@@ -332,12 +295,6 @@ class Decoder(object):
             current_index += consumed
 
         return [(n.decode('utf-8'), v.decode('utf-8')) for n, v in headers]
-
-    def _add_to_header_table(self, header):
-        """
-        Adds a header to the header table, evicting old ones if necessary.
-        """
-        self.header_table.add(header[0],header[1])
 
     def _update_encoding_context(self, data):
         """
@@ -414,7 +371,7 @@ class Decoder(object):
         # If we've been asked to index this, add it to the header table.
         header = (name, value)
         if should_index:
-            self._add_to_header_table(header)
+            self.header_table.add(name, value)
 
         log.debug(
             "Decoded %s, total consumed %d bytes, indexed %s",

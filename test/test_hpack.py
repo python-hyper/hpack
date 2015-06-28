@@ -36,7 +36,11 @@ class TestHPACKEncoder(object):
         Test encoding header values  
         """
         e = Encoder()
-        result = b'\x82\x14\x88\x63\xa1\xa9\x32\x08\x73\xd0\xc7\x10\x87\x25\xa8\x49\xe9\xea\x5f\x5f\x89\x41\x6a\x41\x92\x6e\xe5\x35\x52\x9f'
+        result = (b'\x82\x14\x88\x63\xa1\xa9' +
+                  b'\x32\x08\x73\xd0\xc7\x10' +
+                  b'\x87\x25\xa8\x49\xe9\xea' +
+                  b'\x5f\x5f\x89\x41\x6a\x41' +
+                  b'\x92\x6e\xe5\x35\x52\x9f')
         header_set = [
             (':method', 'GET', True),
             (':path', '/jimiscool/', True),
@@ -73,7 +77,7 @@ class TestHPACKEncoder(object):
 
     def test_indexed_header_field_from_static_table(self):
         e = Encoder()
-        e.header_table_size = 0
+        e.header_table.maxsize = 0
         header_set = {':method': 'GET'}
         result = b'\x82'
 
@@ -211,14 +215,14 @@ class TestHPACKEncoder(object):
         e.encode(header_set, huffman=True)
 
         # Resize the header table to a size so small that nothing can be in it.
-        e.header_table_size = 40
+        e.header_table.maxsize = 40
         assert len(e.header_table) == 0
 
     def test_resizing_header_table_sends_context_update(self):
         e = Encoder()
 
         # Resize the header table to a size so small that nothing can be in it.
-        e.header_table_size = 40
+        e.header_table.maxsize = 40
 
         # Now, encode a header set. Just a small one, with a well-defined
         # output.
@@ -231,7 +235,7 @@ class TestHPACKEncoder(object):
         e = Encoder()
 
         # Set the header table size to the default.
-        e.header_table_size = 4096
+        e.header_table.maxsize = 4096
 
         # Now encode a header set. Just a small one, with a well-defined
         # output.
@@ -244,7 +248,7 @@ class TestHPACKEncoder(object):
         e = Encoder()
 
         # Set the header table size large enough to include one header.
-        e.header_table_size = 66
+        e.header_table.maxsize = 66
         header_set = [('a', 'b'), ('long-custom-header', 'longish value')]
         e.encode(header_set)
 
@@ -412,7 +416,7 @@ class TestHPACKDecoder(object):
         d.decode(data)
 
         # Resize the header table to a size so small that nothing can be in it.
-        d.header_table_size = 40
+        d.header_table.maxsize = 40
         assert len(d.header_table) == 0
 
     def test_apache_trafficserver(self):
