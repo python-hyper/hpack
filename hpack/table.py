@@ -18,10 +18,6 @@ class HeaderTable(deque):
                        Appendix A
     """
 
-    #
-    # Class constant zone
-    #
-
     DEFAULT_SIZE = 4096
     STATIC_TABLE = (
     (b':authority'                  , b''             ),
@@ -86,10 +82,6 @@ class HeaderTable(deque):
     (b'via'                         , b''             ),
     (b'www-authenticate'            , b''             ))
 
-    #
-    # Special function zone
-    #
-
     def __init__(self):
         self._maxsize = HeaderTable.DEFAULT_SIZE
         self.resized = False
@@ -131,10 +123,6 @@ class HeaderTable(deque):
             rv += str(entry)
         return rv+"])"
 
-    #
-    # Public function zone
-    #
-
     def add(self, name, value):
         """
         Adds a new entry to the table
@@ -171,10 +159,6 @@ class HeaderTable(deque):
                     partial = (i + offset + 1, n, None)
         return partial
 
-    #
-    # Property zone
-    #
-
     @property
     def maxsize(self):
         return self._maxsize
@@ -187,10 +171,6 @@ class HeaderTable(deque):
         self.resized = (newmax != oldmax)
         if oldmax > newmax:
             self._shrink()
-
-    #
-    # Private function zone
-    #
 
     def _entry_size(self, name, value):
         """
