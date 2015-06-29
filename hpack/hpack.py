@@ -93,10 +93,17 @@ class Encoder(object):
 
     def __init__(self):
         self.header_table = HeaderTable()
-        self._header_table_size = 4096  # This value set by the standard.
         self.huffman_coder = HuffmanEncoder(
             REQUEST_CODES, REQUEST_CODES_LENGTH
         )
+
+    @property
+    def header_table_size(self):
+        return self.header_table.maxsize
+
+    @header_table_size.setter
+    def header_table_size(self, value):
+        self.header_table.maxsize = value
 
     def encode(self, headers, huffman=True):
         """
@@ -231,7 +238,7 @@ class Encoder(object):
         """
         Produces the encoded form of a header table size change context update.
         """
-        size_bytes = encode_integer(self.header_table.maxsize, 5)
+        size_bytes = encode_integer(self.header_table_size, 5)
         size_bytes[0] |= 0x20
         return bytes(size_bytes)
 
@@ -243,10 +250,17 @@ class Decoder(object):
 
     def __init__(self):
         self.header_table = HeaderTable()
-        self._header_table_size = 4096  # This value set by the standard.
         self.huffman_coder = HuffmanDecoder(
             REQUEST_CODES, REQUEST_CODES_LENGTH
         )
+
+    @property
+    def header_table_size(self):
+        return self.header_table.maxsize
+
+    @header_table_size.setter
+    def header_table_size(self, value):
+        self.header_table.maxsize = value
 
     def decode(self, data):
         """
@@ -302,7 +316,7 @@ class Decoder(object):
         """
         # We've been asked to resize the header table.
         new_size, consumed = decode_integer(data, 5)
-        self.header_table.maxsize = new_size
+        self.header_table_size = new_size
         return consumed
 
     def _decode_indexed(self, data):
