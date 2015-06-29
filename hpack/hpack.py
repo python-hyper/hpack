@@ -368,7 +368,7 @@ class Encoder(object):
 
         return b''.join([indexbit, bytes(name_len), name, bytes(value_len), value])
 
-    def _encode_indexed_literal(self, index, value, indexbit=INDEX_INCREMENTAL, huffman=False):
+    def _encode_indexed_literal(self, index, value, indexbit, huffman=False):
         """
         Encodes a header with an indexed name and a literal value and performs
         incremental indexing.
