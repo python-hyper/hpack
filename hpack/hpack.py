@@ -8,7 +8,7 @@ Implements the HPACK header compression algorithm as detailed by the IETF.
 import collections
 import logging
 
-from .HeaderTable import HeaderTable
+from .table import HeaderTable
 from .compat import to_byte
 from .huffman import HuffmanDecoder, HuffmanEncoder
 from .huffman_constants import (
