@@ -377,8 +377,7 @@ class Encoder(object):
         if indexbit != INDEX_INCREMENTAL:
             prefix = encode_integer(index, 4)
         else:
-            prefix = encode_integer(index, 6)
-        
+            prefix = encode_integer(index, 6) 
         prefix[0] |= ord(indexbit)
 
         if huffman:
