@@ -16,9 +16,9 @@ from .huffman_constants import (
 
 log = logging.getLogger(__name__)
 
-INDEX_NONE = b'\x00';
-INDEX_NEVER = b'\x10';
-INDEX_INCREMENTAL = b'\x40';
+INDEX_NONE = b'\x00'
+INDEX_NEVER = b'\x10'
+INDEX_INCREMENTAL = b'\x40'
 
 def encode_integer(integer, prefix_bits):
     """
