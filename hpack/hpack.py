@@ -244,7 +244,7 @@ class Encoder(object):
         for header in headers:
             sensitive = header[2] if len(header) > 2 else False
             header = (_to_bytes(header[0]), _to_bytes(header[1]))
-            header_block.extend([self.add(header, sensitive, huffman)])
+            header_block.append(self.add(header, sensitive, huffman))
 
         header_block = b''.join(header_block)
 
