@@ -17,9 +17,9 @@ from .huffman_constants import (
 
 log = logging.getLogger(__name__)
 
-INDEX_NONE = b'\x00';
-INDEX_NEVER = b'\x10';
-INDEX_INCREMENTAL = b'\x40';
+INDEX_NONE = b'\x00'
+INDEX_NEVER = b'\x10'
+INDEX_INCREMENTAL = b'\x40'
 
 def encode_integer(integer, prefix_bits):
     """
@@ -128,7 +128,7 @@ class Encoder(object):
         for header in headers:
             sensitive = header[2] if len(header) > 2 else False
             header = (_to_bytes(header[0]), _to_bytes(header[1]))
-            header_block.extend([self.add(header, sensitive, huffman)])
+            header_block.append(self.add(header, sensitive, huffman))
 
         header_block = b''.join(header_block)
 
@@ -205,7 +205,7 @@ class Encoder(object):
 
         return b''.join([indexbit, bytes(name_len), name, bytes(value_len), value])
 
-    def _encode_indexed_literal(self, index, value, indexbit=INDEX_INCREMENTAL, huffman=False):
+    def _encode_indexed_literal(self, index, value, indexbit, huffman=False):
         """
         Encodes a header with an indexed name and a literal value and performs
         incremental indexing.
@@ -213,8 +213,8 @@ class Encoder(object):
         if indexbit != INDEX_INCREMENTAL:
             prefix = encode_integer(index, 4)
         else:
-            prefix = encode_integer(index, 6)
-        
+            prefix = encode_integer(index, 6) 
+
         prefix[0] |= ord(indexbit)
 
         if huffman:
