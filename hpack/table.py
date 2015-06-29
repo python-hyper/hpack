@@ -142,12 +142,8 @@ class HeaderTable(deque):
         We reduce the table size if the entry will make the
         table size greater than maxsize.
         """
-        entry = (name, value)
-        # Only append entries that are not in the static
-        # table
-        if entry not in HeaderTable.STATIC_TABLE:
-            self.appendleft(entry)
-            self._shrink()
+        self.appendleft((name,value))
+        self._shrink()
 
     def search(self, name, value):
         """
@@ -229,3 +225,4 @@ class HeaderTable(deque):
         while cursize > self._maxsize:
             (name, value) = self.pop()
             cursize -= self._entry_size(name, value)
+
