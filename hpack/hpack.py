@@ -373,11 +373,11 @@ class Encoder(object):
         Encodes a header with an indexed name and a literal value and performs
         incremental indexing.
         """
-
         if indexbit != INDEX_INCREMENTAL:
             prefix = encode_integer(index, 4)
         else:
             prefix = encode_integer(index, 6) 
+
         prefix[0] |= ord(indexbit)
 
         if huffman:
