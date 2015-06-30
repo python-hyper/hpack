@@ -130,8 +130,17 @@ class HeaderTable(deque):
         We reduce the table size if the entry will make the
         table size greater than maxsize.
         """
-        self.appendleft((name,value))
-        self._shrink()
+        # Obviously we never add items to 0 sized table
+        if self._maxsize <= 0:
+          return
+        # We also just clear the table if the entry is to big
+        elif self._entry_size(name, value) > self._maxsize:
+          self.clear()
+          return
+        # Add new entry and shrink to maxsize
+        else:
+          self.appendleft((name,value))
+          self._shrink()
 
     def search(self, name, value):
         """
@@ -169,8 +178,10 @@ class HeaderTable(deque):
         oldmax = self._maxsize
         self._maxsize = newmax
         self.resized = (newmax != oldmax)
-        if oldmax > newmax:
-            self._shrink()
+        if newmax <= 0:
+          self.clear()
+        elif oldmax > newmax:
+          self._shrink()
 
     def _entry_size(self, name, value):
         """
