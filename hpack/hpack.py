@@ -16,6 +16,9 @@ from .huffman_constants import (
 
 log = logging.getLogger(__name__)
 
+INDEX_NONE = b'\x00'
+INDEX_NEVER = b'\x10'
+INDEX_INCREMENTAL = b'\x40'
 
 def encode_integer(integer, prefix_bits):
     """
@@ -231,19 +234,17 @@ class Encoder(object):
         if isinstance(headers, dict):
             headers = headers.items()
 
-        # Next, walk across the headers and turn them all into bytestrings.
-        headers = [(_to_bytes(n), _to_bytes(v)) for n, v in headers]
-
         # Before we begin, if the header table size has been changed we need
         # to signal that appropriately.
         if self._table_size_changed:
             header_block.append(self._encode_table_size_change())
             self._table_size_changed = False
 
-        # We can now encode each header in the block.
-        header_block.extend(
-            (self.add(header, huffman) for header in headers)
-        )
+        # Add each header to the header block
+        for header in headers:
+            sensitive = header[2] if len(header) > 2 else False
+            header = (_to_bytes(header[0]), _to_bytes(header[1]))
+            header_block.append(self.add(header, sensitive, huffman))
 
         header_block = b''.join(header_block)
 
@@ -251,7 +252,7 @@ class Encoder(object):
 
         return header_block
 
-    def add(self, to_add, huffman=False):
+    def add(self, to_add, sensitive, huffman=False):
         """
         This function takes a header key-value tuple and serializes it.
         """
@@ -259,14 +260,18 @@ class Encoder(object):
 
         name, value = to_add
 
+        # Set our indexing mode
+        indexbit = INDEX_INCREMENTAL if not sensitive else INDEX_NEVER
+
         # Search for a matching header in the header table.
         match = self.matching_header(name, value)
 
         if match is None:
             # Not in the header table. Encode using the literal syntax,
             # and add it to the header table.
-            encoded = self._encode_literal(name, value, True, huffman)
-            self._add_to_header_table(to_add)
+            encoded = self._encode_literal(name, value, indexbit, huffman)
+            if not sensitive:
+                self._add_to_header_table(to_add)
             return encoded
 
         # The header is in the table, break out the values. If we matched
@@ -283,8 +288,9 @@ class Encoder(object):
             # filter out headers which are known to be ineffective for
             # indexing since they just take space in the table and
             # pushed out other valuable headers.
-            encoded = self._encode_indexed_literal(index, value, huffman)
-            self._add_to_header_table(to_add)
+            encoded = self._encode_indexed_literal(index, value, indexbit, huffman)
+            if not sensitive:
+                self._add_to_header_table(to_add)
 
         return encoded
 
@@ -343,14 +349,12 @@ class Encoder(object):
         field[0] = field[0] | 0x80  # we set the top bit
         return bytes(field)
 
-    def _encode_literal(self, name, value, indexing, huffman=False):
+    def _encode_literal(self, name, value, indexbit, huffman=False):
         """
         Encodes a header with a literal name and literal value. If ``indexing``
         is True, the header will be added to the header table: otherwise it
         will not.
         """
-        prefix = b'\x40' if indexing else b'\x00'
-
         if huffman:
             name = self.huffman_coder.encode(name)
             value = self.huffman_coder.encode(value)
@@ -362,15 +366,19 @@ class Encoder(object):
             name_len[0] |= 0x80
             value_len[0] |= 0x80
 
-        return b''.join([prefix, bytes(name_len), name, bytes(value_len), value])
+        return b''.join([indexbit, bytes(name_len), name, bytes(value_len), value])
 
-    def _encode_indexed_literal(self, index, value, huffman=False):
+    def _encode_indexed_literal(self, index, value, indexbit, huffman=False):
         """
         Encodes a header with an indexed name and a literal value and performs
         incremental indexing.
         """
-        prefix = encode_integer(index, 6)
-        prefix[0] |= 0x40
+        if indexbit != INDEX_INCREMENTAL:
+            prefix = encode_integer(index, 4)
+        else:
+            prefix = encode_integer(index, 6) 
+
+        prefix[0] |= ord(indexbit)
 
         if huffman:
             value = self.huffman_coder.encode(value)

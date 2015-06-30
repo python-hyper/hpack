@@ -31,6 +31,20 @@ class TestHPACKEncoder(object):
             (n.encode('utf-8'), v.encode('utf-8')) for n, v in header_set.items()
         ]
 
+    def test_sensitive_headers(self):
+        """
+        Test encoding header values  
+        """
+        e = Encoder()
+        result = b'\x82\x14\x88\x63\xa1\xa9\x32\x08\x73\xd0\xc7\x10\x87\x25\xa8\x49\xe9\xea\x5f\x5f\x89\x41\x6a\x41\x92\x6e\xe5\x35\x52\x9f'
+        header_set = [
+            (':method', 'GET', True),
+            (':path', '/jimiscool/', True),
+            ('customkey','sensitiveinfo',True) 
+        ]
+        assert e.encode(header_set, huffman=True) == result
+        
+
     def test_indexed_literal_header_field_with_indexing(self):
         """
         The header field representation uses an indexed name and a literal
