@@ -36,7 +36,11 @@ class TestHPACKEncoder(object):
         Test encoding header values  
         """
         e = Encoder()
-        result = b'\x82\x14\x88\x63\xa1\xa9\x32\x08\x73\xd0\xc7\x10\x87\x25\xa8\x49\xe9\xea\x5f\x5f\x89\x41\x6a\x41\x92\x6e\xe5\x35\x52\x9f'
+        result = (b'\x82\x14\x88\x63\xa1\xa9' +
+                  b'\x32\x08\x73\xd0\xc7\x10' +
+                  b'\x87\x25\xa8\x49\xe9\xea' +
+                  b'\x5f\x5f\x89\x41\x6a\x41' +
+                  b'\x92\x6e\xe5\x35\x52\x9f')
         header_set = [
             (':method', 'GET', True),
             (':path', '/jimiscool/', True),
@@ -78,7 +82,7 @@ class TestHPACKEncoder(object):
         result = b'\x82'
 
         # Make sure we don't emit an encoding context update.
-        e._table_size_changed = False
+        e.header_table.resized = False
 
         assert e.encode(header_set, huffman=False) == result
         assert list(e.header_table) == []
