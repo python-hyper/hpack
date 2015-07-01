@@ -134,7 +134,7 @@ class TestHeaderTable(object):
     def test_size(self):
         tbl = HeaderTable()
         exp = 3*(32 + len(b'TestValue') + len(b'TestName'))
-        for i in xrange(3):
+        for i in range(3):
             tbl.add(b'TestValue', b'TestName')
         res = tbl._size()
         assert res == exp
