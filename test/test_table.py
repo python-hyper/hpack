@@ -1,5 +1,9 @@
 from hpack.table import HeaderTable
 import pytest
+import sys
+_ver = sys.version_info
+is_py2 = _ver[0] == 2
+is_py3 = _ver[0] == 3
 
 class TestHeaderTable(object):
     def test_getitem_dynamic_table(self):
@@ -43,11 +47,20 @@ class TestHeaderTable(object):
         tbl.add(b'TestName1', b'TestValue1')
         tbl.add(b'TestName2', b'TestValue2')
         tbl.add(b'TestName2', b'TestValue2')
-        exp = ("HeaderTable(4096, False, ["    +
-               "('TestName2', 'TestValue2'), " +
-               "('TestName2', 'TestValue2'), " +
-               "('TestName1', 'TestValue1')"   +
-               "])")
+        # Meh, I hate that I have to do this to test
+        # repr
+        if(is_py3):
+            exp = ("HeaderTable(4096, False, ["    +
+                   "(b'TestName2', b'TestValue2'), " +
+                   "(b'TestName2', b'TestValue2'), " +
+                   "(b'TestName1', b'TestValue1')"   +
+                   "])")
+        else:
+            exp = ("HeaderTable(4096, False, ["    +
+                   "('TestName2', 'TestValue2'), " +
+                   "('TestName2', 'TestValue2'), " +
+                   "('TestName1', 'TestValue1')"   +
+                   "])")
         res = str(tbl)
         assert res == exp
 

@@ -47,7 +47,10 @@ class TestHPACKEncoder(object):
             ('customkey','sensitiveinfo',True) 
         ]
         assert e.encode(header_set, huffman=True) == result
-        
+
+    def test_header_table_size_getter(self):
+        e = Encoder()
+        assert e.header_table_size == e.header_table.maxsize
 
     def test_indexed_literal_header_field_with_indexing(self):
         """
