@@ -117,11 +117,11 @@ class HeaderTable(deque):
     def __repr__(self):
         rv = "HeaderTable("
         rv += str(self._maxsize)
-        rv += ","+str(self.resized)
-        rv += ",["
-        for entry in self:
-            rv += str(entry)
-        return rv+"])"
+        rv += ", "+str(self.resized)
+        rv += ", ["
+        itm = [str(entry) for entry in self]
+        itm = ", ".join(itm)
+        return rv+itm+"])"
 
     def add(self, name, value):
         """
