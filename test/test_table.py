@@ -27,20 +27,19 @@ class TestHeaderTable(object):
     def test_getitem_zero_index(self):
         tbl = HeaderTable()
         res = tbl[0]
-        assert res == None # TODO HPACKException will be raised instead
+        assert res is None # TODO HPACKException will be raised instead
 
     def test_getitem_out_of_range(self):
         tbl = HeaderTable()
         off = len(HeaderTable.STATIC_TABLE)
         tbl.add(b'TestName', b'TestValue')
         res = tbl[off+2]
-        assert res == None # TODO HPACKException will be reaised instead
+        assert res is None # TODO HPACKException will be raised instead
 
     def test_setitem(self):
         tbl = HeaderTable()
         with pytest.raises(TypeError) as einfo:
             tbl[1] = (b'TestName', b'TestValue')
-        assert 'HeaderTable' in str(einfo.value)
 
     def test_repr(self):
         tbl = HeaderTable()
@@ -50,7 +49,7 @@ class TestHeaderTable(object):
         # Meh, I hate that I have to do this to test
         # repr
         if(is_py3):
-            exp = ("HeaderTable(4096, False, ["    +
+            exp = ("HeaderTable(4096, False, ["      +
                    "(b'TestName2', b'TestValue2'), " +
                    "(b'TestName2', b'TestValue2'), " +
                    "(b'TestName1', b'TestValue1')"   +
@@ -61,13 +60,13 @@ class TestHeaderTable(object):
                    "('TestName2', 'TestValue2'), " +
                    "('TestName1', 'TestValue1')"   +
                    "])")
-        res = str(tbl)
+        res = repr(tbl)
         assert res == exp
 
     def test_add_to_large(self):
         tbl = HeaderTable()
         # Max size to small to hold the value we specify
-        tbl.maxsize = 17 + 31
+        tbl.maxsize = 1
         tbl.add(b'TestName', b'TestValue')
         # Table length should be 0
         assert len(tbl) == 0
@@ -106,38 +105,34 @@ class TestHeaderTable(object):
         tbl = HeaderTable()
         idx = len(HeaderTable.STATIC_TABLE)
         tbl.add(b'TestName', b'TestValue')
-        exp = None
         res = tbl.search(b'NotInTable', b'NotInTable')
-        assert res == exp
+        assert res is None
 
     def test_maxsize_prop_getter(self):
         tbl = HeaderTable()
-        assert tbl._maxsize == HeaderTable.DEFAULT_SIZE
+        assert tbl.maxsize == HeaderTable.DEFAULT_SIZE
 
     def test_maxsize_prop_setter(self):
         tbl = HeaderTable()
         exp = int(HeaderTable.DEFAULT_SIZE / 2)
         tbl.maxsize = exp
         assert tbl.resized == True
-        assert tbl._maxsize == exp
+        assert tbl.maxsize == exp
         tbl.resized = False
         tbl.maxsize = exp
         assert tbl.resized == False
-        assert tbl._maxsize == exp
+        assert tbl.maxsize == exp
 
     def test_entry_size(self):
-        tbl = HeaderTable()
-        exp = 32 + len(b'TestValue') + len(b'TestName')
-        res = tbl._entry_size(b'TestValue', b'TestName')
-        assert res == exp
+        res = HeaderTable.entry_size(b'TestValue', b'TestName')
+        assert res == 49
 
     def test_size(self):
         tbl = HeaderTable()
-        exp = 3*(32 + len(b'TestValue') + len(b'TestName'))
         for i in range(3):
             tbl.add(b'TestValue', b'TestName')
         res = tbl._size()
-        assert res == exp
+        assert res == 147
 
     def test_shrink_maxsize_is_zero(self):
         tbl = HeaderTable()

@@ -168,7 +168,7 @@ class Encoder(object):
         # The header is in the table, break out the values. If we matched
         # perfectly, we can use the indexed representation: otherwise we
         # can use the indexed literal.
-        index, hname, perfect = match
+        index, name, perfect = match
 
         if perfect:
             # Indexed representation.
