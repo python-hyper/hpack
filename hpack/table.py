@@ -8,7 +8,7 @@ def table_entry_size(name, value):
     Calculates the size of a single entry
 
     This size is mostly irrelevant to us and defined
-    specifically to accomidate memory management for
+    specifically to accommodate memory management for
     lower level implementions. The 32 extra bytes are
     considered the "maximum" overhead that would be
     required to represent each entry in the table.
@@ -28,10 +28,11 @@ class HeaderTable(object):
     See RFC7541 Section 2.3
     """
     #: Default maximum size of the dynamic table. See
-    #  RFC7540 Section 6.5.2.
+    #:  RFC7540 Section 6.5.2.
     DEFAULT_SIZE = 4096
+
     #: Constant list of static headers. See RFC7541 Section
-    #  2.3.1 and Appendix A
+    #:  2.3.1 and Appendix A
     STATIC_TABLE = (
         (b':authority'                  , b''             ),
         (b':method'                     , b'GET'          ),
@@ -124,10 +125,10 @@ class HeaderTable(object):
         return None # TODO throw HPACKException here
 
     def __repr__(self):
-        return "HeaderTable(%d, %s, [%s])" % (
+        return "HeaderTable(%d, %s, %r)" % (
             self._maxsize,
             self.resized,
-            ", ".join([str(e) for e in self.dynamic_entries])
+            self.dynamic_entries
         )
 
     def add(self, name, value):
@@ -140,6 +141,7 @@ class HeaderTable(object):
         # We just clear the table if the entry is too big
         if table_entry_size(name, value) > self._maxsize:
           self.dynamic_entries.clear()
+
         # Add new entry if the table actually has a size
         elif self._maxsize > 0:
           self.dynamic_entries.appendleft((name,value))

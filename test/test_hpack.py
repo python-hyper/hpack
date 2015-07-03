@@ -50,7 +50,7 @@ class TestHPACKEncoder(object):
 
     def test_header_table_size_getter(self):
         e = Encoder()
-        assert e.header_table_size
+        assert e.header_table_size == 4096
 
     def test_indexed_literal_header_field_with_indexing(self):
         """

@@ -49,17 +49,17 @@ class TestHeaderTable(object):
         # Meh, I hate that I have to do this to test
         # repr
         if(is_py3):
-            exp = ("HeaderTable(4096, False, ["      +
-                   "(b'TestName2', b'TestValue2'), " +
-                   "(b'TestName2', b'TestValue2'), " +
-                   "(b'TestName1', b'TestValue1')"   +
-                   "])")
+            exp = ("HeaderTable(4096, False, deque([" +
+                   "(b'TestName2', b'TestValue2'), "  +
+                   "(b'TestName2', b'TestValue2'), "  +
+                   "(b'TestName1', b'TestValue1')"    +
+                   "]))")
         else:
-            exp = ("HeaderTable(4096, False, ["    +
-                   "('TestName2', 'TestValue2'), " +
-                   "('TestName2', 'TestValue2'), " +
-                   "('TestName1', 'TestValue1')"   +
-                   "])")
+            exp = ("HeaderTable(4096, False, deque([" +
+                   "('TestName2', 'TestValue2'), "    +
+                   "('TestName2', 'TestValue2'), "    +
+                   "('TestName1', 'TestValue1')"      +
+                   "]))")
         res = repr(tbl)
         assert res == exp
 
