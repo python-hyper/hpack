@@ -324,7 +324,7 @@ class Decoder(object):
         Decodes a header represented using the indexed representation.
         """
         index, consumed = decode_integer(data, 7)
-        header = self.header_table[index]
+        header = self.header_table.get_by_index(index)
         log.debug("Decoded %s, consumed %d", header, consumed)
         return header, consumed
 
@@ -354,7 +354,7 @@ class Decoder(object):
         if indexed_name:
             # Indexed header name.
             index, consumed = decode_integer(data, name_len)
-            name = self.header_table[index][0]
+            name = self.header_table.get_by_index(index)[0]
 
             total_consumed = consumed
             length = 0

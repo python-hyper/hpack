@@ -17,7 +17,7 @@ def table_entry_size(name, value):
     """
     return 32 + len(name) + len(value)
 
-class HeaderTable(deque):
+class HeaderTable(object):
     """
     Implements the combined static and dynamic header table
 
@@ -30,8 +30,8 @@ class HeaderTable(deque):
     #: Default maximum size of the dynamic table. See
     #  RFC7540 Section 6.5.2.
     DEFAULT_SIZE = 4096
-    # Constant list of static headers. See RFC7541 Section
-    # 2.3.1 and Appendix A
+    #: Constant list of static headers. See RFC7541 Section
+    #  2.3.1 and Appendix A
     STATIC_TABLE = (
         (b':authority'                  , b''             ),
         (b':method'                     , b'GET'          ),
@@ -99,8 +99,9 @@ class HeaderTable(deque):
     def __init__(self):
         self._maxsize = HeaderTable.DEFAULT_SIZE
         self.resized = False
+        self.dynamic_entries = deque()
 
-    def __getitem__(self, index):
+    def get_by_index(self, index):
         """
         Returns the entry specified by index
 
@@ -118,8 +119,8 @@ class HeaderTable(deque):
         if index < len(HeaderTable.STATIC_TABLE):
             return HeaderTable.STATIC_TABLE[index]
         index -= len(HeaderTable.STATIC_TABLE)
-        if index < len(self):
-            return deque.__getitem__(self, index)
+        if index < len(self.dynamic_entries):
+            return self.dynamic_entries[index]
         return None # TODO throw HPACKException here
 
     def __setitem__(self, index, value):
@@ -132,7 +133,7 @@ class HeaderTable(deque):
         return "HeaderTable(%d, %s, [%s])" % (
             self._maxsize,
             self.resized,
-            ", ".join([str(e) for e in self])
+            ", ".join([str(e) for e in self.dynamic_entries])
         )
 
     def add(self, name, value):
@@ -144,10 +145,10 @@ class HeaderTable(deque):
         """
         # We just clear the table if the entry is too big
         if table_entry_size(name, value) > self._maxsize:
-          self.clear()
+          self.dynamic_entries.clear()
         # Add new entry if the table actually has a size
         elif self._maxsize > 0:
-          self.appendleft((name,value))
+          self.dynamic_entries.appendleft((name,value))
           self._shrink()
 
     def search(self, name, value):
@@ -168,7 +169,7 @@ class HeaderTable(deque):
                     return (i + 1, n, v)
                 elif partial is None:
                     partial = (i + 1, n, None)
-        for (i, (n, v)) in enumerate(self):
+        for (i, (n, v)) in enumerate(self.dynamic_entries):
             if n == name:
                 if v == value:
                     return (i + offset + 1, n, v)
@@ -188,7 +189,7 @@ class HeaderTable(deque):
         self._maxsize = newmax
         self.resized = (newmax != oldmax)
         if newmax <= 0:
-          self.clear()
+          self.dynamic_entries.clear()
         elif oldmax > newmax:
           self._shrink()
 
@@ -198,7 +199,7 @@ class HeaderTable(deque):
         See table_entry_size
         See RFC7541 Section 4.1
         """
-        return sum(table_entry_size(*entry) for entry in self)
+        return sum(table_entry_size(*entry) for entry in self.dynamic_entries)
 
     def _shrink(self):
         """
@@ -206,7 +207,7 @@ class HeaderTable(deque):
         """
         cursize = self._size()
         while cursize > self._maxsize:
-            (name, value) = self.pop()
+            (name, value) = self.dynamic_entries.pop()
             cursize -= table_entry_size(name, value)
             log.debug("Evicting %s: %s from the header table", name, value)
 

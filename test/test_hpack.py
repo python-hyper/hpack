@@ -27,7 +27,7 @@ class TestHPACKEncoder(object):
         result = b'\x40\x0acustom-key\x0dcustom-header'
 
         assert e.encode(header_set, huffman=False) == result
-        assert list(e.header_table) == [
+        assert list(e.header_table.dynamic_entries) == [
             (n.encode('utf-8'), v.encode('utf-8')) for n, v in header_set.items()
         ]
 
@@ -62,7 +62,7 @@ class TestHPACKEncoder(object):
         result = b'\x44\x0c/sample/path'
 
         assert e.encode(header_set, huffman=False) == result
-        assert list(e.header_table) == [
+        assert list(e.header_table.dynamic_entries) == [
             (n.encode('utf-8'), v.encode('utf-8')) for n, v in header_set.items()
         ]
 
@@ -76,7 +76,7 @@ class TestHPACKEncoder(object):
         result = b'\x82'
 
         assert e.encode(header_set, huffman=False) == result
-        assert list(e.header_table) == []
+        assert list(e.header_table.dynamic_entries) == []
 
     def test_indexed_header_field_from_static_table(self):
         e = Encoder()
@@ -88,7 +88,7 @@ class TestHPACKEncoder(object):
         e.header_table.resized = False
 
         assert e.encode(header_set, huffman=False) == result
-        assert list(e.header_table) == []
+        assert list(e.header_table.dynamic_entries) == []
 
     def test_request_examples_without_huffman(self):
         """
@@ -107,7 +107,7 @@ class TestHPACKEncoder(object):
         first_result = b'\x82\x86\x84\x41\x0fwww.example.com'
 
         assert e.encode(first_header_set, huffman=False) == first_result
-        assert list(e.header_table) == [
+        assert list(e.header_table.dynamic_entries) == [
             (n.encode('utf-8'), v.encode('utf-8')) for n, v in first_header_table
         ]
 
@@ -125,7 +125,7 @@ class TestHPACKEncoder(object):
         second_result = b'\x82\x86\x84\xbeX\x08no-cache'
 
         assert e.encode(second_header_set, huffman=False) == second_result
-        assert list(e.header_table) == [
+        assert list(e.header_table.dynamic_entries) == [
             (n.encode('utf-8'), v.encode('utf-8')) for n, v in second_header_table
         ]
 
@@ -143,7 +143,7 @@ class TestHPACKEncoder(object):
         assert e.encode(third_header_set, huffman=False) == third_result
         # Don't check the header table here, it's just too complex to be
         # reliable. Check its length though.
-        assert len(e.header_table) == 3
+        assert len(e.header_table.dynamic_entries) == 3
 
     def test_request_examples_with_huffman(self):
         """
@@ -163,7 +163,7 @@ class TestHPACKEncoder(object):
         )
 
         assert e.encode(first_header_set, huffman=True) == first_result
-        assert list(e.header_table) == [
+        assert list(e.header_table.dynamic_entries) == [
             (n.encode('utf-8'), v.encode('utf-8')) for n, v in first_header_table
         ]
 
@@ -181,7 +181,7 @@ class TestHPACKEncoder(object):
         second_result = b'\x82\x86\x84\xbeX\x86\xa8\xeb\x10d\x9c\xbf'
 
         assert e.encode(second_header_set, huffman=True) == second_result
-        assert list(e.header_table) == [
+        assert list(e.header_table.dynamic_entries) == [
             (n.encode('utf-8'), v.encode('utf-8')) for n, v in second_header_table
         ]
 
@@ -198,7 +198,7 @@ class TestHPACKEncoder(object):
         )
 
         assert e.encode(third_header_set, huffman=True) == third_result
-        assert len(e.header_table) == 3
+        assert len(e.header_table.dynamic_entries) == 3
 
     # These tests are custom, for hyper.
     def test_resizing_header_table(self):
@@ -219,7 +219,7 @@ class TestHPACKEncoder(object):
 
         # Resize the header table to a size so small that nothing can be in it.
         e.header_table_size = 40
-        assert len(e.header_table) == 0
+        assert len(e.header_table.dynamic_entries) == 0
 
     def test_resizing_header_table_sends_context_update(self):
         e = Encoder()
@@ -255,7 +255,7 @@ class TestHPACKEncoder(object):
         header_set = [('a', 'b'), ('long-custom-header', 'longish value')]
         e.encode(header_set)
 
-        assert len(e.header_table) == 1
+        assert len(e.header_table.dynamic_entries) == 1
 
 
 class TestHPACKDecoder(object):
@@ -270,7 +270,7 @@ class TestHPACKDecoder(object):
         data = b'\x40\x0acustom-key\x0dcustom-header'
 
         assert d.decode(data) == header_set
-        assert list(d.header_table) == [
+        assert list(d.header_table.dynamic_entries) == [
             (n.encode('utf-8'), v.encode('utf-8')) for n, v in header_set
         ]
 
@@ -284,7 +284,7 @@ class TestHPACKDecoder(object):
         data = b'\x04\x0c/sample/path'
 
         assert d.decode(data) == header_set
-        assert list(d.header_table) == []
+        assert list(d.header_table.dynamic_entries) == []
 
     def test_header_table_size_getter(self):
         d = Decoder()
@@ -300,7 +300,7 @@ class TestHPACKDecoder(object):
         data = b'\x82'
 
         assert d.decode(data) == header_set
-        assert list(d.header_table) == []
+        assert list(d.header_table.dynamic_entries) == []
 
     def test_request_examples_without_huffman(self):
         """
@@ -318,7 +318,7 @@ class TestHPACKDecoder(object):
         first_data = b'\x82\x86\x84\x01\x0fwww.example.com'
 
         assert d.decode(first_data) == first_header_set
-        assert list(d.header_table) == []
+        assert list(d.header_table.dynamic_entries) == []
 
         # This request takes advantage of the differential encoding of header
         # sets.
@@ -334,7 +334,7 @@ class TestHPACKDecoder(object):
         )
 
         assert d.decode(second_data) == second_header_set
-        assert list(d.header_table) == []
+        assert list(d.header_table.dynamic_entries) == []
 
         third_header_set = [
             (':method', 'GET',),
@@ -350,7 +350,7 @@ class TestHPACKDecoder(object):
         assert d.decode(third_data) == third_header_set
         # Don't check the header table here, it's just too complex to be
         # reliable. Check its length though.
-        assert len(d.header_table) == 1
+        assert len(d.header_table.dynamic_entries) == 1
 
     def test_request_examples_with_huffman(self):
         """
@@ -371,7 +371,7 @@ class TestHPACKDecoder(object):
         )
 
         assert d.decode(first_data) == first_header_set
-        assert list(d.header_table) == []
+        assert list(d.header_table.dynamic_entries) == []
 
         second_header_set = [
             (':method', 'GET',),
@@ -386,7 +386,7 @@ class TestHPACKDecoder(object):
         )
 
         assert d.decode(second_data) == second_header_set
-        assert list(d.header_table) == []
+        assert list(d.header_table.dynamic_entries) == []
 
         third_header_set = [
             (':method', 'GET',),
@@ -401,7 +401,7 @@ class TestHPACKDecoder(object):
         )
 
         assert d.decode(third_data) == third_header_set
-        assert len(d.header_table) == 1
+        assert len(d.header_table.dynamic_entries) == 1
 
     # These tests are custom, for hyper.
     def test_resizing_header_table(self):
@@ -424,7 +424,7 @@ class TestHPACKDecoder(object):
 
         # Resize the header table to a size so small that nothing can be in it.
         d.header_table_size = 40
-        assert len(d.header_table) == 0
+        assert len(d.header_table.dynamic_entries) == 0
 
     def test_apache_trafficserver(self):
         # This test reproduces the bug in #110, using exactly the same header
@@ -463,7 +463,7 @@ class TestHPACKDecoder(object):
 
         assert result == expect
         # The status header shouldn't be indexed.
-        assert len(d.header_table) == len(expect) - 1
+        assert len(d.header_table.dynamic_entries) == len(expect) - 1
 
 
 class TestIntegerEncoding(object):

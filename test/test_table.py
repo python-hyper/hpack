@@ -15,36 +15,31 @@ class TestHeaderTable(object):
         tbl = HeaderTable()
         off = len(HeaderTable.STATIC_TABLE)
         val = (b'TestName', b'TestValue')
-        tbl.add(val[0], val[1])
-        res = tbl[off + 1]
+        tbl.add(*val)
+        res = tbl.get_by_index(off + 1)
         assert res == val
 
     def test_getitem_static_table(self):
         tbl = HeaderTable()
         exp = HeaderTable.STATIC_TABLE[0]
-        res = tbl[1]
+        res = tbl.get_by_index(1)
         assert res == exp
         off = len(HeaderTable.STATIC_TABLE)
         exp = HeaderTable.STATIC_TABLE[off - 1]
-        res = tbl[off]
+        res = tbl.get_by_index(off)
         assert res == exp
 
     def test_getitem_zero_index(self):
         tbl = HeaderTable()
-        res = tbl[0]
+        res = tbl.get_by_index(0)
         assert res is None # TODO HPACKException will be raised instead
 
     def test_getitem_out_of_range(self):
         tbl = HeaderTable()
         off = len(HeaderTable.STATIC_TABLE)
         tbl.add(b'TestName', b'TestValue')
-        res = tbl[off+2]
+        res = tbl.get_by_index(off+2)
         assert res is None # TODO HPACKException will be raised instead
-
-    def test_setitem(self):
-        tbl = HeaderTable()
-        with pytest.raises(TypeError) as einfo:
-            tbl[1] = (b'TestName', b'TestValue')
 
     def test_repr(self):
         tbl = HeaderTable()
@@ -74,7 +69,7 @@ class TestHeaderTable(object):
         tbl.maxsize = 1
         tbl.add(b'TestName', b'TestValue')
         # Table length should be 0
-        assert len(tbl) == 0
+        assert len(tbl.dynamic_entries) == 0
 
     def test_search_in_static_full(self):
         tbl = HeaderTable()
@@ -138,6 +133,6 @@ class TestHeaderTable(object):
     def test_shrink_maxsize_is_zero(self):
         tbl = HeaderTable()
         tbl.add(b'TestName',b'TestValue')
-        assert len(tbl) == 1
+        assert len(tbl.dynamic_entries) == 1
         tbl.maxsize = 0
-        assert len(tbl) == 0
+        assert len(tbl.dynamic_entries) == 0
