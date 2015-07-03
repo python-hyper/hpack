@@ -178,7 +178,7 @@ class HeaderTable(object):
     @maxsize.setter
     def maxsize(self, newmax):
         newmax = int(newmax)
-        log.debug("Resizing header table to %d from %d",newmax,self._maxsize)
+        log.debug("Resizing header table to %d from %d", newmax, self._maxsize)
         oldmax = self._maxsize
         self._maxsize = newmax
         self.resized = (newmax != oldmax)
