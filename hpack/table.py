@@ -123,12 +123,6 @@ class HeaderTable(object):
             return self.dynamic_entries[index]
         return None # TODO throw HPACKException here
 
-    def __setitem__(self, index, value):
-        """
-        We don't support direct index setting
-        """
-        raise TypeError("'HeaderTable' object does not support item assignment, use add")
-
     def __repr__(self):
         return "HeaderTable(%d, %s, [%s])" % (
             self._maxsize,
