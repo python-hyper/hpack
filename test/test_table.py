@@ -11,7 +11,7 @@ class TestPackageFunctions(object):
         assert res == 49
 
 class TestHeaderTable(object):
-    def test_getitem_dynamic_table(self):
+    def test_get_by_index_dynamic_table(self):
         tbl = HeaderTable()
         off = len(HeaderTable.STATIC_TABLE)
         val = (b'TestName', b'TestValue')
@@ -19,22 +19,22 @@ class TestHeaderTable(object):
         res = tbl.get_by_index(off + 1)
         assert res == val
 
-    def test_getitem_static_table(self):
+    def test_get_by_index_static_table(self):
         tbl = HeaderTable()
-        exp = HeaderTable.STATIC_TABLE[0]
+        exp = (b':authority', b'')
         res = tbl.get_by_index(1)
         assert res == exp
-        off = len(HeaderTable.STATIC_TABLE)
-        exp = HeaderTable.STATIC_TABLE[off - 1]
-        res = tbl.get_by_index(off)
+        idx = len(HeaderTable.STATIC_TABLE)
+        exp = (b'www-authenticate', b'')
+        res = tbl.get_by_index(idx)
         assert res == exp
 
-    def test_getitem_zero_index(self):
+    def test_get_by_index_zero_index(self):
         tbl = HeaderTable()
         res = tbl.get_by_index(0)
         assert res is None # TODO HPACKException will be raised instead
 
-    def test_getitem_out_of_range(self):
+    def test_get_by_index_out_of_range(self):
         tbl = HeaderTable()
         off = len(HeaderTable.STATIC_TABLE)
         tbl.add(b'TestName', b'TestValue')
