@@ -73,21 +73,20 @@ class TestHeaderTable(object):
 
     def test_search_in_static_full(self):
         tbl = HeaderTable()
-        itm = HeaderTable.STATIC_TABLE[0]
+        itm = (b':authority', b'')
         exp = (1, itm[0], itm[1])
         res = tbl.search(itm[0], itm[1])
         assert res == exp
 
     def test_search_in_static_partial(self):
         tbl = HeaderTable()
-        itm = HeaderTable.STATIC_TABLE[0]
-        exp = (1, itm[0], None)
-        res = tbl.search(itm[0], b'NotInTable')
+        exp = (1, b':authority', None)
+        res = tbl.search(b':authority', b'NotInTable')
         assert res == exp
 
     def test_search_in_dynamic_full(self):
         tbl = HeaderTable()
-        idx = len(HeaderTable.STATIC_TABLE)+1
+        idx = len(HeaderTable.STATIC_TABLE) + 1
         tbl.add(b'TestName', b'TestValue')
         exp = (idx , b'TestName', b'TestValue')
         res = tbl.search(b'TestName', b'TestValue')
@@ -95,7 +94,7 @@ class TestHeaderTable(object):
 
     def test_search_in_dynamic_partial(self):
         tbl = HeaderTable()
-        idx = len(HeaderTable.STATIC_TABLE)+1
+        idx = len(HeaderTable.STATIC_TABLE) + 1
         tbl.add(b'TestName', b'TestValue')
         exp = (idx , b'TestName', None)
         res = tbl.search(b'TestName', b'NotInTable')
