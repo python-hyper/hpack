@@ -3,6 +3,20 @@ import logging
 
 log = logging.getLogger(__name__)
 
+def table_entry_size(name, value):
+    """
+    Calculates the size of a single entry
+
+    This size is mostly irrelevant to us and defined
+    specifically to accomidate memory management for
+    lower level implementions. The 32 extra bytes are
+    considered the "maximum" overhead that would be
+    required to represent each entry in the table.
+
+    See RFC7541 Section 4.1
+    """
+    return 32 + len(name) + len(value)
+
 class HeaderTable(deque):
     """
     Implements the combined static and dynamic header table
@@ -82,21 +96,6 @@ class HeaderTable(deque):
         (b'www-authenticate'            , b''             ),
     )
 
-    @staticmethod
-    def entry_size(name, value):
-        """
-        Calculates the size of a single entry
-
-        This size is mostly irrelevant to us and defined
-        specifically to accomidate memory management for
-        lower level implementions. The 32 extra bytes are
-        considered the "maximum" overhead that would be
-        required to represent each entry in the table.
-
-        See RFC7541 Section 4.1
-        """
-        return 32 + len(name) + len(value)
-
     def __init__(self):
         self._maxsize = HeaderTable.DEFAULT_SIZE
         self.resized = False
@@ -144,7 +143,7 @@ class HeaderTable(deque):
         table size greater than maxsize.
         """
         # We just clear the table if the entry is too big
-        if HeaderTable.entry_size(name, value) > self._maxsize:
+        if table_entry_size(name, value) > self._maxsize:
           self.clear()
         # Add new entry if the table actually has a size
         elif self._maxsize > 0:
@@ -196,10 +195,10 @@ class HeaderTable(deque):
     def _size(self):
         """
         Calculates the size of the dynamic table.
-        See HeaderTable.entry_size
+        See table_entry_size
         See RFC7541 Section 4.1
         """
-        return sum(HeaderTable.entry_size(*entry) for entry in self)
+        return sum(table_entry_size(*entry) for entry in self)
 
     def _shrink(self):
         """
@@ -208,6 +207,6 @@ class HeaderTable(deque):
         cursize = self._size()
         while cursize > self._maxsize:
             (name, value) = self.pop()
-            cursize -= HeaderTable.entry_size(name, value)
+            cursize -= table_entry_size(name, value)
             log.debug("Evicting %s: %s from the header table", name, value)
 

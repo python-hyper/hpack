@@ -1,9 +1,14 @@
-from hpack.table import HeaderTable
+from hpack.table import HeaderTable, table_entry_size
 import pytest
 import sys
 _ver = sys.version_info
 is_py2 = _ver[0] == 2
 is_py3 = _ver[0] == 3
+
+class TestPackageFunctions(object):
+    def test_table_entry_size(self):
+        res = table_entry_size(b'TestValue', b'TestName')
+        assert res == 49
 
 class TestHeaderTable(object):
     def test_getitem_dynamic_table(self):
@@ -122,10 +127,6 @@ class TestHeaderTable(object):
         tbl.maxsize = exp
         assert tbl.resized == False
         assert tbl.maxsize == exp
-
-    def test_entry_size(self):
-        res = HeaderTable.entry_size(b'TestValue', b'TestName')
-        assert res == 49
 
     def test_size(self):
         tbl = HeaderTable()
