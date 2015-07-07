@@ -1,6 +1,12 @@
 Release History
 ===============
 
+1.1.0 (2015-07-07)
+------------------
+
+- Add support for emitting 'never indexed' header fields, by using an optional
+  third element in the header tuple. With thanks to @jimcarreer!
+
 1.0.1 (2015-04-19)
 ------------------
 
