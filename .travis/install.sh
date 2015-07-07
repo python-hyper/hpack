@@ -27,7 +27,7 @@ if [[ "$NGHTTP2" = true ]]; then
     autoconf
     ./configure --disable-threads
     make
-    sudo make install
+    make install
 
     # The makefile doesn't install into the active virtualenv. Install again.
     cd python
