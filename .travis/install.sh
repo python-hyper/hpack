@@ -17,7 +17,7 @@ if [[ "$NGHTTP2" = true ]]; then
     sudo apt-get install autoconf automake autotools-dev libtool pkg-config \
                          zlib1g-dev libcunit1-dev libssl-dev libxml2-dev \
                          libevent-dev libjansson-dev libjemalloc-dev
-    pip install cython
+    sudo pip install cython
 
     # Now, download and install nghttp2's latest version.
     git clone https://github.com/tatsuhiro-t/nghttp2.git
