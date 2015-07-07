@@ -3,6 +3,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
+
 def table_entry_size(name, value):
     """
     Calculates the size of a single entry
@@ -16,6 +17,7 @@ def table_entry_size(name, value):
     See RFC7541 Section 4.1
     """
     return 32 + len(name) + len(value)
+
 
 class HeaderTable(object):
     """
@@ -140,12 +142,12 @@ class HeaderTable(object):
         """
         # We just clear the table if the entry is too big
         if table_entry_size(name, value) > self._maxsize:
-          self.dynamic_entries.clear()
+            self.dynamic_entries.clear()
 
         # Add new entry if the table actually has a size
         elif self._maxsize > 0:
-          self.dynamic_entries.appendleft((name,value))
-          self._shrink()
+            self.dynamic_entries.appendleft((name, value))
+            self._shrink()
 
     def search(self, name, value):
         """
@@ -185,9 +187,9 @@ class HeaderTable(object):
         self._maxsize = newmax
         self.resized = (newmax != oldmax)
         if newmax <= 0:
-          self.dynamic_entries.clear()
+            self.dynamic_entries.clear()
         elif oldmax > newmax:
-          self._shrink()
+            self._shrink()
 
     def _size(self):
         """
@@ -206,4 +208,3 @@ class HeaderTable(object):
             (name, value) = self.dynamic_entries.pop()
             cursize -= table_entry_size(name, value)
             log.debug("Evicting %s: %s from the header table", name, value)
-

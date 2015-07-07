@@ -9,12 +9,14 @@ Huffman-coded content where we already know the Huffman table.
 from .compat import to_byte, decode_hex
 from .exceptions import HPACKDecodingError
 
+
 def _pad_binary(bin_str, req_len=8):
     """
     Given a binary string (returned by bin()), pad it to a full byte length.
     """
     bin_str = bin_str[2:]  # Strip the 0b prefix
     return max(0, req_len - len(bin_str)) * '0' + bin_str
+
 
 def _hex_to_bin_str(hex_string):
     """

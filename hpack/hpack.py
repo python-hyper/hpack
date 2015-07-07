@@ -5,7 +5,6 @@ hpack/hpack
 
 Implements the HPACK header compression algorithm as detailed by the IETF.
 """
-import collections
 import logging
 
 from .table import HeaderTable
@@ -20,6 +19,7 @@ log = logging.getLogger(__name__)
 INDEX_NONE = b'\x00'
 INDEX_NEVER = b'\x10'
 INDEX_INCREMENTAL = b'\x40'
+
 
 def encode_integer(integer, prefix_bits):
     """
@@ -84,6 +84,7 @@ def _to_bytes(string):
         string = str(string)
 
     return string if isinstance(string, bytes) else string.encode('utf-8')
+
 
 class Encoder(object):
     """
@@ -179,7 +180,9 @@ class Encoder(object):
             # filter out headers which are known to be ineffective for
             # indexing since they just take space in the table and
             # pushed out other valuable headers.
-            encoded = self._encode_indexed_literal(index, value, indexbit, huffman)
+            encoded = self._encode_indexed_literal(
+                index, value, indexbit, huffman
+            )
             if not sensitive:
                 self.header_table.add(name, value)
 
@@ -210,7 +213,9 @@ class Encoder(object):
             name_len[0] |= 0x80
             value_len[0] |= 0x80
 
-        return b''.join([indexbit, bytes(name_len), name, bytes(value_len), value])
+        return b''.join(
+            [indexbit, bytes(name_len), name, bytes(value_len), value]
+        )
 
     def _encode_indexed_literal(self, index, value, indexbit, huffman=False):
         """
@@ -220,7 +225,7 @@ class Encoder(object):
         if indexbit != INDEX_INCREMENTAL:
             prefix = encode_integer(index, 4)
         else:
-            prefix = encode_integer(index, 6) 
+            prefix = encode_integer(index, 6)
 
         prefix[0] |= ord(indexbit)
 
