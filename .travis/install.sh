@@ -25,7 +25,7 @@ if [[ "$NGHTTP2" = true ]]; then
     autoreconf -i
     automake
     autoconf
-    ./configure --disable-threads --prefix='.'
+    ./configure --disable-threads --prefix=`pwd`
     make
     make install
 
