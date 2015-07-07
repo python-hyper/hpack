@@ -17,7 +17,7 @@ if [[ "$NGHTTP2" = true ]]; then
     sudo apt-get install autoconf automake autotools-dev libtool pkg-config \
                          zlib1g-dev libcunit1-dev libssl-dev libxml2-dev \
                          libevent-dev libjansson-dev libjemalloc-dev
-    sudo pip install cython
+    pip install cython
 
     # Now, download and install nghttp2's latest version.
     git clone https://github.com/tatsuhiro-t/nghttp2.git
@@ -25,14 +25,13 @@ if [[ "$NGHTTP2" = true ]]; then
     autoreconf -i
     automake
     autoconf
-    ./configure --disable-threads
-    mkdir -p /usr/local/lib/python${TRAVIS_PYTHON_VERSION}/site-packages
+    ./configure --disable-threads --prefix='.'
     make
-    sudo PYTHONPATH="/usr/local/lib/python${TRAVIS_PYTHON_VERSION}/site-packages" make install
+    make install
 
     # The makefile doesn't install into the active virtualenv. Install again.
     cd python
-    sudo python setup.py install
+    python setup.py install
     cd ../..
 
     # Let's try ldconfig.
