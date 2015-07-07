@@ -32,7 +32,7 @@ if [[ "$NGHTTP2" = true ]]; then
 
     # The makefile doesn't install into the active virtualenv. Install again.
     cd python
-    python setup.py install
+    sudo python setup.py install
     cd ../..
 
     # Let's try ldconfig.
