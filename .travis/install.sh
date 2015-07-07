@@ -26,6 +26,7 @@ if [[ "$NGHTTP2" = true ]]; then
     automake
     autoconf
     ./configure --disable-threads
+    mkdir -p /usr/local/lib/python${TRAVIS_PYTHON_VERSION}/site-packages
     make
     sudo PYTHONPATH="/usr/local/lib/python${TRAVIS_PYTHON_VERSION}/site-packages" make install
 
