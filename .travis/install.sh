@@ -22,6 +22,8 @@ if [[ "$NGHTTP2" = true ]]; then
     # Now, download and install nghttp2's latest version.
     git clone https://github.com/tatsuhiro-t/nghttp2.git
     cd nghttp2
+    DIR=`pwd`
+    export PYTHONPATH="$DIR:$PYTHONPATH"
     autoreconf -i
     automake
     autoconf
