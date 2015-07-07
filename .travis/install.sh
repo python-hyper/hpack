@@ -27,7 +27,7 @@ if [[ "$NGHTTP2" = true ]]; then
     autoconf
     ./configure --disable-threads
     make
-    make install
+    sudo PYTHONPATH="/usr/local/lib/python${TRAVIS_PYTHON_VERSION}/site-packages" make install
 
     # The makefile doesn't install into the active virtualenv. Install again.
     cd python
