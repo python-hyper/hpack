@@ -24,6 +24,7 @@ if [[ "$NGHTTP2" = true ]]; then
     cd nghttp2
     DIR=`pwd`
     export PYTHONPATH="$DIR/lib/python${TRAVIS_PYTHON_VERSION}/site-packages"
+    mkdir -p $PYTHONPATH
     autoreconf -i
     automake
     autoconf
