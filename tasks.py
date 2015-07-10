@@ -25,8 +25,8 @@ def hpack():
     # A generator that contains the paths to all the raw data files and their
     # names.
     raw_story_files = (
-        (os.path.join('test_fixtures/raw-data', name), name)
-        for name in os.listdir('test_fixtures/raw-data')
+        (os.path.join('test/test_fixtures/raw-data', name), name)
+        for name in os.listdir('test/test_fixtures/raw-data')
     )
 
     # For each file, build our output.
