@@ -1,5 +1,5 @@
-pytest
-pytest-xdist
-pytest-cov
-requests
-mock
+pytest==2.8.2
+pytest-xdist==1.13.1
+pytest-cov==2.2.0
+requests==2.8.0
+mock==1.3.0
