@@ -100,6 +100,9 @@ class Encoder(object):
 
     @property
     def header_table_size(self):
+        """
+        Controls the size of the HPACK header table.
+        """
         return self.header_table.maxsize
 
     @header_table_size.setter
@@ -111,13 +114,30 @@ class Encoder(object):
         Takes a set of headers and encodes them into a HPACK-encoded header
         block.
 
-        Transforming the headers into a header block is a procedure that can
-        be modeled as a chain or pipe. First, the headers are encoded. This
-        encoding can be done a number of ways. If the header name-value pair
-        are already in the header table we can represent them using the indexed
-        representation: the same is true if they are in the static table.
-        Otherwise, a literal representation will be used.
+        :param headers: The headers to encode. Must be either an iterable of
+                        tuples or a ``dict``.
+
+                        If an iterable of tuples, the tuples may be either
+                        two-tuples or three-tuples. If they are two-tuples, the
+                        tuples must be of the format ``(name, value)``. If they
+                        are three-tuples, they must be of the format
+                        ``(name, value, sensitive)``, where ``sensitive`` is a
+                        boolean value indicating whether the header should be
+                        added to header tables anywhere. If not present,
+                        ``sensitive`` defaults to ``False``.
+        :param huffman: (optional) Whether to Huffman-encode any header sent as
+                        a literal value. Except for use when debugging, it is
+                        recommended that this be left enabled.
+        :returns: A bytestring containing the HPACK-encoded header block.
+        :raises HPACKEncodingError: If an error is encountered while encoding
+                                    the header block.
         """
+        # Transforming the headers into a header block is a procedure that can
+        # be modeled as a chain or pipe. First, the headers are encoded. This
+        # encoding can be done a number of ways. If the header name-value pair
+        # are already in the header table we can represent them using the
+        # indexed representation: the same is true if they are in the static
+        # table. Otherwise, a literal representation will be used.
         log.debug("HPACK encoding %s", headers)
         header_block = []
 
@@ -261,6 +281,9 @@ class Decoder(object):
 
     @property
     def header_table_size(self):
+        """
+        Controls the size of the HPACK header table.
+        """
         return self.header_table.maxsize
 
     @header_table_size.setter
@@ -270,6 +293,13 @@ class Decoder(object):
     def decode(self, data):
         """
         Takes an HPACK-encoded header block and decodes it into a header set.
+
+        :param data: A bytestring representing a complete HPACK-encoded header
+                     block.
+        :returns: A list of two-tuples of ``(name, value)`` representing the
+                  HPACK-encoded headers, in the order they were decoded.
+        :raises HPACKDecodingError: If an error is encountered while decoding
+                                    the header block.
         """
         log.debug("Decoding %s", data)
 
