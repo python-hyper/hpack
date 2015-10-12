@@ -14,13 +14,6 @@ class HPACKError(Exception):
     pass
 
 
-class HPACKEncodingError(HPACKError):
-    """
-    An error has been encountered while performing HPACK encoding.
-    """
-    pass
-
-
 class HPACKDecodingError(HPACKError):
     """
     An error has been encountered while performing HPACK decoding.

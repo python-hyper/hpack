@@ -11,6 +11,4 @@ This document provides the HPACK API.
 
 .. autoclass:: hpack.HPACKError
 
-.. autoclass:: hpack.HPACKEncodingError
-
 .. autoclass:: hpack.HPACKDecodingError
