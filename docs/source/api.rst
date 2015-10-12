@@ -8,3 +8,9 @@ This document provides the HPACK API.
 
 .. autoclass:: hpack.Decoder
    :members: header_table_size, decode
+
+.. autoclass:: hpack.HPACKError
+
+.. autoclass:: hpack.HPACKEncodingError
+
+.. autoclass:: hpack.HPACKDecodingError

@@ -5,6 +5,7 @@ hpack
 
 HTTP/2 header encoding for Python.
 """
-__version__ = '1.1.0'
-
 from .hpack import Encoder, Decoder
+from .exceptions import HPACKError, HPACKEncodingError, HPACKDecodingError
+
+__version__ = '1.1.0'
