@@ -129,8 +129,6 @@ class Encoder(object):
                         a literal value. Except for use when debugging, it is
                         recommended that this be left enabled.
         :returns: A bytestring containing the HPACK-encoded header block.
-        :raises HPACKEncodingError: If an error is encountered while encoding
-                                    the header block.
         """
         # Transforming the headers into a header block is a procedure that can
         # be modeled as a chain or pipe. First, the headers are encoded. This
