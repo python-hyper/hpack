@@ -6,7 +6,7 @@ hpack/hpack
 Implements the HPACK header compression algorithm as detailed by the IETF.
 """
 import logging
-
+from collections import deque
 from .table import HeaderTable
 from .compat import to_byte
 from .huffman import HuffmanDecoder, HuffmanEncoder
@@ -97,6 +97,7 @@ class Encoder(object):
         self.huffman_coder = HuffmanEncoder(
             REQUEST_CODES, REQUEST_CODES_LENGTH
         )
+        self.table_size_changes = deque()
 
     @property
     def header_table_size(self):
@@ -105,6 +106,7 @@ class Encoder(object):
     @header_table_size.setter
     def header_table_size(self, value):
         self.header_table.maxsize = value
+        self.table_size_changes.append(value)
 
     def encode(self, headers, huffman=True):
         """
@@ -127,7 +129,7 @@ class Encoder(object):
             headers = headers.items()
 
         # Before we begin, if the header table size has been changed we need
-        # to signal that appropriately.
+        # to signal all changes since last emission appropriately.
         if self.header_table.resized:
             header_block.append(self._encode_table_size_change())
             self.header_table.resized = False
@@ -241,11 +243,15 @@ class Encoder(object):
 
     def _encode_table_size_change(self):
         """
-        Produces the encoded form of a header table size change context update.
+        Produces the encoded form of all header table size change context updates
         """
-        size_bytes = encode_integer(self.header_table_size, 5)
-        size_bytes[0] |= 0x20
-        return bytes(size_bytes)
+        block = b'';
+        while(len(self.table_size_changes) > 0):
+            size_bytes = self.table_size_changes.popleft()
+            size_bytes = encode_integer(size_bytes, 5)
+            size_bytes[0] |= 0x20
+            block += bytes(size_bytes)
+        return block
 
 
 class Decoder(object):
