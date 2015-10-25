@@ -221,6 +221,17 @@ class TestHPACKEncoder(object):
         e.header_table_size = 40
         assert len(e.header_table.dynamic_entries) == 0
 
+    def test_resizing_header_table_sends_multiple_updates(self):
+        e = Encoder()
+
+        e.header_table_size = 40
+        e.header_table_size = 100
+        e.header_table_size = 40
+
+        header_set = [(':method', 'GET')]
+        out = e.encode(header_set, huffman=True)
+        assert out == b'\x3F\x09\x3F\x45\x3F\x09\x82'
+
     def test_resizing_header_table_sends_context_update(self):
         e = Encoder()
 
