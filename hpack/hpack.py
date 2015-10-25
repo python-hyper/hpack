@@ -245,7 +245,7 @@ class Encoder(object):
         """
         Produces the encoded form of all header table size change context updates
         """
-        block = b'';
+        block = b''
         while(len(self.table_size_changes) > 0):
             size_bytes = self.table_size_changes.popleft()
             size_bytes = encode_integer(size_bytes, 5)
