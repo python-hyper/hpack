@@ -6,7 +6,6 @@ hpack/hpack
 Implements the HPACK header compression algorithm as detailed by the IETF.
 """
 import logging
-from collections import deque
 from .table import HeaderTable
 from .compat import to_byte
 from .huffman import HuffmanDecoder, HuffmanEncoder
@@ -97,7 +96,7 @@ class Encoder(object):
         self.huffman_coder = HuffmanEncoder(
             REQUEST_CODES, REQUEST_CODES_LENGTH
         )
-        self.table_size_changes = deque()
+        self.table_size_changes = []
 
     @property
     def header_table_size(self):
@@ -246,11 +245,11 @@ class Encoder(object):
         Produces the encoded form of all header table size change context updates
         """
         block = b''
-        while(len(self.table_size_changes) > 0):
-            size_bytes = self.table_size_changes.popleft()
+        for size_bytes in self.table_size_changes:
             size_bytes = encode_integer(size_bytes, 5)
             size_bytes[0] |= 0x20
             block += bytes(size_bytes)
+        self.table_size_changes = []
         return block
 
 
