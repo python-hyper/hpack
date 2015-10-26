@@ -7,37 +7,15 @@ This defines exceptions used in the HTTP/2 portion of hyper.
 """
 
 
-class HTTP20Error(Exception):
+class HPACKError(Exception):
     """
-    The base class for all of ``hyper``'s HTTP/2-related exceptions.
-    """
-    pass
-
-
-class HPACKEncodingError(HTTP20Error):
-    """
-    An error has been encountered while performing HPACK encoding.
+    The base class for all ``hpack`` exceptions.
     """
     pass
 
 
-class HPACKDecodingError(HTTP20Error):
+class HPACKDecodingError(HPACKError):
     """
     An error has been encountered while performing HPACK decoding.
-    """
-    pass
-
-
-class ConnectionError(HTTP20Error):
-    """
-    The remote party signalled an error affecting the entire HTTP/2
-    connection, and the connection has been closed.
-    """
-    pass
-
-
-class ProtocolError(HTTP20Error):
-    """
-    The remote party violated the HTTP/2 protocol.
     """
     pass

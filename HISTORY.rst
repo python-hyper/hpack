@@ -1,6 +1,14 @@
 Release History
 ===============
 
+2.0.0 (2015-10-12)
+------------------
+
+- Remove unused ``HPACKEncodingError``.
+- Add the shortcut ability to import the public API (``Encoder``, ``Decoder``,
+  ``HPACKError``, ``HPACKDecodingError``) directly, rather than from
+  ``hpack.hpack``.
+
 1.1.0 (2015-07-07)
 ------------------
 
