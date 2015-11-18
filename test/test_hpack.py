@@ -302,6 +302,17 @@ class TestHPACKDecoder(object):
             (n.encode('utf-8'), v.encode('utf-8')) for n, v in header_set
         ]
 
+    def test_raw_decoding(self):
+        """
+        The header field representation uses a literal name and a literal
+        value.
+        """
+        d = Decoder()
+        header_set = [(b'custom-key', b'custom-header')]
+        data = b'\x40\x0acustom-key\x0dcustom-header'
+
+        assert d.decode(data, raw=True) == header_set
+
     def test_literal_header_field_without_indexing(self):
         """
         The header field representation uses an indexed name and a literal
