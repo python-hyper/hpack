@@ -301,10 +301,10 @@ class Decoder(object):
 
         :param data: A bytestring representing a complete HPACK-encoded header
                      block.
-        :param raw: An optional boolean that when True specifies that raw byte
-                    strings for the name and value should be returned instead
-                    of automatically decoding them as UTF-8 values. The default
-                    value is False.
+        :param raw: (optional) Whether to return the headers as tuples of raw
+                    byte strings or to decode them as UTF-8 before returning
+                    them. The default value is False, which returns tuples of
+                    Unicode strings
         :returns: A list of two-tuples of ``(name, value)`` representing the
                   HPACK-encoded headers, in the order they were decoded.
         :raises HPACKDecodingError: If an error is encountered while decoding
@@ -353,7 +353,7 @@ class Decoder(object):
             current_index += consumed
 
         if raw:
-            return [(n , v) for n, v in headers]
+            return [(n, v) for n, v in headers]
         else:
             return [(n.decode('utf-8'), v.decode('utf-8')) for n, v in headers]
 
