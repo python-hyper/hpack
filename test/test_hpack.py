@@ -302,6 +302,17 @@ class TestHPACKDecoder(object):
             (n.encode('utf-8'), v.encode('utf-8')) for n, v in header_set
         ]
 
+    def test_raw_decoding(self):
+        """
+        The header field representation is decoded as a raw byte string instead
+        of UTF-8
+        """
+        d = Decoder()
+        header_set = [(b'\x00\x01\x99\x30\x11\x22\x55\x21\x89\x14', b'custom-header')]
+        data = b'\x40\x0a\x00\x01\x99\x30\x11\x22\x55\x21\x89\x14\x0dcustom-header'
+
+        assert d.decode(data, raw=True) == header_set
+
     def test_literal_header_field_without_indexing(self):
         """
         The header field representation uses an indexed name and a literal

@@ -295,12 +295,16 @@ class Decoder(object):
     def header_table_size(self, value):
         self.header_table.maxsize = value
 
-    def decode(self, data):
+    def decode(self, data, raw=False):
         """
         Takes an HPACK-encoded header block and decodes it into a header set.
 
         :param data: A bytestring representing a complete HPACK-encoded header
                      block.
+        :param raw: (optional) Whether to return the headers as tuples of raw
+                    byte strings or to decode them as UTF-8 before returning
+                    them. The default value is False, which returns tuples of
+                    Unicode strings
         :returns: A list of two-tuples of ``(name, value)`` representing the
                   HPACK-encoded headers, in the order they were decoded.
         :raises HPACKDecodingError: If an error is encountered while decoding
@@ -348,7 +352,10 @@ class Decoder(object):
 
             current_index += consumed
 
-        return [(n.decode('utf-8'), v.decode('utf-8')) for n, v in headers]
+        if raw:
+            return [(n, v) for n, v in headers]
+        else:
+            return [(n.decode('utf-8'), v.decode('utf-8')) for n, v in headers]
 
     def _update_encoding_context(self, data):
         """
