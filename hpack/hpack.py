@@ -353,11 +353,11 @@ class Decoder(object):
 
             current_index += consumed
 
-        if raw:
-            return [(to_bytes(n), to_bytes(v)) for n, v in headers]
-        else:
-            return [(to_bytes(n).decode('utf-8'), to_bytes(v).decode('utf-8'))
-                    for n, v in headers]
+        decode_if_needed = lambda h, r: tuple(
+            to_bytes(i) if r else to_bytes(i).decode('utf-8') for i in h
+        )
+
+        return [decode_if_needed(header, raw) for header in headers]
 
     def _update_encoding_context(self, data):
         """
