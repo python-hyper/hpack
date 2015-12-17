@@ -8,7 +8,7 @@ Implements the HPACK header compression algorithm as detailed by the IETF.
 import logging
 
 from .table import HeaderTable
-from .compat import to_byte
+from .compat import to_byte, to_bytes
 from .huffman import HuffmanDecoder, HuffmanEncoder
 from .huffman_constants import (
     REQUEST_CODES, REQUEST_CODES_LENGTH
@@ -312,6 +312,7 @@ class Decoder(object):
         """
         log.debug("Decoding %s", data)
 
+        data_mem = memoryview(data)
         headers = []
         data_len = len(data)
         current_index = 0
@@ -331,20 +332,20 @@ class Decoder(object):
             encoding_update = bool(current & 0x20)
 
             if indexed:
-                header, consumed = self._decode_indexed(data[current_index:])
+                header, consumed = self._decode_indexed(data_mem[current_index:])
             elif literal_index:
                 # It's a literal header that does affect the header table.
                 header, consumed = self._decode_literal_index(
-                    data[current_index:]
+                    data_mem[current_index:]
                 )
             elif encoding_update:
                 # It's an update to the encoding context.
-                consumed = self._update_encoding_context(data)
+                consumed = self._update_encoding_context(data_mem)
                 header = None
             else:
                 # It's a literal header that does not affect the header table.
                 header, consumed = self._decode_literal_no_index(
-                    data[current_index:]
+                    data_mem[current_index:]
                 )
 
             if header:
@@ -352,10 +353,11 @@ class Decoder(object):
 
             current_index += consumed
 
-        if raw:
-            return [(n, v) for n, v in headers]
-        else:
-            return [(n.decode('utf-8'), v.decode('utf-8')) for n, v in headers]
+        decode_if_needed = lambda h, r: tuple(
+            to_bytes(i) if r else to_bytes(i).decode('utf-8') for i in h
+        )
+
+        return [decode_if_needed(header, raw) for header in headers]
 
     def _update_encoding_context(self, data):
         """

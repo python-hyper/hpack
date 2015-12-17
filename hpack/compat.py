@@ -19,6 +19,12 @@ if is_py2:
     def decode_hex(b):
         return b.decode('hex')
 
+    def to_bytes(b):
+        if isinstance(b, memoryview):
+            return b.tobytes()
+        else:
+            return bytes(b)
+
     unicode = unicode
     bytes = str
 
@@ -29,5 +35,8 @@ elif is_py3:
     def decode_hex(b):
         return bytes.fromhex(b)
 
+    def to_bytes(b):
+        return bytes(b)
+        
     unicode = str
     bytes = bytes

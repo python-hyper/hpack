@@ -22,6 +22,10 @@ In chronological order:
   - Support for 'never indexed' header fields.
   - Refactor of header table code.
 
+- Eugene Obukhov (@irvind)
+
+  - Improved decoding efficiency.
+
 Contributors (hyper)
 ````````````````````
 
