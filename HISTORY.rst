@@ -1,6 +1,14 @@
 Release History
 ===============
 
+dev
+---
+
+**API Changes (Backward Incompatible)**
+
+- Instead of throwing ``IndexError`` when encountering invalid encoded integers
+  HPACK now throws ``HPACKDecodingError``.
+
 2.0.1 (2015-11-09)
 ------------------
 

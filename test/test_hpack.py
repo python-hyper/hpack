@@ -33,7 +33,7 @@ class TestHPACKEncoder(object):
 
     def test_sensitive_headers(self):
         """
-        Test encoding header values  
+        Test encoding header values
         """
         e = Encoder()
         result = (b'\x82\x14\x88\x63\xa1\xa9' +
@@ -44,7 +44,7 @@ class TestHPACKEncoder(object):
         header_set = [
             (':method', 'GET', True),
             (':path', '/jimiscool/', True),
-            ('customkey','sensitiveinfo',True) 
+            ('customkey','sensitiveinfo',True)
         ]
         assert e.encode(header_set, huffman=True) == result
 
@@ -536,6 +536,14 @@ class TestIntegerDecoding(object):
     def test_encoding_42_with_8_bit_prefix(self):
         val = decode_integer(b'\x2a', 8)
         assert val == (42, 1)
+
+    def test_decode_empty_string_fails(self):
+        with pytest.raises(HPACKDecodingError):
+            decode_integer(b'', 8)
+
+    def test_decode_insufficient_data_fails(self):
+        with pytest.raises(HPACKDecodingError):
+            decode_integer(b'\x1f', 5)
 
 
 class TestUtilities(object):

@@ -9,6 +9,7 @@ import logging
 
 from .table import HeaderTable
 from .compat import to_byte, to_bytes
+from .exceptions import HPACKDecodingError
 from .huffman import HuffmanDecoder, HuffmanEncoder
 from .huffman_constants import (
     REQUEST_CODES, REQUEST_CODES_LENGTH
@@ -57,19 +58,24 @@ def decode_integer(data, prefix_bits):
     mask = 0xFF >> (8 - prefix_bits)
     index = 0
 
-    number = to_byte(data[index]) & mask
+    try:
+        number = to_byte(data[index]) & mask
 
-    if (number == max_number):
+        if (number == max_number):
 
-        while True:
-            index += 1
-            next_byte = to_byte(data[index])
+            while True:
+                index += 1
+                next_byte = to_byte(data[index])
 
-            if next_byte >= 128:
-                number += (next_byte - 128) * multiple(index)
-            else:
-                number += next_byte * multiple(index)
-                break
+                if next_byte >= 128:
+                    number += (next_byte - 128) * multiple(index)
+                else:
+                    number += next_byte * multiple(index)
+                    break
+    except IndexError:
+        raise HPACKDecodingError(
+            "Unable to decode HPACK integer representation from %r" % data
+        )
 
     log.debug("Decoded %d, consumed %d bytes", number, index + 1)
 
