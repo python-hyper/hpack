@@ -19,3 +19,10 @@ class HPACKDecodingError(HPACKError):
     An error has been encountered while performing HPACK decoding.
     """
     pass
+
+
+class InvalidTableIndex(HPACKDecodingError):
+    """
+    An invalid table index was received.
+    """
+    pass
