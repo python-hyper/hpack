@@ -504,6 +504,15 @@ class TestHPACKDecoder(object):
         # The status header shouldn't be indexed.
         assert len(d.header_table.dynamic_entries) == len(expect) - 1
 
+    def test_utf8_errors_raise_hpack_decoding_error(self):
+        d = Decoder()
+
+        # Invalid UTF-8 data.
+        data = b'\x82\x86\x84\x01\x10www.\x07\xaa\xd7\x95\xd7\xa8\xd7\x94.com'
+
+        with pytest.raises(HPACKDecodingError):
+            d.decode(data)
+
 
 class TestIntegerEncoding(object):
     # These tests are stolen from the HPACK spec.
