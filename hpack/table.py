@@ -1,6 +1,8 @@
 from collections import deque
 import logging
 
+from .exceptions import InvalidTableIndex
+
 log = logging.getLogger(__name__)
 
 
@@ -117,14 +119,12 @@ class HeaderTable(object):
         the dynamic table depending on the value of index.
         """
         index -= 1
-        if index < 0:
-            return None # TODO throw HPACKException here
-        if index < len(HeaderTable.STATIC_TABLE):
+        if 0 <= index < len(HeaderTable.STATIC_TABLE):
             return HeaderTable.STATIC_TABLE[index]
         index -= len(HeaderTable.STATIC_TABLE)
-        if index < len(self.dynamic_entries):
+        if 0 <= index < len(self.dynamic_entries):
             return self.dynamic_entries[index]
-        return None # TODO throw HPACKException here
+        raise InvalidTableIndex("Invalid table index %d" % index)
 
     def __repr__(self):
         return "HeaderTable(%d, %s, %r)" % (

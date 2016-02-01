@@ -1,4 +1,5 @@
 from hpack.table import HeaderTable, table_entry_size
+from hpack.exceptions import InvalidTableIndex
 import pytest
 import sys
 _ver = sys.version_info
@@ -31,15 +32,15 @@ class TestHeaderTable(object):
 
     def test_get_by_index_zero_index(self):
         tbl = HeaderTable()
-        res = tbl.get_by_index(0)
-        assert res is None # TODO HPACKException will be raised instead
+        with pytest.raises(InvalidTableIndex):
+            res = tbl.get_by_index(0)
 
     def test_get_by_index_out_of_range(self):
         tbl = HeaderTable()
         off = len(HeaderTable.STATIC_TABLE)
         tbl.add(b'TestName', b'TestValue')
-        res = tbl.get_by_index(off+2)
-        assert res is None # TODO HPACKException will be raised instead
+        with pytest.raises(InvalidTableIndex):
+            res = tbl.get_by_index(off+2)
 
     def test_repr(self):
         tbl = HeaderTable()

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from hpack.hpack import Encoder, Decoder, encode_integer, decode_integer
 from hpack.huffman import HuffmanDecoder
-from hpack.exceptions import HPACKDecodingError
+from hpack.exceptions import HPACKDecodingError, InvalidTableIndex
 import os
 import pytest
 
@@ -511,6 +511,22 @@ class TestHPACKDecoder(object):
         data = b'\x82\x86\x84\x01\x10www.\x07\xaa\xd7\x95\xd7\xa8\xd7\x94.com'
 
         with pytest.raises(HPACKDecodingError):
+            d.decode(data)
+
+    def test_invalid_indexed_literal(self):
+        d = Decoder()
+
+        # Refer to an index that is too large.
+        data = b'\x82\x86\x84\x7f\x0a\x0fwww.example.com'
+        with pytest.raises(InvalidTableIndex):
+            d.decode(data)
+
+    def test_invalid_indexed_header(self):
+        d = Decoder()
+
+        # Refer to an indexed header that is too large.
+        data = b'\xBE\x86\x84\x01\x0fwww.example.com'
+        with pytest.raises(InvalidTableIndex):
             d.decode(data)
 
 
