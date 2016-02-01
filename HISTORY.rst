@@ -8,6 +8,8 @@ dev
 
 - Instead of throwing ``IndexError`` when encountering invalid encoded integers
   HPACK now throws ``HPACKDecodingError``.
+- Instead of throwing ``UnicodeDecodeError`` when encountering headers that are
+  not UTF-8 encoded, HPACK now throws ``HPACKDecodingError``.
 
 2.0.1 (2015-11-09)
 ------------------
