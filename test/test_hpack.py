@@ -33,7 +33,7 @@ class TestHPACKEncoder(object):
 
     def test_sensitive_headers(self):
         """
-        Test encoding header values  
+        Test encoding header values
         """
         e = Encoder()
         result = (b'\x82\x14\x88\x63\xa1\xa9' +
@@ -44,7 +44,7 @@ class TestHPACKEncoder(object):
         header_set = [
             (':method', 'GET', True),
             (':path', '/jimiscool/', True),
-            ('customkey','sensitiveinfo',True) 
+            ('customkey','sensitiveinfo',True)
         ]
         assert e.encode(header_set, huffman=True) == result
 
