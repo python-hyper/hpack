@@ -537,6 +537,14 @@ class TestIntegerDecoding(object):
         val = decode_integer(b'\x2a', 8)
         assert val == (42, 1)
 
+    def test_decode_empty_string_fails(self):
+        with pytest.raises(HPACKDecodingError):
+            decode_integer(b'', 8)
+
+    def test_decode_insufficient_data_fails(self):
+        with pytest.raises(HPACKDecodingError):
+            decode_integer(b'\x1f', 5)
+
 
 class TestUtilities(object):
     def test_nghttp2_installs_correctly(self):
