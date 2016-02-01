@@ -363,7 +363,10 @@ class Decoder(object):
             to_bytes(i) if r else to_bytes(i).decode('utf-8') for i in h
         )
 
-        return [decode_if_needed(header, raw) for header in headers]
+        try:
+            return [decode_if_needed(header, raw) for header in headers]
+        except UnicodeDecodeError:
+            raise HPACKDecodingError("Unable to decode headers as UTF-8.")
 
     def _update_encoding_context(self, data):
         """
