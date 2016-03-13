@@ -8,6 +8,7 @@ from hpack.hpack import Decoder, Encoder
 from binascii import unhexlify
 from pytest import skip
 
+
 class TestHPACKDecoderIntegration(object):
     def test_can_decode_a_story(self, story):
         d = Decoder()

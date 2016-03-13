@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from hpack.table import HeaderTable, table_entry_size
 from hpack.exceptions import InvalidTableIndex
 import pytest
@@ -6,10 +7,12 @@ _ver = sys.version_info
 is_py2 = _ver[0] == 2
 is_py3 = _ver[0] == 3
 
+
 class TestPackageFunctions(object):
     def test_table_entry_size(self):
         res = table_entry_size(b'TestValue', b'TestName')
         assert res == 49
+
 
 class TestHeaderTable(object):
     def test_get_by_index_dynamic_table(self):
@@ -33,14 +36,14 @@ class TestHeaderTable(object):
     def test_get_by_index_zero_index(self):
         tbl = HeaderTable()
         with pytest.raises(InvalidTableIndex):
-            res = tbl.get_by_index(0)
+            tbl.get_by_index(0)
 
     def test_get_by_index_out_of_range(self):
         tbl = HeaderTable()
         off = len(HeaderTable.STATIC_TABLE)
         tbl.add(b'TestName', b'TestValue')
         with pytest.raises(InvalidTableIndex):
-            res = tbl.get_by_index(off+2)
+            tbl.get_by_index(off + 2)
 
     def test_repr(self):
         tbl = HeaderTable()
@@ -49,7 +52,7 @@ class TestHeaderTable(object):
         tbl.add(b'TestName2', b'TestValue2')
         # Meh, I hate that I have to do this to test
         # repr
-        if(is_py3):
+        if is_py3:
             exp = ("HeaderTable(4096, False, deque([" +
                    "(b'TestName2', b'TestValue2'), "  +
                    "(b'TestName2', b'TestValue2'), "  +
@@ -89,7 +92,7 @@ class TestHeaderTable(object):
         tbl = HeaderTable()
         idx = len(HeaderTable.STATIC_TABLE) + 1
         tbl.add(b'TestName', b'TestValue')
-        exp = (idx , b'TestName', b'TestValue')
+        exp = (idx, b'TestName', b'TestValue')
         res = tbl.search(b'TestName', b'TestValue')
         assert res == exp
 
@@ -97,13 +100,12 @@ class TestHeaderTable(object):
         tbl = HeaderTable()
         idx = len(HeaderTable.STATIC_TABLE) + 1
         tbl.add(b'TestName', b'TestValue')
-        exp = (idx , b'TestName', None)
+        exp = (idx, b'TestName', None)
         res = tbl.search(b'TestName', b'NotInTable')
         assert res == exp
 
     def test_search_no_match(self):
         tbl = HeaderTable()
-        idx = len(HeaderTable.STATIC_TABLE)
         tbl.add(b'TestName', b'TestValue')
         res = tbl.search(b'NotInTable', b'NotInTable')
         assert res is None
@@ -116,11 +118,11 @@ class TestHeaderTable(object):
         tbl = HeaderTable()
         exp = int(HeaderTable.DEFAULT_SIZE / 2)
         tbl.maxsize = exp
-        assert tbl.resized == True
+        assert tbl.resized is True
         assert tbl.maxsize == exp
         tbl.resized = False
         tbl.maxsize = exp
-        assert tbl.resized == False
+        assert tbl.resized is False
         assert tbl.maxsize == exp
 
     def test_size(self):
@@ -132,7 +134,7 @@ class TestHeaderTable(object):
 
     def test_shrink_maxsize_is_zero(self):
         tbl = HeaderTable()
-        tbl.add(b'TestName',b'TestValue')
+        tbl.add(b'TestName', b'TestValue')
         assert len(tbl.dynamic_entries) == 1
         tbl.maxsize = 0
         assert len(tbl.dynamic_entries) == 0

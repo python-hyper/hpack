@@ -44,7 +44,7 @@ class TestHPACKEncoder(object):
         header_set = [
             (':method', 'GET', True),
             (':path', '/jimiscool/', True),
-            ('customkey','sensitiveinfo',True)
+            ('customkey', 'sensitiveinfo', True)
         ]
         assert e.encode(header_set, huffman=True) == result
 
@@ -404,7 +404,6 @@ class TestHPACKDecoder(object):
             (':path', '/',),
             (':authority', 'www.example.com'),
         ]
-        first_header_table = first_header_set[::-1]
         first_data = (
             b'\x82\x86\x84\x01\x8c\xf1\xe3\xc2\xe5\xf2:k\xa0\xab\x90\xf4\xff'
         )
