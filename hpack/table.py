@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from collections import deque
 import logging
 
@@ -12,7 +13,7 @@ def table_entry_size(name, value):
 
     This size is mostly irrelevant to us and defined
     specifically to accommodate memory management for
-    lower level implementions. The 32 extra bytes are
+    lower level implementations. The 32 extra bytes are
     considered the "maximum" overhead that would be
     required to represent each entry in the table.
 
@@ -164,13 +165,13 @@ class HeaderTable(object):
         for (i, (n, v)) in enumerate(HeaderTable.STATIC_TABLE):
             if n == name:
                 if v == value:
-                    return (i + 1, n, v)
+                    return i + 1, n, v
                 elif partial is None:
                     partial = (i + 1, n, None)
         for (i, (n, v)) in enumerate(self.dynamic_entries):
             if n == name:
                 if v == value:
-                    return (i + offset + 1, n, v)
+                    return i + offset + 1, n, v
                 elif partial is None:
                     partial = (i + offset + 1, n, None)
         return partial

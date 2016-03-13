@@ -22,25 +22,20 @@ raw_story_files = (
     for name in os.listdir('test/test_fixtures/raw-data')
 )
 
-@pytest.fixture(scope="class",
-                params=story_files)
+
+@pytest.fixture(scope='class', params=story_files)
 def story(request):
     """
     Provides a detailed HPACK story to test with.
     """
-    path = request.param
-    with open(path, 'r', encoding='utf-8') as f:
-        details = json.loads(f.read())
+    with open(request.param, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
-    return details
 
-@pytest.fixture(scope="class", params=raw_story_files)
+@pytest.fixture(scope='class', params=raw_story_files)
 def raw_story(request):
     """
     Provides a detailed HPACK story to test the encoder with.
     """
-    path = request.param
-    with open(path, 'r', encoding='utf-8') as f:
-        details = json.loads(f.read())
-
-    return details
+    with open(request.param, 'r', encoding='utf-8') as f:
+        return json.load(f)

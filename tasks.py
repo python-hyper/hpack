@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
 import json
 import os
 
 from binascii import hexlify
 from invoke import task
 from hyper.http20.hpack import Encoder
+
 
 @task
 def hpack():
@@ -32,7 +34,7 @@ def hpack():
     # For each file, build our output.
     for source, outname in raw_story_files:
         with open(source, 'rb') as f:
-            indata = json.loads(f.read())
+            indata = json.load(f)
 
         # Prepare the output and the encoder.
         output = {
@@ -42,8 +44,10 @@ def hpack():
         e = Encoder()
 
         for case in indata['cases']:
-            outcase = {'header_table_size': e.header_table_size}
-            outcase['headers'] = case['headers']
+            outcase = {
+                'header_table_size': e.header_table_size,
+                'headers': case['headers'],
+            }
             headers = []
 
             for header in case['headers']:

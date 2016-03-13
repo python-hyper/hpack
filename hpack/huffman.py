@@ -116,7 +116,7 @@ class HuffmanEncoder(object):
         # Pad out to an octet with ones.
         bits_to_be_padded = (8 - (final_int_len % 8)) % 8
         final_num <<= bits_to_be_padded
-        final_num |= (1 << (bits_to_be_padded)) - 1
+        final_num |= (1 << bits_to_be_padded) - 1
 
         # Convert the number to hex and strip off the leading '0x' and the
         # trailing 'L', if present.

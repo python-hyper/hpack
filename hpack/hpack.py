@@ -31,15 +31,15 @@ def encode_integer(integer, prefix_bits):
 
     max_number = (2 ** prefix_bits) - 1
 
-    if (integer < max_number):
+    if integer < max_number:
         return bytearray([integer])  # Seriously?
     else:
         elements = [max_number]
-        integer = integer - max_number
+        integer -= max_number
 
         while integer >= 128:
             elements.append((integer % 128) + 128)
-            integer = integer // 128  # We need integer division
+            integer //= 128  # We need integer division
 
         elements.append(integer)
 
@@ -61,7 +61,7 @@ def decode_integer(data, prefix_bits):
     try:
         number = to_byte(data[index]) & mask
 
-        if (number == max_number):
+        if number == max_number:
 
             while True:
                 index += 1
@@ -79,7 +79,7 @@ def decode_integer(data, prefix_bits):
 
     log.debug("Decoded %d, consumed %d bytes", number, index + 1)
 
-    return (number, index + 1)
+    return number, index + 1
 
 
 def _to_bytes(string):
@@ -220,7 +220,7 @@ class Encoder(object):
         Encodes a header using the indexed representation.
         """
         field = encode_integer(index, 7)
-        field[0] = field[0] | 0x80  # we set the top bit
+        field[0] |= 0x80  # we set the top bit
         return bytes(field)
 
     def _encode_literal(self, name, value, indexbit, huffman=False):
