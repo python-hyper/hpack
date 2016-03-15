@@ -172,7 +172,7 @@ class Encoder(object):
         # natural way to interact with them in HPACK. Because dictionaries are
         # un-ordered, we need to make sure we grab the "special" headers first.
         if isinstance(headers, dict):
-            headers = headers.items()
+            headers = _dict_to_iterable(headers)
 
         # Before we begin, if the header table size has been changed we need
         # to signal all changes since last emission appropriately.

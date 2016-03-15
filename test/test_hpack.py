@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from hpack.hpack import (
-    Encoder, Decoder, encode_integer, decode_integer, _dict_to_iterable
+    Encoder, Decoder, encode_integer, decode_integer, _dict_to_iterable,
+    _to_bytes
 )
 from hpack.huffman import HuffmanDecoder
 from hpack.exceptions import HPACKDecodingError, InvalidTableIndex
@@ -629,6 +630,47 @@ class TestDictToIterable(object):
 
         assert special_keys == received_special
         assert boring_keys == received_boring
+
+    @given(
+        special_keys=sets(keys),
+        boring_keys=sets(keys),
+    )
+    def test_ordering_applies_to_encoding(self, special_keys, boring_keys):
+        """
+        When encoding a dictionary the special keys all appear first.
+        """
+        def _prepend_colon(k):
+            if isinstance(k, unicode):
+                return u':' + k
+            else:
+                return b':' + k
+
+        special_keys = set(map(_prepend_colon, special_keys))
+        input_dict = {
+            k: b'testval' for k in itertools.chain(
+                special_keys,
+                boring_keys
+            )
+        }
+        e = Encoder()
+        d = Decoder()
+        encoded = e.encode(input_dict)
+        decoded = iter(d.decode(encoded, raw=True))
+
+        received_special = set()
+        received_boring = set()
+        expected_special = set(map(_to_bytes, special_keys))
+        expected_boring = set(map(_to_bytes, boring_keys))
+
+        for _ in special_keys:
+            k, _ = next(decoded)
+            received_special.add(k)
+        for _ in boring_keys:
+            k, _ = next(decoded)
+            received_boring.add(k)
+
+        assert expected_special == received_special
+        assert expected_boring == received_boring
 
 
 class TestUtilities(object):
