@@ -21,6 +21,11 @@ INDEX_NONE = b'\x00'
 INDEX_NEVER = b'\x10'
 INDEX_INCREMENTAL = b'\x40'
 
+try:  # pragma: no cover
+    basestring = basestring
+except NameError:  # pragma: no cover
+    basestring = (str, bytes)
+
 
 def encode_integer(integer, prefix_bits):
     """
@@ -86,7 +91,7 @@ def _to_bytes(string):
     """
     Convert string to bytes.
     """
-    if not isinstance(string, (str, bytes)):  # pragma: no cover
+    if not isinstance(string, (basestring)):  # pragma: no cover
         string = str(string)
 
     return string if isinstance(string, bytes) else string.encode('utf-8')
@@ -149,7 +154,8 @@ class Encoder(object):
         header_block = []
 
         # Turn the headers into a list of tuples if possible. This is the
-        # natural way to interact with them in HPACK.
+        # natural way to interact with them in HPACK. Because dictionaries are
+        # un-ordered, we need to make sure we grab the "special" headers first.
         if isinstance(headers, dict):
             headers = headers.items()
 
