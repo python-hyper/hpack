@@ -1,9 +1,20 @@
 # -*- coding: utf-8 -*-
-from hpack.hpack import Encoder, Decoder, encode_integer, decode_integer
+from hpack.hpack import (
+    Encoder, Decoder, encode_integer, decode_integer, _dict_to_iterable
+)
 from hpack.huffman import HuffmanDecoder
 from hpack.exceptions import HPACKDecodingError, InvalidTableIndex
+import itertools
 import os
 import pytest
+
+from hypothesis import given
+from hypothesis.strategies import text, binary, sets, one_of
+
+try:
+    unicode = unicode
+except NameError:
+    unicode = str
 
 
 class TestHuffmanDecoder(object):
@@ -568,6 +579,56 @@ class TestIntegerDecoding(object):
     def test_decode_insufficient_data_fails(self):
         with pytest.raises(HPACKDecodingError):
             decode_integer(b'\x1f', 5)
+
+
+class TestDictToIterable(object):
+    """
+    The dict_to_iterable function has some subtle requirements: validates that
+    everything behaves as expected.
+
+    As much as possible this tries to be exhaustive.
+    """
+    keys = one_of(
+        text().filter(lambda k: k and not k.startswith(u':')),
+        binary().filter(lambda k: k and not k.startswith(b':'))
+    )
+
+    @given(
+        special_keys=sets(keys),
+        boring_keys=sets(keys),
+    )
+    def test_ordering(self, special_keys, boring_keys):
+        """
+        _dict_to_iterable produces an iterable where all the keys beginning
+        with a colon are emitted first.
+        """
+        def _prepend_colon(k):
+            if isinstance(k, unicode):
+                return u':' + k
+            else:
+                return b':' + k
+
+        special_keys = set(map(_prepend_colon, special_keys))
+        input_dict = {
+            k: b'testval' for k in itertools.chain(
+                special_keys,
+                boring_keys
+            )
+        }
+        filtered = _dict_to_iterable(input_dict)
+
+        received_special = set()
+        received_boring = set()
+
+        for _ in special_keys:
+            k, _ = next(filtered)
+            received_special.add(k)
+        for _ in boring_keys:
+            k, _ = next(filtered)
+            received_boring.add(k)
+
+        assert special_keys == received_special
+        assert boring_keys == received_boring
 
 
 class TestUtilities(object):

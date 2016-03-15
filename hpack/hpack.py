@@ -87,6 +87,21 @@ def decode_integer(data, prefix_bits):
     return number, index + 1
 
 
+def _dict_to_iterable(header_dict):
+    """
+    This converts a dictionary to an iterable of two-tuples. This is a
+    HPACK-specific function becuase it pulls "special-headers" out first and
+    then emits them.
+    """
+    assert isinstance(header_dict, dict)
+    keys = sorted(
+        header_dict.keys(),
+        key=lambda k: not _to_bytes(k).startswith(b':')
+    )
+    for key in keys:
+        yield key, header_dict[key]
+
+
 def _to_bytes(string):
     """
     Convert string to bytes.
