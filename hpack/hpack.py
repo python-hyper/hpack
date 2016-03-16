@@ -154,9 +154,24 @@ class Encoder(object):
                         boolean value indicating whether the header should be
                         added to header tables anywhere. If not present,
                         ``sensitive`` defaults to ``False``.
+
+                        .. warning:: HTTP/2 requires that all special headers
+                            (headers whose names begin with ``:`` characters)
+                            appear at the *start* of the header block. While
+                            this method will ensure that happens for ``dict``
+                            subclasses, callers using any other iterable of
+                            tuples **must** ensure they place their special
+                            headers at the start of the iterable.
+
+                            For efficiency reasons users should prefer to use
+                            iterables of two-tuples: fixing the ordering of
+                            dictionary headers is an expensive operation that
+                            should be avoided if possible.
+
         :param huffman: (optional) Whether to Huffman-encode any header sent as
                         a literal value. Except for use when debugging, it is
                         recommended that this be left enabled.
+
         :returns: A bytestring containing the HPACK-encoded header block.
         """
         # Transforming the headers into a header block is a procedure that can
