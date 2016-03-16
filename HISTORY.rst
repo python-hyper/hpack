@@ -1,6 +1,15 @@
 Release History
 ===============
 
+2.1.1 (2016-03-16)
+------------------
+
+**Bugfixes**
+
+- When passing a dictionary or dictionary subclass to ``Encoder.encode``, HPACK
+  now ensures that HTTP/2 special headers (headers whose names begin with
+  ``:`` characters) appear first in the header block.
+
 2.1.0 (2016-02-02)
 ------------------
 
