@@ -4,8 +4,13 @@ import os
 import json
 import sys
 
+from hypothesis.strategies import text
+
 if sys.version_info[0] == 2:
     from codecs import open
+
+# We need to grab one text example from hypothesis to prime its cache.
+text().example()
 
 # This pair of generator expressions are pretty lame, but building lists is a
 # bad idea as I plan to have a substantial number of tests here.
