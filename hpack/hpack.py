@@ -21,6 +21,11 @@ INDEX_NONE = b'\x00'
 INDEX_NEVER = b'\x10'
 INDEX_INCREMENTAL = b'\x40'
 
+try:  # pragma: no cover
+    basestring = basestring
+except NameError:  # pragma: no cover
+    basestring = (str, bytes)
+
 
 def encode_integer(integer, prefix_bits):
     """
@@ -82,11 +87,26 @@ def decode_integer(data, prefix_bits):
     return number, index + 1
 
 
+def _dict_to_iterable(header_dict):
+    """
+    This converts a dictionary to an iterable of two-tuples. This is a
+    HPACK-specific function becuase it pulls "special-headers" out first and
+    then emits them.
+    """
+    assert isinstance(header_dict, dict)
+    keys = sorted(
+        header_dict.keys(),
+        key=lambda k: not _to_bytes(k).startswith(b':')
+    )
+    for key in keys:
+        yield key, header_dict[key]
+
+
 def _to_bytes(string):
     """
     Convert string to bytes.
     """
-    if not isinstance(string, (str, bytes)):  # pragma: no cover
+    if not isinstance(string, (basestring)):  # pragma: no cover
         string = str(string)
 
     return string if isinstance(string, bytes) else string.encode('utf-8')
@@ -149,9 +169,10 @@ class Encoder(object):
         header_block = []
 
         # Turn the headers into a list of tuples if possible. This is the
-        # natural way to interact with them in HPACK.
+        # natural way to interact with them in HPACK. Because dictionaries are
+        # un-ordered, we need to make sure we grab the "special" headers first.
         if isinstance(headers, dict):
-            headers = headers.items()
+            headers = _dict_to_iterable(headers)
 
         # Before we begin, if the header table size has been changed we need
         # to signal all changes since last emission appropriately.
