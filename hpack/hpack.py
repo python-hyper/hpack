@@ -10,10 +10,11 @@ import logging
 from .table import HeaderTable
 from .compat import to_byte, to_bytes
 from .exceptions import HPACKDecodingError
-from .huffman import HuffmanDecoder, HuffmanEncoder
+from .huffman import HuffmanEncoder
 from .huffman_constants import (
     REQUEST_CODES, REQUEST_CODES_LENGTH
 )
+from .huffman_table import decode_huffman
 
 log = logging.getLogger(__name__)
 
@@ -322,9 +323,6 @@ class Decoder(object):
 
     def __init__(self):
         self.header_table = HeaderTable()
-        self.huffman_coder = HuffmanDecoder(
-            REQUEST_CODES, REQUEST_CODES_LENGTH
-        )
 
     @property
     def header_table_size(self):
@@ -461,7 +459,7 @@ class Decoder(object):
             name = data[consumed:consumed + length]
 
             if to_byte(data[0]) & 0x80:
-                name = self.huffman_coder.decode(name)
+                name = decode_huffman(name)
             total_consumed = consumed + length + 1  # Since we moved forward 1.
 
         data = data[consumed + length:]
@@ -471,7 +469,7 @@ class Decoder(object):
         value = data[consumed:consumed + length]
 
         if to_byte(data[0]) & 0x80:
-            value = self.huffman_coder.decode(value)
+            value = decode_huffman(value)
 
         # Updated the total consumed length.
         total_consumed += length + consumed
