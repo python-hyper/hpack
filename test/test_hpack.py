@@ -30,7 +30,8 @@ class TestHPACKEncoder(object):
 
         assert e.encode(header_set, huffman=False) == result
         assert list(e.header_table.dynamic_entries) == [
-            (n.encode('utf-8'), v.encode('utf-8')) for n, v in header_set.items()
+            (n.encode('utf-8'), v.encode('utf-8'))
+            for n, v in header_set.items()
         ]
 
     def test_sensitive_headers(self):
@@ -65,7 +66,8 @@ class TestHPACKEncoder(object):
 
         assert e.encode(header_set, huffman=False) == result
         assert list(e.header_table.dynamic_entries) == [
-            (n.encode('utf-8'), v.encode('utf-8')) for n, v in header_set.items()
+            (n.encode('utf-8'), v.encode('utf-8'))
+            for n, v in header_set.items()
         ]
 
     def test_indexed_header_field(self):
@@ -110,7 +112,8 @@ class TestHPACKEncoder(object):
 
         assert e.encode(first_header_set, huffman=False) == first_result
         assert list(e.header_table.dynamic_entries) == [
-            (n.encode('utf-8'), v.encode('utf-8')) for n, v in first_header_table
+            (n.encode('utf-8'), v.encode('utf-8'))
+            for n, v in first_header_table
         ]
 
         second_header_set = [
@@ -128,7 +131,8 @@ class TestHPACKEncoder(object):
 
         assert e.encode(second_header_set, huffman=False) == second_result
         assert list(e.header_table.dynamic_entries) == [
-            (n.encode('utf-8'), v.encode('utf-8')) for n, v in second_header_table
+            (n.encode('utf-8'), v.encode('utf-8'))
+            for n, v in second_header_table
         ]
 
         third_header_set = [
@@ -166,7 +170,8 @@ class TestHPACKEncoder(object):
 
         assert e.encode(first_header_set, huffman=True) == first_result
         assert list(e.header_table.dynamic_entries) == [
-            (n.encode('utf-8'), v.encode('utf-8')) for n, v in first_header_table
+            (n.encode('utf-8'), v.encode('utf-8'))
+            for n, v in first_header_table
         ]
 
         second_header_table = [
@@ -184,7 +189,8 @@ class TestHPACKEncoder(object):
 
         assert e.encode(second_header_set, huffman=True) == second_result
         assert list(e.header_table.dynamic_entries) == [
-            (n.encode('utf-8'), v.encode('utf-8')) for n, v in second_header_table
+            (n.encode('utf-8'), v.encode('utf-8'))
+            for n, v in second_header_table
         ]
 
         third_header_set = [
@@ -213,8 +219,16 @@ class TestHPACKEncoder(object):
             (':path', '/some/path'),
             (':authority', 'www.example.com'),
             ('custom-key', 'custom-value'),
-            ("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0"),
-            ("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"),
+            (
+                "user-agent",
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) "
+                "Gecko/20100101 Firefox/16.0",
+            ),
+            (
+                "accept",
+                "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;"
+                "q=0.8",
+            ),
             ('X-Lukasa-Test', '88989'),
         ]
         e.encode(header_set, huffman=True)
@@ -310,8 +324,13 @@ class TestHPACKDecoder(object):
         of UTF-8
         """
         d = Decoder()
-        header_set = [(b'\x00\x01\x99\x30\x11\x22\x55\x21\x89\x14', b'custom-header')]
-        data = b'\x40\x0a\x00\x01\x99\x30\x11\x22\x55\x21\x89\x14\x0dcustom-header'
+        header_set = [
+            (b'\x00\x01\x99\x30\x11\x22\x55\x21\x89\x14', b'custom-header')
+        ]
+        data = (
+            b'\x40\x0a\x00\x01\x99\x30\x11\x22\x55\x21\x89\x14\x0d'
+            b'custom-header'
+        )
 
         assert d.decode(data, raw=True) == header_set
 
@@ -674,6 +693,6 @@ class TestUtilities(object):
             import nghttp2
         else:
             with pytest.raises(ImportError):
-                import nghttp2
+                import nghttp2  # noqa
 
         assert True

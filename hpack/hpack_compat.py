@@ -31,7 +31,7 @@ except ImportError:
     USE_NGHTTP2 = False
     log.debug("Using our pure-Python HPACK implementation.")
 
-if USE_NGHTTP2:
+if USE_NGHTTP2:  # noqa
     class Encoder(object):
         """
         An HPACK encoder object. This object takes HTTP headers and emits
@@ -104,4 +104,4 @@ if USE_NGHTTP2:
             return [(n.decode('utf-8'), v.decode('utf-8')) for n, v in headers]
 else:
     # Grab the built-in encoder and decoder.
-    from .hpack import Encoder, Decoder
+    from .hpack import Encoder, Decoder  # noqa

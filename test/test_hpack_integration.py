@@ -25,7 +25,11 @@ class TestHPACKDecoderIntegration(object):
             decoded_headers = d.decode(unhexlify(case['wire']))
 
             # The correct headers are a list of dicts, which is annoying.
-            correct_headers = [(item[0], item[1]) for header in case['headers'] for item in header.items()]
+            correct_headers = [
+                (item[0], item[1])
+                for header in case['headers']
+                for item in header.items()
+            ]
             correct_headers = correct_headers
             assert correct_headers == decoded_headers
 
@@ -35,7 +39,11 @@ class TestHPACKDecoderIntegration(object):
 
         for case in raw_story['cases']:
             # The input headers are a list of dicts, which is annoying.
-            input_headers = [(item[0], item[1]) for header in case['headers'] for item in header.items()]
+            input_headers = [
+                (item[0], item[1])
+                for header in case['headers']
+                for item in header.items()
+            ]
 
             encoded = e.encode(input_headers, huffman=False)
             decoded_headers = d.decode(encoded)
@@ -48,7 +56,11 @@ class TestHPACKDecoderIntegration(object):
 
         for case in raw_story['cases']:
             # The input headers are a list of dicts, which is annoying.
-            input_headers = [(item[0], item[1]) for header in case['headers'] for item in header.items()]
+            input_headers = [
+                (item[0], item[1])
+                for header in case['headers']
+                for item in header.items()
+            ]
 
             encoded = e.encode(input_headers, huffman=True)
             decoded_headers = d.decode(encoded)

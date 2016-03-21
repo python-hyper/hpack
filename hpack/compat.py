@@ -25,7 +25,7 @@ if is_py2:
         else:
             return bytes(b)
 
-    unicode = unicode
+    unicode = unicode  # noqa
     bytes = str
 
 elif is_py3:
@@ -37,6 +37,6 @@ elif is_py3:
 
     def to_bytes(b):
         return bytes(b)
-        
+
     unicode = str
     bytes = bytes

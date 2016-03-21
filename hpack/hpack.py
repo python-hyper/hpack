@@ -28,6 +28,18 @@ except NameError:  # pragma: no cover
     basestring = (str, bytes)
 
 
+def _unicode_if_needed(header, raw):
+    """
+    Provides a header as a unicode string if raw is False, otherwise returns
+    it as a bytestring.
+    """
+    return tuple(
+        to_bytes(i) if raw
+        else to_bytes(i).decode('utf-8')
+        for i in header
+    )
+
+
 def encode_integer(integer, prefix_bits):
     """
     This encodes an integer according to the wacky integer encoding rules
@@ -59,7 +71,6 @@ def decode_integer(data, prefix_bits):
     number of bytes that were consumed from ``data`` in order to get that
     integer.
     """
-    multiple = lambda index: 128 ** (index - 1)
     max_number = (2 ** prefix_bits) - 1
     mask = 0xFF >> (8 - prefix_bits)
     index = 0
@@ -73,10 +84,13 @@ def decode_integer(data, prefix_bits):
                 index += 1
                 next_byte = to_byte(data[index])
 
+                # There's some duplication here, but that's because this is a
+                # hot function, and incurring too many function calls here is
+                # a real problem. For that reason, we unrolled the maths.
                 if next_byte >= 128:
-                    number += (next_byte - 128) * multiple(index)
+                    number += (next_byte - 128) * (128 ** (index - 1))
                 else:
-                    number += next_byte * multiple(index)
+                    number += next_byte * (128 ** (index - 1))
                     break
     except IndexError:
         raise HPACKDecodingError(
@@ -305,7 +319,8 @@ class Encoder(object):
 
     def _encode_table_size_change(self):
         """
-        Produces the encoded form of all header table size change context updates
+        Produces the encoded form of all header table size change context
+        updates.
         """
         block = b''
         for size_bytes in self.table_size_changes:
@@ -372,7 +387,9 @@ class Decoder(object):
             encoding_update = bool(current & 0x20)
 
             if indexed:
-                header, consumed = self._decode_indexed(data_mem[current_index:])
+                header, consumed = self._decode_indexed(
+                    data_mem[current_index:]
+                )
             elif literal_index:
                 # It's a literal header that does affect the header table.
                 header, consumed = self._decode_literal_index(
@@ -393,12 +410,8 @@ class Decoder(object):
 
             current_index += consumed
 
-        decode_if_needed = lambda h, r: tuple(
-            to_bytes(i) if r else to_bytes(i).decode('utf-8') for i in h
-        )
-
         try:
-            return [decode_if_needed(header, raw) for header in headers]
+            return [_unicode_if_needed(header, raw) for header in headers]
         except UnicodeDecodeError:
             raise HPACKDecodingError("Unable to decode headers as UTF-8.")
 
