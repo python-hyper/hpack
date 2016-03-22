@@ -36,7 +36,9 @@ class HuffmanEncoder(object):
         for char in bytes_to_encode:
             byte = to_byte(char)
             bin_int_len = self.huffman_code_list_lengths[byte]
-            bin_int = self.huffman_code_list[byte] & (2 ** (bin_int_len + 1) - 1)
+            bin_int = self.huffman_code_list[byte] & (
+                2 ** (bin_int_len + 1) - 1
+            )
             final_num <<= bin_int_len
             final_num |= bin_int
             final_int_len += bin_int_len
