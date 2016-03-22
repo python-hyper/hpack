@@ -411,7 +411,7 @@ class Decoder(object):
             current_index += consumed
 
         try:
-            return [_unicode_if_needed(header, raw) for header in headers]
+            return [_unicode_if_needed(h, raw) for h in headers]
         except UnicodeDecodeError:
             raise HPACKDecodingError("Unable to decode headers as UTF-8.")
 
