@@ -7,6 +7,7 @@ dev (XXXX)
 **Bugfixes**
 
 - Improve Huffman decoding speed by 4x using an approach borrowed from nghttp2.
+- Improve HPACK decoding speed by 10% by caching header table sizes.
 
 2.1.1 (2016-03-16)
 ------------------
