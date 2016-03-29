@@ -105,6 +105,7 @@ class HeaderTable(object):
 
     def __init__(self):
         self._maxsize = HeaderTable.DEFAULT_SIZE
+        self._current_size = 0
         self.resized = False
         self.dynamic_entries = deque()
 
@@ -143,12 +144,15 @@ class HeaderTable(object):
         table size greater than maxsize.
         """
         # We just clear the table if the entry is too big
-        if table_entry_size(name, value) > self._maxsize:
+        size = table_entry_size(name, value)
+        if size > self._maxsize:
             self.dynamic_entries.clear()
+            self._current_size = 0
 
         # Add new entry if the table actually has a size
         elif self._maxsize > 0:
             self.dynamic_entries.appendleft((name, value))
+            self._current_size += size
             self._shrink()
 
     def search(self, name, value):
@@ -190,23 +194,17 @@ class HeaderTable(object):
         self.resized = (newmax != oldmax)
         if newmax <= 0:
             self.dynamic_entries.clear()
+            self._current_size = 0
         elif oldmax > newmax:
             self._shrink()
-
-    def _size(self):
-        """
-        Calculates the size of the dynamic table.
-        See table_entry_size
-        See RFC7541 Section 4.1
-        """
-        return sum(table_entry_size(*entry) for entry in self.dynamic_entries)
 
     def _shrink(self):
         """
         Shrinks the dynamic table to be at or below maxsize
         """
-        cursize = self._size()
+        cursize = self._current_size
         while cursize > self._maxsize:
-            (name, value) = self.dynamic_entries.pop()
+            name, value = self.dynamic_entries.pop()
             cursize -= table_entry_size(name, value)
             log.debug("Evicting %s: %s from the header table", name, value)
+        self._current_size = cursize

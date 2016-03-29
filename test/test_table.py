@@ -133,7 +133,7 @@ class TestHeaderTable(object):
         tbl = HeaderTable()
         for i in range(3):
             tbl.add(b'TestValue', b'TestName')
-        res = tbl._size()
+        res = tbl._current_size
         assert res == 147
 
     def test_shrink_maxsize_is_zero(self):
