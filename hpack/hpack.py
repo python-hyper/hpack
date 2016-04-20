@@ -15,6 +15,7 @@ from .huffman_constants import (
     REQUEST_CODES, REQUEST_CODES_LENGTH
 )
 from .huffman_table import decode_huffman
+from .struct import HeaderTuple, NeverIndexedHeaderTuple
 
 log = logging.getLogger(__name__)
 
@@ -33,11 +34,12 @@ def _unicode_if_needed(header, raw):
     Provides a header as a unicode string if raw is False, otherwise returns
     it as a bytestring.
     """
-    return tuple(
-        to_bytes(i) if raw
-        else to_bytes(i).decode('utf-8')
-        for i in header
-    )
+    name = to_bytes(header[0])
+    value = to_bytes(header[1])
+    if not raw:
+        name = name.decode('utf-8')
+        value = value.decode('utf-8')
+    return header.__class__(name, value)
 
 
 def encode_integer(integer, prefix_bits):
@@ -159,7 +161,8 @@ class Encoder(object):
         block.
 
         :param headers: The headers to encode. Must be either an iterable of
-                        tuples or a ``dict``.
+                        tuples, an iterable of :class:`HeaderTuple
+                        <hpack.struct.HeaderTuple>`, or a ``dict``.
 
                         If an iterable of tuples, the tuples may be either
                         two-tuples or three-tuples. If they are two-tuples, the
@@ -169,6 +172,13 @@ class Encoder(object):
                         boolean value indicating whether the header should be
                         added to header tables anywhere. If not present,
                         ``sensitive`` defaults to ``False``.
+
+                        If an iterable of :class:`HeaderTuple
+                        <hpack.struct.HeaderTuple>`, the tuples must always be
+                        two-tuples. Instead of using ``sensitive`` as a third
+                        tuple entry, use :class:`NeverIndexedHeaderTuple
+                        <hpack.struct.NeverIndexedHeaderTuple>` to request that
+                        the field never be indexed.
 
                         .. warning:: HTTP/2 requires that all special headers
                             (headers whose names begin with ``:`` characters)
@@ -212,7 +222,12 @@ class Encoder(object):
 
         # Add each header to the header block
         for header in headers:
-            sensitive = header[2] if len(header) > 2 else False
+            sensitive = False
+            if isinstance(header, HeaderTuple):
+                sensitive = not header.indexable
+            elif len(header) > 2:
+                sensitive = header[2]
+
             header = (_to_bytes(header[0]), _to_bytes(header[1]))
             header_block.append(self.add(header, sensitive, huffman))
 
@@ -429,7 +444,7 @@ class Decoder(object):
         Decodes a header represented using the indexed representation.
         """
         index, consumed = decode_integer(data, 7)
-        header = self.header_table.get_by_index(index)
+        header = HeaderTuple(*self.header_table.get_by_index(index))
         log.debug("Decoded %s, consumed %d", header, consumed)
         return header, consumed
 
@@ -452,9 +467,12 @@ class Decoder(object):
         if should_index:
             indexed_name = to_byte(data[0]) & 0x3F
             name_len = 6
+            not_indexable = False
         else:
-            indexed_name = to_byte(data[0]) & 0x0F
+            high_byte = to_byte(data[0])
+            indexed_name = high_byte & 0x0F
             name_len = 4
+            not_indexable = high_byte & 0x10
 
         if indexed_name:
             # Indexed header name.
@@ -487,8 +505,14 @@ class Decoder(object):
         # Updated the total consumed length.
         total_consumed += length + consumed
 
+        # If we have been told never to index the header field, encode that in
+        # the tuple we use.
+        if not_indexable:
+            header = NeverIndexedHeaderTuple(name, value)
+        else:
+            header = HeaderTuple(name, value)
+
         # If we've been asked to index this, add it to the header table.
-        header = (name, value)
         if should_index:
             self.header_table.add(name, value)
 
