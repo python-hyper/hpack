@@ -15,6 +15,7 @@ from .huffman_constants import (
     REQUEST_CODES, REQUEST_CODES_LENGTH
 )
 from .huffman_table import decode_huffman
+from .struct import HeaderTuple, NeverIndexedHeaderTuple
 
 log = logging.getLogger(__name__)
 
@@ -430,7 +431,7 @@ class Decoder(object):
         Decodes a header represented using the indexed representation.
         """
         index, consumed = decode_integer(data, 7)
-        header = self.header_table.get_by_index(index)
+        header = HeaderTuple(*self.header_table.get_by_index(index))
         log.debug("Decoded %s, consumed %d", header, consumed)
         return header, consumed
 
@@ -453,9 +454,12 @@ class Decoder(object):
         if should_index:
             indexed_name = to_byte(data[0]) & 0x3F
             name_len = 6
+            not_indexable = False
         else:
-            indexed_name = to_byte(data[0]) & 0x0F
+            high_byte = to_byte(data[0])
+            indexed_name = high_byte & 0x0F
             name_len = 4
+            not_indexable = high_byte & 0x10
 
         if indexed_name:
             # Indexed header name.
@@ -488,8 +492,14 @@ class Decoder(object):
         # Updated the total consumed length.
         total_consumed += length + consumed
 
+        # If we have been told never to index the header field, encode that in
+        # the tuple we use.
+        if not_indexable:
+            header = NeverIndexedHeaderTuple(name, value)
+        else:
+            header = HeaderTuple(name, value)
+
         # If we've been asked to index this, add it to the header table.
-        header = (name, value)
         if should_index:
             self.header_table.add(name, value)
 
