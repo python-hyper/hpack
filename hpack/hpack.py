@@ -161,7 +161,8 @@ class Encoder(object):
         block.
 
         :param headers: The headers to encode. Must be either an iterable of
-                        tuples or a ``dict``.
+                        tuples, an iterable of :class:`HeaderTuple
+                        <hpack.struct.HeaderTuple>`, or a ``dict``.
 
                         If an iterable of tuples, the tuples may be either
                         two-tuples or three-tuples. If they are two-tuples, the
@@ -171,6 +172,13 @@ class Encoder(object):
                         boolean value indicating whether the header should be
                         added to header tables anywhere. If not present,
                         ``sensitive`` defaults to ``False``.
+
+                        If an iterable of :class:`HeaderTuple
+                        <hpack.struct.HeaderTuple>`, the tuples must always be
+                        two-tuples. Instead of using ``sensitive`` as a third
+                        tuple entry, use :class:`NeverIndexedHeaderTuple
+                        <hpack.struct.NeverIndexedHeaderTuple>` to request that
+                        the field never be indexed.
 
                         .. warning:: HTTP/2 requires that all special headers
                             (headers whose names begin with ``:`` characters)
@@ -214,7 +222,12 @@ class Encoder(object):
 
         # Add each header to the header block
         for header in headers:
-            sensitive = header[2] if len(header) > 2 else False
+            sensitive = False
+            if isinstance(header, HeaderTuple):
+                sensitive = not header.indexable
+            elif len(header) > 2:
+                sensitive = header[2]
+
             header = (_to_bytes(header[0]), _to_bytes(header[1]))
             header_block.append(self.add(header, sensitive, huffman))
 
