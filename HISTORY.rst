@@ -4,6 +4,15 @@ Release History
 dev (XXXX)
 ----------
 
+**API Changes (Backward Compatible)**
+
+- Added ``HeaderTuple`` and ``NeverIndexedHeaderTuple`` classes that signal
+  whether a given header field may ever be indexed in HTTP/2 header
+  compression.
+- Changed ``Decoder.decode()`` to return the newly added ``HeaderTuple`` class
+  and subclass. These objects behave like two-tuples, so this change does not
+  break working code.
+
 **Bugfixes**
 
 - Improve Huffman decoding speed by 4x using an approach borrowed from nghttp2.
