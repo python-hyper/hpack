@@ -33,11 +33,12 @@ def _unicode_if_needed(header, raw):
     Provides a header as a unicode string if raw is False, otherwise returns
     it as a bytestring.
     """
-    return tuple(
-        to_bytes(i) if raw
-        else to_bytes(i).decode('utf-8')
-        for i in header
-    )
+    name = to_bytes(header[0])
+    value = to_bytes(header[1])
+    if not raw:
+        name = name.decode('utf-8')
+        value = value.decode('utf-8')
+    return header.__class__(name, value)
 
 
 def encode_integer(integer, prefix_bits):
