@@ -4,6 +4,7 @@ from hpack.hpack import (
     _to_bytes
 )
 from hpack.exceptions import HPACKDecodingError, InvalidTableIndex
+from hpack.struct import HeaderTuple, NeverIndexedHeaderTuple
 import itertools
 import os
 import pytest
@@ -548,6 +549,48 @@ class TestHPACKDecoder(object):
         data = b'\xBE\x86\x84\x01\x0fwww.example.com'
         with pytest.raises(InvalidTableIndex):
             d.decode(data)
+
+    def test_literal_header_field_with_indexing_emits_headertuple(self):
+        """
+        A header field with indexing emits a HeaderTuple.
+        """
+        d = Decoder()
+        data = b'\x00\x0acustom-key\x0dcustom-header'
+
+        headers = d.decode(data)
+        assert len(headers) == 1
+
+        header = headers[0]
+        assert isinstance(header, HeaderTuple)
+        assert not isinstance(header, NeverIndexedHeaderTuple)
+
+    def test_literal_never_indexed_emits_neverindexedheadertuple(self):
+        """
+        A literal header field that must never be indexed emits a
+        NeverIndexedHeaderTuple.
+        """
+        d = Decoder()
+        data = b'\x10\x0acustom-key\x0dcustom-header'
+
+        headers = d.decode(data)
+        assert len(headers) == 1
+
+        header = headers[0]
+        assert isinstance(header, NeverIndexedHeaderTuple)
+
+    def test_indexed_never_indexed_emits_neverindexedheadertuple(self):
+        """
+        A header field with an indexed name that must never be indexed emits a
+        NeverIndexedHeaderTuple.
+        """
+        d = Decoder()
+        data = b'\x14\x0c/sample/path'
+
+        headers = d.decode(data)
+        assert len(headers) == 1
+
+        header = headers[0]
+        assert isinstance(header, NeverIndexedHeaderTuple)
 
 
 class TestIntegerEncoding(object):
