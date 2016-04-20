@@ -48,7 +48,43 @@ class TestHPACKEncoder(object):
         header_set = [
             (':method', 'GET', True),
             (':path', '/jimiscool/', True),
-            ('customkey', 'sensitiveinfo', True)
+            ('customkey', 'sensitiveinfo', True),
+        ]
+        assert e.encode(header_set, huffman=True) == result
+
+    def test_non_sensitive_headers_with_header_tuples(self):
+        """
+        A header field stored in a HeaderTuple emits a representation that
+        allows indexing.
+        """
+        e = Encoder()
+        result = (b'\x82\x44\x88\x63\xa1\xa9' +
+                  b'\x32\x08\x73\xd0\xc7\x40' +
+                  b'\x87\x25\xa8\x49\xe9\xea' +
+                  b'\x5f\x5f\x89\x41\x6a\x41' +
+                  b'\x92\x6e\xe5\x35\x52\x9f')
+        header_set = [
+            HeaderTuple(':method', 'GET'),
+            HeaderTuple(':path', '/jimiscool/'),
+            HeaderTuple('customkey', 'sensitiveinfo'),
+        ]
+        assert e.encode(header_set, huffman=True) == result
+
+    def test_sensitive_headers_with_header_tuples(self):
+        """
+        A header field stored in a NeverIndexedHeaderTuple emits a
+        representation that forbids indexing.
+        """
+        e = Encoder()
+        result = (b'\x82\x14\x88\x63\xa1\xa9' +
+                  b'\x32\x08\x73\xd0\xc7\x10' +
+                  b'\x87\x25\xa8\x49\xe9\xea' +
+                  b'\x5f\x5f\x89\x41\x6a\x41' +
+                  b'\x92\x6e\xe5\x35\x52\x9f')
+        header_set = [
+            NeverIndexedHeaderTuple(':method', 'GET'),
+            NeverIndexedHeaderTuple(':path', '/jimiscool/'),
+            NeverIndexedHeaderTuple('customkey', 'sensitiveinfo'),
         ]
         assert e.encode(header_set, huffman=True) == result
 
