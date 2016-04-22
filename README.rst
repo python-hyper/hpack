@@ -4,7 +4,7 @@ hpack: HTTP/2 Header Encoding for Python
 
 .. image:: https://raw.github.com/Lukasa/hyper/development/docs/source/images/hyper.png
 
-.. image:: https://travis-ci.org/Lukasa/hpack.png?branch=master
+.. image:: https://travis-ci.org/python-hyper/hpack.png?branch=master
     :target: https://travis-ci.org/python-hyper/hpack
 
 This module contains a pure-Python HTTP/2 header encoding (HPACK) logic for use
