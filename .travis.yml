@@ -20,7 +20,7 @@ matrix:
 
 install:
   - ".travis/install.sh"
-before_script: "flake8 --max-complexity 10 hpack test"
+before_script: "flake8 --max-complexity 10 --exclude=hpack/huffman_constants.py hpack test"
 script:
   - >
       if [[ $TRAVIS_PYTHON_VERSION == pypy ]]; then
