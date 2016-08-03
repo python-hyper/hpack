@@ -7,9 +7,9 @@ Implements the HPACK header compression algorithm as detailed by the IETF.
 """
 import logging
 
-from .table import HeaderTable
+from .table import HeaderTable, table_entry_size
 from .compat import to_byte, to_bytes
-from .exceptions import HPACKDecodingError
+from .exceptions import HPACKDecodingError, OversizedHeaderListError
 from .huffman import HuffmanEncoder
 from .huffman_constants import (
     REQUEST_CODES, REQUEST_CODES_LENGTH
@@ -27,6 +27,11 @@ try:  # pragma: no cover
     basestring = basestring
 except NameError:  # pragma: no cover
     basestring = (str, bytes)
+
+
+# We default the maximum header list we're willing to accept to 64kB. That's a
+# lot of headers, but if applications want to raise it they can do.
+DEFAULT_MAX_HEADER_LIST_SIZE = 2**16
 
 
 def _unicode_if_needed(header, raw):
@@ -349,10 +354,42 @@ class Encoder(object):
 class Decoder(object):
     """
     An HPACK decoder object.
-    """
 
-    def __init__(self):
+    .. versionchanged:: 2.3.0
+       Added ``max_header_list_size`` argument.
+
+    :param max_header_list_size: The maximum decompressed size we will allow
+        for any single header block. This is a protection against DoS attacks
+        that attempt to force the application to expand a relatively small
+        amount of data into a really large header list, allowing enormous
+        amounts of memory to be allocated.
+
+        If this amount of data is exceeded, a `OversizedHeaderListError
+        <hpack.OversizedHeaderListError>` exception will be raised. At this
+        point the connection should be shut down, as the HPACK state will no
+        longer be useable.
+
+        Defaults to 64kB.
+    :type max_header_list_size: ``int``
+    """
+    def __init__(self, max_header_list_size=DEFAULT_MAX_HEADER_LIST_SIZE):
         self.header_table = HeaderTable()
+
+        #: The maximum decompressed size we will allow for any single header
+        #: block. This is a protection against DoS attacks that attempt to
+        #: force the application to expand a relatively small amount of data
+        #: into a really large header list, allowing enormous amounts of memory
+        #: to be allocated.
+        #:
+        #: If this amount of data is exceeded, a `OversizedHeaderListError
+        #: <hpack.OversizedHeaderListError>` exception will be raised. At this
+        #: point the connection should be shut down, as the HPACK state will no
+        #: longer be useable.
+        #:
+        #: Defaults to 64kB.
+        #:
+        #: .. versionadded:: 2.3.0
+        self.max_header_list_size = max_header_list_size
 
     @property
     def header_table_size(self):
@@ -385,6 +422,7 @@ class Decoder(object):
         data_mem = memoryview(data)
         headers = []
         data_len = len(data)
+        inflated_size = 0
         current_index = 0
 
         while current_index < data_len:
@@ -422,6 +460,13 @@ class Decoder(object):
 
             if header:
                 headers.append(header)
+                inflated_size += table_entry_size(*header)
+
+                if inflated_size > self.max_header_list_size:
+                    raise OversizedHeaderListError(
+                        "A header list larger than %d has been received" %
+                        self.max_header_list_size
+                    )
 
             current_index += consumed
 
