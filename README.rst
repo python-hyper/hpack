@@ -11,6 +11,11 @@ This module contains a pure-Python HTTP/2 header encoding (HPACK) logic for use
 in Python programs that implement HTTP/2. It also contains a compatibility
 layer that automatically enables the use of ``nghttp2`` if it's available.
 
+Documentation
+=============
+
+Documentation is available at http://python-hyper.org/hpack/.
+
 Contributing
 ============
 
