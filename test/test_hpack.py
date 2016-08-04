@@ -3,7 +3,9 @@ from hpack.hpack import (
     Encoder, Decoder, encode_integer, decode_integer, _dict_to_iterable,
     _to_bytes
 )
-from hpack.exceptions import HPACKDecodingError, InvalidTableIndex
+from hpack.exceptions import (
+    HPACKDecodingError, InvalidTableIndex, OversizedHeaderListError
+)
 from hpack.struct import HeaderTuple, NeverIndexedHeaderTuple
 import itertools
 import os
@@ -627,6 +629,17 @@ class TestHPACKDecoder(object):
 
         header = headers[0]
         assert isinstance(header, NeverIndexedHeaderTuple)
+
+    def test_max_header_list_size(self):
+        """
+        If the header block is larger than the max_header_list_size, the HPACK
+        decoder throws an OversizedHeaderListError.
+        """
+        d = Decoder(max_header_list_size=44)
+        data = b'\x14\x0c/sample/path'
+
+        with pytest.raises(OversizedHeaderListError):
+            d.decode(data)
 
 
 class TestIntegerEncoding(object):

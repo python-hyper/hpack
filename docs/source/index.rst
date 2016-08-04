@@ -30,6 +30,7 @@ Contents
 
    installation
    api
+   security/index
 
 
 .. _HPACK: https://tools.ietf.org/html/rfc7541

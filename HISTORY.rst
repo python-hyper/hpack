@@ -1,6 +1,25 @@
 Release History
 ===============
 
+2.3.0 (2016-08-04)
+------------------
+
+**Security Fixes**
+
+- CVE-2016-6581: HPACK Bomb. This release now enforces a maximum value of the
+  decompressed size of the header list. This is to avoid the so-called "HPACK
+  Bomb" vulnerability, which is caused when a malicious peer sends a compressed
+  HPACK body that decompresses to a gigantic header list size.
+
+  This also adds a ``OversizedHeaderListError``, which is thrown by the
+  ``decode`` method if the maximum header list size is being violated. This
+  places the HPACK decoder into a broken state: it must not be used after this
+  exception is thrown.
+
+  This also adds a ``max_header_list_size`` to the ``Decoder`` object. This
+  controls the maximum allowable decompressed size of the header list. By
+  default this is set to 64kB.
+
 2.2.0 (2016-04-20)
 ------------------
 
