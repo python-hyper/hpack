@@ -1,5 +1,11 @@
 [run]
-include = hpack
+source = hpack
 omit =
     hpack/compat.py
     hpack/hpack_compat.py
+
+[paths]
+source =
+    h2/
+    .tox/*/lib/python*/site-packages/h2
+    .tox/pypy*/site-packages/h2
