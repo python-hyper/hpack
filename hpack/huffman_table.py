@@ -6,7 +6,7 @@ hpack/huffman_table
 This implementation of a Huffman decoding table for HTTP/2 is essentially a
 Python port of the work originally done for nghttp2's Huffman decoding. For
 this reason, while this file is made available under the MIT license as is the
-rest of this module, this file is undoutedly a derivative work of the nghttp2
+rest of this module, this file is undoubtedly a derivative work of the nghttp2
 file ``nghttp2_hd_huffman_data.c``, obtained from
 https://github.com/tatsuhiro-t/nghttp2/ at commit
 d2b55ad1a245e1d1964579fa3fac36ebf3939e72. That work is made available under
