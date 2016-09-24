@@ -115,7 +115,7 @@ def decode_integer(data, prefix_bits):
                 else:
                     number += next_byte * multiple
                     break
-                multiple *= 128
+                multiple <<= 7
     except IndexError:
         raise HPACKDecodingError(
             "Unable to decode HPACK integer representation from %r" % data
