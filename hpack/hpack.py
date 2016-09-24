@@ -109,10 +109,11 @@ def decode_integer(data, prefix_bits):
                 # There's some duplication here, but that's because this is a
                 # hot function, and incurring too many function calls here is
                 # a real problem. For that reason, we unrolled the maths.
+                multiple = 128 ** (index - 1)
                 if next_byte >= 128:
-                    number += (next_byte - 128) * (128 ** (index - 1))
+                    number += (next_byte - 128) * multiple
                 else:
-                    number += next_byte * (128 ** (index - 1))
+                    number += next_byte * multiple
                     break
     except IndexError:
         raise HPACKDecodingError(
