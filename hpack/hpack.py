@@ -96,7 +96,7 @@ def decode_integer(data, prefix_bits):
     max_number = (2 ** prefix_bits) - 1
     mask = 0xFF >> (8 - prefix_bits)
     index = 0
-    multiple = 1
+    shift = 0
 
     try:
         number = to_byte(data[index]) & mask
@@ -111,11 +111,11 @@ def decode_integer(data, prefix_bits):
                 # hot function, and incurring too many function calls here is
                 # a real problem. For that reason, we unrolled the maths.
                 if next_byte >= 128:
-                    number += (next_byte - 128) * multiple
+                    number += (next_byte - 128) << shift
                 else:
-                    number += next_byte * multiple
+                    number += next_byte << shift
                     break
-                multiple <<= 7
+                shift += 7
     except IndexError:
         raise HPACKDecodingError(
             "Unable to decode HPACK integer representation from %r" % data
