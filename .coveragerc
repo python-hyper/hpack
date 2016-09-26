@@ -1,5 +1,6 @@
 [run]
 source = hpack
+branch = True
 
 [paths]
 source =
@@ -9,6 +10,7 @@ source =
 
 [report]
 fail_under = 100
+show_missing = True
 omit =
     hpack/compat.py
     hpack/hpack_compat.py
