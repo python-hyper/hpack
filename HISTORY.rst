@@ -1,6 +1,15 @@
 Release History
 ===============
 
+dev
+---
+
+**API Changes (Backward Incompatible)**
+
+- Removed nghttp2 support. This support had rotted and was essentially
+  non-functional, so it has now been removed until someone has time to re-add
+  the support in a functional form.
+
 2.3.0 (2016-08-04)
 ------------------
 
