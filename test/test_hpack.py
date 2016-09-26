@@ -8,7 +8,6 @@ from hpack.exceptions import (
 )
 from hpack.struct import HeaderTuple, NeverIndexedHeaderTuple
 import itertools
-import os
 import pytest
 
 from hypothesis import given
@@ -772,19 +771,3 @@ class TestDictToIterable(object):
 
         assert expected_special == received_special
         assert expected_boring == received_boring
-
-
-class TestUtilities(object):
-    def test_nghttp2_installs_correctly(self):
-        # This test is a debugging tool: if nghttp2 is being tested by Travis,
-        # we need to confirm it imports correctly. Hyper will normally hide the
-        # import failure, so let's discover it here.
-        # Alternatively, if we are *not* testing with nghttp2, this test should
-        # confirm that it's not available.
-        if os.environ.get('NGHTTP2'):
-            import nghttp2
-        else:
-            with pytest.raises(ImportError):
-                import nghttp2  # noqa
-
-        assert True
