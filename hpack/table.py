@@ -148,9 +148,8 @@ class HeaderTable(object):
         if size > self._maxsize:
             self.dynamic_entries.clear()
             self._current_size = 0
-
-        # Add new entry if the table actually has a size
-        elif self._maxsize > 0:
+        else:
+            # Add new entry
             self.dynamic_entries.appendleft((name, value))
             self._current_size += size
             self._shrink()
