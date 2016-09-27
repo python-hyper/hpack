@@ -54,6 +54,16 @@ def encode_integer(integer, prefix_bits):
     """
     log.debug("Encoding %d with %d bits", integer, prefix_bits)
 
+    if integer < 0:
+        raise ValueError(
+            "Can only encode positive integers, got %s" % integer
+        )
+
+    if not (0 < prefix_bits < 9):
+        raise ValueError(
+            "Prefix bits must be between 0 and 9, got %s" % prefix_bits
+        )
+
     max_number = (2 ** prefix_bits) - 1
 
     if integer < max_number:
@@ -78,6 +88,11 @@ def decode_integer(data, prefix_bits):
     number of bytes that were consumed from ``data`` in order to get that
     integer.
     """
+    if not (0 < prefix_bits < 9):
+        raise ValueError(
+            "Prefix bits must be between 0 and 9, got %s" % prefix_bits
+        )
+
     max_number = (2 ** prefix_bits) - 1
     mask = 0xFF >> (8 - prefix_bits)
     index = 0
