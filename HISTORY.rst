@@ -10,6 +10,11 @@ dev
   non-functional, so it has now been removed until someone has time to re-add
   the support in a functional form.
 
+**Bugfixes**
+
+- Up to 25% performance improvement decoding HPACK-packed integers, depending
+  on the platform.
+
 2.3.0 (2016-08-04)
 ------------------
 
