@@ -10,7 +10,7 @@ is_py3 = _ver[0] == 3
 
 class TestPackageFunctions(object):
     def test_table_entry_size(self):
-        res = table_entry_size(b'TestValue', b'TestName')
+        res = table_entry_size(b'TestName', b'TestValue')
         assert res == 49
 
 
@@ -132,7 +132,7 @@ class TestHeaderTable(object):
     def test_size(self):
         tbl = HeaderTable()
         for i in range(3):
-            tbl.add(b'TestValue', b'TestName')
+            tbl.add(b'TestName', b'TestValue')
         res = tbl._current_size
         assert res == 147
 
@@ -142,3 +142,14 @@ class TestHeaderTable(object):
         assert len(tbl.dynamic_entries) == 1
         tbl.maxsize = 0
         assert len(tbl.dynamic_entries) == 0
+        
+    def test_string_maxsize(self):
+        tbl = HeaderTable()
+        for i in range(3):
+            tbl.add(b'TestName', b'TestValue')
+        
+        assert tbl._current_size == 147
+        tbl.max_size = 146
+        assert len(tbl.dynamic_entries) == 2
+        assert tbl._current_size == 98
+        
