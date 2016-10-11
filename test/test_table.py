@@ -149,6 +149,6 @@ class TestHeaderTable(object):
             tbl.add(b'TestName', b'TestValue')
 
         assert tbl._current_size == 147
-        tbl.max_size = 146
+        tbl.maxsize = 146
         assert len(tbl.dynamic_entries) == 2
         assert tbl._current_size == 98
