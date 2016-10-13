@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 INDEX_NONE = b'\x00'
 INDEX_NEVER = b'\x10'
 INDEX_INCREMENTAL = b'\x40'
+_PREFIX_BIT_MAX_NUMBERS = [(2 ** i) - 1 for i in range(10)]
 
 try:  # pragma: no cover
     basestring = basestring
@@ -31,7 +32,7 @@ except NameError:  # pragma: no cover
 
 # We default the maximum header list we're willing to accept to 64kB. That's a
 # lot of headers, but if applications want to raise it they can do.
-DEFAULT_MAX_HEADER_LIST_SIZE = 2**16
+DEFAULT_MAX_HEADER_LIST_SIZE = 2 ** 16
 
 
 def _unicode_if_needed(header, raw):
@@ -59,12 +60,12 @@ def encode_integer(integer, prefix_bits):
             "Can only encode positive integers, got %s" % integer
         )
 
-    if not (0 < prefix_bits < 9):
+    if prefix_bits < 0 or prefix_bits > 9:
         raise ValueError(
             "Prefix bits must be between 0 and 9, got %s" % prefix_bits
         )
 
-    max_number = (2 ** prefix_bits) - 1
+    max_number = _PREFIX_BIT_MAX_NUMBERS[prefix_bits]
 
     if integer < max_number:
         return bytearray([integer])  # Seriously?
@@ -73,8 +74,8 @@ def encode_integer(integer, prefix_bits):
         integer -= max_number
 
         while integer >= 128:
-            elements.append((integer % 128) + 128)
-            integer //= 128  # We need integer division
+            elements.append((integer & 127) + 128)
+            integer >>= 7
 
         elements.append(integer)
 
@@ -88,21 +89,19 @@ def decode_integer(data, prefix_bits):
     number of bytes that were consumed from ``data`` in order to get that
     integer.
     """
-    if not (0 < prefix_bits < 9):
+    if prefix_bits < 0 or prefix_bits > 9:
         raise ValueError(
             "Prefix bits must be between 0 and 9, got %s" % prefix_bits
         )
 
-    max_number = (2 ** prefix_bits) - 1
-    mask = 0xFF >> (8 - prefix_bits)
+    max_number = _PREFIX_BIT_MAX_NUMBERS[prefix_bits]
     index = 0
     shift = 0
 
     try:
-        number = to_byte(data[index]) & mask
+        number = to_byte(data[index]) & (0xFF >> (8 - prefix_bits))
 
         if number == max_number:
-
             while True:
                 index += 1
                 next_byte = to_byte(data[index])
@@ -116,14 +115,16 @@ def decode_integer(data, prefix_bits):
                     number += next_byte << shift
                     break
                 shift += 7
+
     except IndexError:
         raise HPACKDecodingError(
             "Unable to decode HPACK integer representation from %r" % data
         )
 
-    log.debug("Decoded %d, consumed %d bytes", number, index + 1)
+    index += 1
+    log.debug("Decoded %d, consumed %d bytes", number, index)
 
-    return number, index + 1
+    return number, index
 
 
 def _dict_to_iterable(header_dict):
@@ -145,7 +146,7 @@ def _to_bytes(string):
     """
     Convert string to bytes.
     """
-    if not isinstance(string, (basestring)):  # pragma: no cover
+    if not isinstance(string, basestring):  # pragma: no cover
         string = str(string)
 
     return string if isinstance(string, bytes) else string.encode('utf-8')
@@ -401,7 +402,7 @@ class Decoder(object):
         #: If this amount of data is exceeded, a `OversizedHeaderListError
         #: <hpack.OversizedHeaderListError>` exception will be raised. At this
         #: point the connection should be shut down, as the HPACK state will no
-        #: longer be useable.
+        #: longer be usable.
         #:
         #: Defaults to 64kB.
         #:
@@ -446,15 +447,15 @@ class Decoder(object):
             # Work out what kind of header we're decoding.
             # If the high bit is 1, it's an indexed field.
             current = to_byte(data[current_index])
-            indexed = bool(current & 0x80)
+            indexed = True if current & 0x80 else False
 
             # Otherwise, if the second-highest bit is 1 it's a field that does
             # alter the header table.
-            literal_index = bool(current & 0x40)
+            literal_index = True if current & 0x40 else False
 
             # Otherwise, if the third-highest bit is 1 it's an encoding context
             # update.
-            encoding_update = bool(current & 0x20)
+            encoding_update = True if current & 0x20 else False
 
             if indexed:
                 header, consumed = self._decode_indexed(

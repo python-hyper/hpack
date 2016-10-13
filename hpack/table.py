@@ -54,54 +54,56 @@ class HeaderTable(object):
         (b':status'                     , b'400'          ),  # noqa
         (b':status'                     , b'404'          ),  # noqa
         (b':status'                     , b'500'          ),  # noqa
-        (b'accept-charset'              , b''             ),  # noqa
-        (b'accept-encoding'             , b'gzip, deflate'),  # noqa
-        (b'accept-language'             , b''             ),  # noqa
-        (b'accept-ranges'               , b''             ),  # noqa
-        (b'accept'                      , b''             ),  # noqa
-        (b'access-control-allow-origin' , b''             ),  # noqa
-        (b'age'                         , b''             ),  # noqa
-        (b'allow'                       , b''             ),  # noqa
-        (b'authorization'               , b''             ),  # noqa
-        (b'cache-control'               , b''             ),  # noqa
-        (b'content-disposition'         , b''             ),  # noqa
-        (b'content-encoding'            , b''             ),  # noqa
-        (b'content-language'            , b''             ),  # noqa
-        (b'content-length'              , b''             ),  # noqa
-        (b'content-location'            , b''             ),  # noqa
-        (b'content-range'               , b''             ),  # noqa
-        (b'content-type'                , b''             ),  # noqa
-        (b'cookie'                      , b''             ),  # noqa
-        (b'date'                        , b''             ),  # noqa
-        (b'etag'                        , b''             ),  # noqa
-        (b'expect'                      , b''             ),  # noqa
-        (b'expires'                     , b''             ),  # noqa
-        (b'from'                        , b''             ),  # noqa
-        (b'host'                        , b''             ),  # noqa
-        (b'if-match'                    , b''             ),  # noqa
-        (b'if-modified-since'           , b''             ),  # noqa
-        (b'if-none-match'               , b''             ),  # noqa
-        (b'if-range'                    , b''             ),  # noqa
-        (b'if-unmodified-since'         , b''             ),  # noqa
-        (b'last-modified'               , b''             ),  # noqa
-        (b'link'                        , b''             ),  # noqa
-        (b'location'                    , b''             ),  # noqa
-        (b'max-forwards'                , b''             ),  # noqa
-        (b'proxy-authenticate'          , b''             ),  # noqa
-        (b'proxy-authorization'         , b''             ),  # noqa
-        (b'range'                       , b''             ),  # noqa
-        (b'referer'                     , b''             ),  # noqa
-        (b'refresh'                     , b''             ),  # noqa
-        (b'retry-after'                 , b''             ),  # noqa
-        (b'server'                      , b''             ),  # noqa
-        (b'set-cookie'                  , b''             ),  # noqa
-        (b'strict-transport-security'   , b''             ),  # noqa
-        (b'transfer-encoding'           , b''             ),  # noqa
-        (b'user-agent'                  , b''             ),  # noqa
-        (b'vary'                        , b''             ),  # noqa
-        (b'via'                         , b''             ),  # noqa
-        (b'www-authenticate'            , b''             ),  # noqa
+        (b'Accept-Charset'              , b''             ),  # noqa
+        (b'Accept-Encoding'             , b'gzip, deflate'),  # noqa
+        (b'Accept-Language'             , b''             ),  # noqa
+        (b'Accept-Ranges'               , b''             ),  # noqa
+        (b'Accept'                      , b''             ),  # noqa
+        (b'Access-Control-Allow-Origin' , b''             ),  # noqa
+        (b'Age'                         , b''             ),  # noqa
+        (b'Allow'                       , b''             ),  # noqa
+        (b'Authorization'               , b''             ),  # noqa
+        (b'Cache-Control'               , b''             ),  # noqa
+        (b'Content-Disposition'         , b''             ),  # noqa
+        (b'Content-Encoding'            , b''             ),  # noqa
+        (b'Content-Language'            , b''             ),  # noqa
+        (b'Content-Length'              , b''             ),  # noqa
+        (b'Content-Location'            , b''             ),  # noqa
+        (b'Content-Range'               , b''             ),  # noqa
+        (b'Content-Type'                , b''             ),  # noqa
+        (b'Cookie'                      , b''             ),  # noqa
+        (b'Date'                        , b''             ),  # noqa
+        (b'Etag'                        , b''             ),  # noqa
+        (b'Expect'                      , b''             ),  # noqa
+        (b'Expires'                     , b''             ),  # noqa
+        (b'From'                        , b''             ),  # noqa
+        (b'Host'                        , b''             ),  # noqa
+        (b'If-Match'                    , b''             ),  # noqa
+        (b'If-Modified-Since'           , b''             ),  # noqa
+        (b'If-None-Match'               , b''             ),  # noqa
+        (b'If-Range'                    , b''             ),  # noqa
+        (b'If-Unmodified-Since'         , b''             ),  # noqa
+        (b'Last-Modified'               , b''             ),  # noqa
+        (b'Link'                        , b''             ),  # noqa
+        (b'Location'                    , b''             ),  # noqa
+        (b'Max-Forwards'                , b''             ),  # noqa
+        (b'Proxy-Authenticate'          , b''             ),  # noqa
+        (b'Proxy-Authorization'         , b''             ),  # noqa
+        (b'Range'                       , b''             ),  # noqa
+        (b'Referer'                     , b''             ),  # noqa
+        (b'Refresh'                     , b''             ),  # noqa
+        (b'Retry-After'                 , b''             ),  # noqa
+        (b'Server'                      , b''             ),  # noqa
+        (b'Set-Cookie'                  , b''             ),  # noqa
+        (b'Strict-Transport-Security'   , b''             ),  # noqa
+        (b'Transfer-Encoding'           , b''             ),  # noqa
+        (b'User-Agent'                  , b''             ),  # noqa
+        (b'Vary'                        , b''             ),  # noqa
+        (b'Via'                         , b''             ),  # noqa
+        (b'Www-Authenticate'            , b''             ),  # noqa
     )  # noqa
+
+    STATIC_TABLE_LENGTH = len(STATIC_TABLE)
 
     def __init__(self):
         self._maxsize = HeaderTable.DEFAULT_SIZE
@@ -122,11 +124,13 @@ class HeaderTable(object):
         the dynamic table depending on the value of index.
         """
         index -= 1
-        if 0 <= index < len(HeaderTable.STATIC_TABLE):
+        if 0 <= index and index < HeaderTable.STATIC_TABLE_LENGTH:
             return HeaderTable.STATIC_TABLE[index]
-        index -= len(HeaderTable.STATIC_TABLE)
-        if 0 <= index < len(self.dynamic_entries):
+
+        index -= HeaderTable.STATIC_TABLE_LENGTH
+        if index < len(self.dynamic_entries):
             return self.dynamic_entries[index]
+
         raise InvalidTableIndex("Invalid table index %d" % index)
 
     def __repr__(self):
@@ -164,7 +168,7 @@ class HeaderTable(object):
             - ``(index, name, None)`` for partial matches on name only.
             - ``(index, name, value)`` for perfect matches.
         """
-        offset = len(HeaderTable.STATIC_TABLE)
+        offset = HeaderTable.STATIC_TABLE_LENGTH + 1
         partial = None
         for (i, (n, v)) in enumerate(HeaderTable.STATIC_TABLE):
             if n == name:
@@ -175,9 +179,9 @@ class HeaderTable(object):
         for (i, (n, v)) in enumerate(self.dynamic_entries):
             if n == name:
                 if v == value:
-                    return i + offset + 1, n, v
+                    return i + offset, n, v
                 elif partial is None:
-                    partial = (i + offset + 1, n, None)
+                    partial = (i + offset, n, None)
         return partial
 
     @property
