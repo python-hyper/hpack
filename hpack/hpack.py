@@ -60,9 +60,9 @@ def encode_integer(integer, prefix_bits):
             "Can only encode positive integers, got %s" % integer
         )
 
-    if prefix_bits < 0 or prefix_bits > 9:
+    if prefix_bits < 1 or prefix_bits > 8:
         raise ValueError(
-            "Prefix bits must be between 0 and 9, got %s" % prefix_bits
+            "Prefix bits must be between 1 and 8 inclusive, got %s" % prefix_bits
         )
 
     max_number = _PREFIX_BIT_MAX_NUMBERS[prefix_bits]
@@ -89,9 +89,9 @@ def decode_integer(data, prefix_bits):
     number of bytes that were consumed from ``data`` in order to get that
     integer.
     """
-    if prefix_bits < 0 or prefix_bits > 9:
+    if prefix_bits < 1 or prefix_bits > 8:
         raise ValueError(
-            "Prefix bits must be between 0 and 9, got %s" % prefix_bits
+            "Prefix bits must be between 1 and 8 inclusive, got %s" % prefix_bits
         )
 
     max_number = _PREFIX_BIT_MAX_NUMBERS[prefix_bits]
