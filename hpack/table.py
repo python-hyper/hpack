@@ -124,12 +124,13 @@ class HeaderTable(object):
         the dynamic table depending on the value of index.
         """
         index -= 1
-        if 0 <= index and index < HeaderTable.STATIC_TABLE_LENGTH:
-            return HeaderTable.STATIC_TABLE[index]
+        if 0 <= index:
+            if index < HeaderTable.STATIC_TABLE_LENGTH:
+                return HeaderTable.STATIC_TABLE[index]
 
-        index -= HeaderTable.STATIC_TABLE_LENGTH
-        if index < len(self.dynamic_entries):
-            return self.dynamic_entries[index]
+            index -= HeaderTable.STATIC_TABLE_LENGTH
+            if index < len(self.dynamic_entries):
+                return self.dynamic_entries[index]
 
         raise InvalidTableIndex("Invalid table index %d" % index)
 
