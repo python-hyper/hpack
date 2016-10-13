@@ -62,7 +62,7 @@ def encode_integer(integer, prefix_bits):
 
     if prefix_bits < 1 or prefix_bits > 8:
         raise ValueError(
-            "Prefix bits must be between 1 and 8 inclusive, got %s" % prefix_bits
+            "Prefix bits must be between 1 and 8, got %s" % prefix_bits
         )
 
     max_number = _PREFIX_BIT_MAX_NUMBERS[prefix_bits]
@@ -91,7 +91,7 @@ def decode_integer(data, prefix_bits):
     """
     if prefix_bits < 1 or prefix_bits > 8:
         raise ValueError(
-            "Prefix bits must be between 1 and 8 inclusive, got %s" % prefix_bits
+            "Prefix bits must be between 1 and 8, got %s" % prefix_bits
         )
 
     max_number = _PREFIX_BIT_MAX_NUMBERS[prefix_bits]
