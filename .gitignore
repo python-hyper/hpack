@@ -8,3 +8,4 @@ __pycache__
 .tox/
 .cache
 .hypothesis
+hpack-test-case/
