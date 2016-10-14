@@ -121,13 +121,14 @@ class HeaderTable(object):
         The entry will either be from the static table or
         the dynamic table depending on the value of index.
         """
+        original_index = index
         index -= 1
         if 0 <= index < len(HeaderTable.STATIC_TABLE):
             return HeaderTable.STATIC_TABLE[index]
         index -= len(HeaderTable.STATIC_TABLE)
         if 0 <= index < len(self.dynamic_entries):
             return self.dynamic_entries[index]
-        raise InvalidTableIndex("Invalid table index %d" % index)
+        raise InvalidTableIndex("Invalid table index %d" % original_index)
 
     def __repr__(self):
         return "HeaderTable(%d, %s, %r)" % (
