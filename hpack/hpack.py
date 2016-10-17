@@ -22,7 +22,11 @@ log = logging.getLogger(__name__)
 INDEX_NONE = b'\x00'
 INDEX_NEVER = b'\x10'
 INDEX_INCREMENTAL = b'\x40'
-_PREFIX_BIT_MAX_NUMBERS = [(2 ** i) - 1 for i in range(10)]
+
+# Precompute 2^i for 1-8 for use in prefix calcs.
+# Zero index is not used but there to save a subtraction
+# as prefix numbers are not zero indexed.
+_PREFIX_BIT_MAX_NUMBERS = [(2 ** i) - 1 for i in range(9)]
 
 try:  # pragma: no cover
     basestring = basestring
@@ -97,9 +101,10 @@ def decode_integer(data, prefix_bits):
     max_number = _PREFIX_BIT_MAX_NUMBERS[prefix_bits]
     index = 0
     shift = 0
-
+    mask = (0xFF >> (8 - prefix_bits))
+    
     try:
-        number = to_byte(data[index]) & (0xFF >> (8 - prefix_bits))
+        number = to_byte(data[index]) & mask
 
         if number == max_number:
             while True:
