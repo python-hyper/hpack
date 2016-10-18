@@ -27,6 +27,7 @@ INDEX_INCREMENTAL = b'\x40'
 # Zero index is not used but there to save a subtraction
 # as prefix numbers are not zero indexed.
 _PREFIX_BIT_MAX_NUMBERS = [(2 ** i) - 1 for i in range(9)]
+_UNROLLED_INDEX_SHIFT = [(i, (i - 1) * 7) for i in range(1, 20)]
 
 try:  # pragma: no cover
     basestring = basestring
@@ -99,21 +100,17 @@ def decode_integer(data, prefix_bits):
         )
 
     max_number = _PREFIX_BIT_MAX_NUMBERS[prefix_bits]
-    index = 0
+    index = 1
     shift = 0
     mask = (0xFF >> (8 - prefix_bits))
-    
-    try:
-        number = to_byte(data[index]) & mask
 
+    try:
+        number = to_byte(data[0]) & mask
         if number == max_number:
             while True:
-                index += 1
                 next_byte = to_byte(data[index])
+                index += 1
 
-                # There's some duplication here, but that's because this is a
-                # hot function, and incurring too many function calls here is
-                # a real problem. For that reason, we unrolled the maths.
                 if next_byte >= 128:
                     number += (next_byte - 128) << shift
                 else:
@@ -126,7 +123,6 @@ def decode_integer(data, prefix_bits):
             "Unable to decode HPACK integer representation from %r" % data
         )
 
-    index += 1
     log.debug("Decoded %d, consumed %d bytes", number, index)
 
     return number, index
