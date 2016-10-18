@@ -9,3 +9,4 @@ __pycache__
 .cache
 .hypothesis
 .benchmarks/
+hpack-test-case/

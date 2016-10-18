@@ -31,6 +31,14 @@ In chronological order:
 
   - 25% performance improvement to integer decode.
 
+- Davey Shafik (@dshafik)
+
+  - More testing.
+
+- Seth Michael Larson (@SethMichaelLarson)
+
+  - Code cleanups.
+
 Contributors (hyper)
 ````````````````````
 
