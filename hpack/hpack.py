@@ -27,7 +27,6 @@ INDEX_INCREMENTAL = b'\x40'
 # Zero index is not used but there to save a subtraction
 # as prefix numbers are not zero indexed.
 _PREFIX_BIT_MAX_NUMBERS = [(2 ** i) - 1 for i in range(9)]
-_UNROLLED_INDEX_SHIFT = [(i, (i - 1) * 7) for i in range(1, 20)]
 
 try:  # pragma: no cover
     basestring = basestring
