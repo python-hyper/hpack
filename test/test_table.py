@@ -42,8 +42,12 @@ class TestHeaderTable(object):
         tbl = HeaderTable()
         off = len(HeaderTable.STATIC_TABLE)
         tbl.add(b'TestName', b'TestValue')
-        with pytest.raises(InvalidTableIndex):
+        with pytest.raises(InvalidTableIndex) as e:
             tbl.get_by_index(off + 2)
+
+        assert (
+            "InvalidTableIndex: Invalid table index %d" % (off + 2) in str(e)
+        )
 
     def test_repr(self):
         tbl = HeaderTable()
