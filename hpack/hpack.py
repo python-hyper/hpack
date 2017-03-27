@@ -468,7 +468,9 @@ class Decoder(object):
                 )
             elif encoding_update:
                 # It's an update to the encoding context.
-                consumed = self._update_encoding_context(data_mem)
+                consumed = self._update_encoding_context(
+                    data_mem[current_index:]
+                )
                 header = None
             else:
                 # It's a literal header that does not affect the header table.
