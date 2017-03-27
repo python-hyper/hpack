@@ -9,7 +9,9 @@ import logging
 
 from .table import HeaderTable, table_entry_size
 from .compat import to_byte, to_bytes
-from .exceptions import HPACKDecodingError, OversizedHeaderListError
+from .exceptions import (
+    HPACKDecodingError, OversizedHeaderListError, InvalidTableSizeError
+)
 from .huffman import HuffmanEncoder
 from .huffman_constants import (
     REQUEST_CODES, REQUEST_CODES_LENGTH
@@ -499,6 +501,14 @@ class Decoder(object):
 
             current_index += consumed
 
+        # Confirm that the table size is lower than the maximum. We do this
+        # here to ensure that we catch when the max has been *shrunk* and the
+        # remote peer hasn't actually done that.
+        if self.header_table_size > self.max_allowed_table_size:
+            raise InvalidTableSizeError(
+                "Encoder did not shrink table size to within the max"
+            )
+
         try:
             return [_unicode_if_needed(h, raw) for h in headers]
         except UnicodeDecodeError:
@@ -510,6 +520,10 @@ class Decoder(object):
         """
         # We've been asked to resize the header table.
         new_size, consumed = decode_integer(data, 5)
+        if new_size > self.max_allowed_table_size:
+            raise InvalidTableSizeError(
+                "Encoder exceeded max allowable table size"
+            )
         self.header_table_size = new_size
         return consumed
 

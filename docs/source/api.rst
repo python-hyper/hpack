@@ -22,3 +22,5 @@ This document provides the HPACK API.
 .. autoclass:: hpack.InvalidTableIndex
 
 .. autoclass:: hpack.OversizedHeaderListError
+
+.. autoclass:: hpack.InvalidTableSizeError
