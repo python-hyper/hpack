@@ -637,6 +637,22 @@ class TestHPACKDecoder(object):
         with pytest.raises(OversizedHeaderListError):
             d.decode(data)
 
+    def test_can_decode_multiple_header_table_size_changes(self):
+        """
+        If multiple header table size changes are sent in at once, they are
+        successfully decoded.
+        """
+        d = Decoder()
+        data = b'?a?\xe1\x1f\x82\x87\x84A\x8a\x08\x9d\\\x0b\x81p\xdcy\xa6\x99'
+        expect = [
+            (':method', 'GET'),
+            (':scheme', 'https'),
+            (':path', '/'),
+            (':authority', '127.0.0.1:8443')
+        ]
+
+        assert d.decode(data) == expect
+
 
 class TestDictToIterable(object):
     """
