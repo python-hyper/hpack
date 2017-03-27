@@ -9,6 +9,16 @@ dev
 - Removed nghttp2 support. This support had rotted and was essentially
   non-functional, so it has now been removed until someone has time to re-add
   the support in a functional form.
+- Attempts by the encoder to exceed the maximum allowed header table size via
+  dynamic table size updates (or the absence thereof) are now forbidden.
+
+**API Changes (Backward Compatible)**
+
+- Added a new ``InvalidTableSizeError`` thrown when the encoder does not
+  respect the maximum table size set by the user.
+- Added a ``Decoder.max_allowed_table_size`` field that sets the maximum
+  allowed size of the decoder header table. See the documentation for an
+  indication of how this should be used.
 
 **Bugfixes**
 
