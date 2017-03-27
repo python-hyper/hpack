@@ -14,6 +14,8 @@ dev
 
 - Up to 25% performance improvement decoding HPACK-packed integers, depending
   on the platform.
+- HPACK now tolerates receiving multiple header table size changes in sequence,
+  rather than only one.
 - Other miscellaneous performance improvements.
 
 2.3.0 (2016-08-04)
