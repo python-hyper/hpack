@@ -409,6 +409,15 @@ class Decoder(object):
         #: .. versionadded:: 2.3.0
         self.max_header_list_size = max_header_list_size
 
+        #: Maximum allowed header table size.
+        #:
+        #: A HTTP/2 implementation should set this to the most recent value of
+        #: SETTINGS_HEADER_TABLE_SIZE that it sent *and has received an ACK
+        #: for*. Once this setting is set, the actual header table size will be
+        #: checked at the end of each decoding run and whenever it is changed,
+        #: to confirm that it fits in this size.
+        self.max_allowed_table_size = self.header_table.maxsize
+
     @property
     def header_table_size(self):
         """
