@@ -588,6 +588,8 @@ class Decoder(object):
 
             length, consumed = decode_integer(data, 7)
             name = data[consumed:consumed + length]
+            if len(name) != length:
+                raise HPACKDecodingError("Truncated header block")
 
             if to_byte(data[0]) & 0x80:
                 name = decode_huffman(name)
@@ -598,6 +600,8 @@ class Decoder(object):
         # The header value is definitely length-based.
         length, consumed = decode_integer(data, 7)
         value = data[consumed:consumed + length]
+        if len(value) != length:
+            raise HPACKDecodingError("Truncated header block")
 
         if to_byte(data[0]) & 0x80:
             value = decode_huffman(value)
