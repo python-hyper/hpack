@@ -478,7 +478,12 @@ class Decoder(object):
                     data_mem[current_index:]
                 )
             elif encoding_update:
-                # It's an update to the encoding context.
+                # It's an update to the encoding context. These are forbidden
+                # in a header block after any actual header.
+                if headers:
+                    raise HPACKDecodingError(
+                        "Table size update not at the start of the block"
+                    )
                 consumed = self._update_encoding_context(
                     data_mem[current_index:]
                 )
