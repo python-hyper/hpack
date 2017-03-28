@@ -700,6 +700,42 @@ class TestHPACKDecoder(object):
         with pytest.raises(HPACKDecodingError):
             d.decode(data)
 
+    def test_truncated_header_name(self):
+        """
+        If a header name is truncated an error is raised.
+        """
+        d = Decoder()
+        # This is a simple header block that has a bad ending. The interesting
+        # part begins on the second line. This indicates a string that has
+        # literal name and value. The name is a 5 character huffman-encoded
+        # string that is only three bytes long.
+        data = (
+            b'\x82\x87\x84A\x8a\x08\x9d\\\x0b\x81p\xdcy\xa6\x99'
+            b'\x00\x85\xf2\xb2J'
+        )
+
+        with pytest.raises(HPACKDecodingError):
+            d.decode(data)
+
+    def test_truncated_header_value(self):
+        """
+        If a header value is truncated an error is raised.
+        """
+        d = Decoder()
+        # This is a simple header block that has a bad ending. The interesting
+        # part begins on the second line. This indicates a string that has
+        # literal name and value. The name is a 5 character huffman-encoded
+        # string, but the entire EOS character has been written over the end.
+        # This causes hpack to see the header value as being supposed to be
+        # 622462 bytes long, which it clearly is not, and so this must fail.
+        data = (
+            b'\x82\x87\x84A\x8a\x08\x9d\\\x0b\x81p\xdcy\xa6\x99'
+            b'\x00\x85\xf2\xb2J\x87\xff\xff\xff\xfd%B\x7f'
+        )
+
+        with pytest.raises(HPACKDecodingError):
+            d.decode(data)
+
 
 class TestDictToIterable(object):
     """
