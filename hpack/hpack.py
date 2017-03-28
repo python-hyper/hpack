@@ -9,7 +9,9 @@ import logging
 
 from .table import HeaderTable, table_entry_size
 from .compat import to_byte, to_bytes
-from .exceptions import HPACKDecodingError, OversizedHeaderListError
+from .exceptions import (
+    HPACKDecodingError, OversizedHeaderListError, InvalidTableSizeError
+)
 from .huffman import HuffmanEncoder
 from .huffman_constants import (
     REQUEST_CODES, REQUEST_CODES_LENGTH
@@ -409,6 +411,15 @@ class Decoder(object):
         #: .. versionadded:: 2.3.0
         self.max_header_list_size = max_header_list_size
 
+        #: Maximum allowed header table size.
+        #:
+        #: A HTTP/2 implementation should set this to the most recent value of
+        #: SETTINGS_HEADER_TABLE_SIZE that it sent *and has received an ACK
+        #: for*. Once this setting is set, the actual header table size will be
+        #: checked at the end of each decoding run and whenever it is changed,
+        #: to confirm that it fits in this size.
+        self.max_allowed_table_size = self.header_table.maxsize
+
     @property
     def header_table_size(self):
         """
@@ -490,6 +501,14 @@ class Decoder(object):
 
             current_index += consumed
 
+        # Confirm that the table size is lower than the maximum. We do this
+        # here to ensure that we catch when the max has been *shrunk* and the
+        # remote peer hasn't actually done that.
+        if self.header_table_size > self.max_allowed_table_size:
+            raise InvalidTableSizeError(
+                "Encoder did not shrink table size to within the max"
+            )
+
         try:
             return [_unicode_if_needed(h, raw) for h in headers]
         except UnicodeDecodeError:
@@ -501,6 +520,10 @@ class Decoder(object):
         """
         # We've been asked to resize the header table.
         new_size, consumed = decode_integer(data, 5)
+        if new_size > self.max_allowed_table_size:
+            raise InvalidTableSizeError(
+                "Encoder exceeded max allowable table size"
+            )
         self.header_table_size = new_size
         return consumed
 

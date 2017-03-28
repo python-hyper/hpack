@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from hpack.hpack import Encoder, Decoder, _dict_to_iterable, _to_bytes
 from hpack.exceptions import (
-    HPACKDecodingError, InvalidTableIndex, OversizedHeaderListError
+    HPACKDecodingError, InvalidTableIndex, OversizedHeaderListError,
+    InvalidTableSizeError
 )
 from hpack.struct import HeaderTuple, NeverIndexedHeaderTuple
 import itertools
@@ -652,6 +653,30 @@ class TestHPACKDecoder(object):
         ]
 
         assert d.decode(data) == expect
+
+    def test_header_table_size_change_above_maximum(self):
+        """
+        If a header table size change is received that exceeds the maximum
+        allowed table size, it is rejected.
+        """
+        d = Decoder()
+        d.max_allowed_table_size = 127
+        data = b'?a\x82\x87\x84A\x8a\x08\x9d\\\x0b\x81p\xdcy\xa6\x99'
+
+        with pytest.raises(InvalidTableSizeError):
+            d.decode(data)
+
+    def test_table_size_not_adjusting(self):
+        """
+        If the header table size is shrunk, and then the remote peer doesn't
+        join in the shrinking, then an error is raised.
+        """
+        d = Decoder()
+        d.max_allowed_table_size = 128
+        data = b'\x82\x87\x84A\x8a\x08\x9d\\\x0b\x81p\xdcy\xa6\x99'
+
+        with pytest.raises(InvalidTableSizeError):
+            d.decode(data)
 
 
 class TestDictToIterable(object):
