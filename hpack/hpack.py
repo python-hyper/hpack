@@ -478,7 +478,12 @@ class Decoder(object):
                     data_mem[current_index:]
                 )
             elif encoding_update:
-                # It's an update to the encoding context.
+                # It's an update to the encoding context. These are forbidden
+                # in a header block after any actual header.
+                if headers:
+                    raise HPACKDecodingError(
+                        "Table size update not at the start of the block"
+                    )
                 consumed = self._update_encoding_context(
                     data_mem[current_index:]
                 )
@@ -504,15 +509,22 @@ class Decoder(object):
         # Confirm that the table size is lower than the maximum. We do this
         # here to ensure that we catch when the max has been *shrunk* and the
         # remote peer hasn't actually done that.
-        if self.header_table_size > self.max_allowed_table_size:
-            raise InvalidTableSizeError(
-                "Encoder did not shrink table size to within the max"
-            )
+        self._assert_valid_table_size()
 
         try:
             return [_unicode_if_needed(h, raw) for h in headers]
         except UnicodeDecodeError:
             raise HPACKDecodingError("Unable to decode headers as UTF-8.")
+
+    def _assert_valid_table_size(self):
+        """
+        Check that the table size set by the encoder is lower than the maximum
+        we expect to have.
+        """
+        if self.header_table_size > self.max_allowed_table_size:
+            raise InvalidTableSizeError(
+                "Encoder did not shrink table size to within the max"
+            )
 
     def _update_encoding_context(self, data):
         """
