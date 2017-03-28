@@ -678,6 +678,28 @@ class TestHPACKDecoder(object):
         with pytest.raises(InvalidTableSizeError):
             d.decode(data)
 
+    def test_table_size_last_rejected(self):
+        """
+        If a header table size change comes last in the header block, it is
+        forbidden.
+        """
+        d = Decoder()
+        data = b'\x82\x87\x84A\x8a\x08\x9d\\\x0b\x81p\xdcy\xa6\x99?a'
+
+        with pytest.raises(HPACKDecodingError):
+            d.decode(data)
+
+    def test_table_size_middle_rejected(self):
+        """
+        If a header table size change comes anywhere but first in the header
+        block, it is forbidden.
+        """
+        d = Decoder()
+        data = b'\x82?a\x87\x84A\x8a\x08\x9d\\\x0b\x81p\xdcy\xa6\x99'
+
+        with pytest.raises(HPACKDecodingError):
+            d.decode(data)
+
 
 class TestDictToIterable(object):
     """
