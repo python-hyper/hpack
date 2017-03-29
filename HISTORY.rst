@@ -1,8 +1,8 @@
 Release History
 ===============
 
-dev
----
+3.0.0 (2017-03-29)
+------------------
 
 **API Changes (Backward Incompatible)**
 
