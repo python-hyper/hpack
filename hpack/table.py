@@ -23,6 +23,12 @@ def table_entry_size(name, value):
     return 32 + len(name) + len(value)
 
 
+class _HeaderNameSearchResult(object):
+    def __init__(self):
+        self.min = None
+        self.positions = {}
+
+
 class HeaderTable(object):
     """
     Implements the combined static and dynamic header table
@@ -105,6 +111,13 @@ class HeaderTable(object):
 
     STATIC_TABLE_LENGTH = len(STATIC_TABLE)
 
+    STATIC_TABLE_MAPPING = {}
+    for index, (name, value) in enumerate(STATIC_TABLE):
+        header_name_search_result = STATIC_TABLE_MAPPING.setdefault(name, _HeaderNameSearchResult())
+        header_name_search_result.positions[value] = index
+        min_index = header_name_search_result.min
+        header_name_search_result.min = min(min_index, index) if min_index is not None else index
+
     def __init__(self):
         self._maxsize = HeaderTable.DEFAULT_SIZE
         self._current_size = 0
@@ -172,12 +185,15 @@ class HeaderTable(object):
         """
         offset = HeaderTable.STATIC_TABLE_LENGTH + 1
         partial = None
-        for (i, (n, v)) in enumerate(HeaderTable.STATIC_TABLE):
-            if n == name:
-                if v == value:
-                    return i + 1, n, v
-                elif partial is None:
-                    partial = (i + 1, n, None)
+
+        header_name_search_result = HeaderTable.STATIC_TABLE_MAPPING.get(name)
+        if header_name_search_result is not None:
+            index = header_name_search_result.positions.get(value)
+            if index is not None:
+                return index + 1, name, value
+            else:
+                partial = (header_name_search_result.min + 1, name, None)
+
         for (i, (n, v)) in enumerate(self.dynamic_entries):
             if n == name:
                 if v == value:
