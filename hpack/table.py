@@ -23,20 +23,6 @@ def table_entry_size(name, value):
     return 32 + len(name) + len(value)
 
 
-class _HeaderNameSearchResult(object):
-    """
-    Helper class for search index of static header
-
-    Attributes:
-        min (int, optional): minimal position of static header value.
-            Required in case when we have some headers with some name.
-        positions (dict): Map static header values to their positions.
-    """
-    def __init__(self):
-        self.min = None
-        self.positions = {}
-
-
 class HeaderTable(object):
     """
     Implements the combined static and dynamic header table
@@ -124,29 +110,6 @@ class HeaderTable(object):
         self._current_size = 0
         self.resized = False
         self.dynamic_entries = deque()
-
-    @staticmethod
-    def build_static_table_mapping():
-        """
-        Build static table mapping from header name to _HeaderNameSearchResult.
-
-        static_table_mapping used for hash searching.
-        """
-        static_table_mapping = {}
-        for index, (name, value) in enumerate(HeaderTable.STATIC_TABLE):
-            header_name_search_result = static_table_mapping.get(name)
-            if not header_name_search_result:
-                header_name_search_result = _HeaderNameSearchResult()
-                static_table_mapping[name] = header_name_search_result
-            header_name_search_result.positions[value] = index
-
-            min_index = header_name_search_result.min
-            if min_index is not None:
-                new_min_index = min(min_index, index)
-            else:
-                new_min_index = index
-            header_name_search_result.min = new_min_index
-        return static_table_mapping
 
     def get_by_index(self, index):
         """
@@ -255,4 +218,41 @@ class HeaderTable(object):
         self._current_size = cursize
 
 
-HeaderTable.STATIC_TABLE_MAPPING = HeaderTable.build_static_table_mapping()
+class _HeaderNameSearchResult(object):
+    """
+    Helper class for search index of static header
+
+    Attributes:
+        min (int, optional): minimal position of static header value.
+            Required in case when we have some headers with some name.
+        positions (dict): Map static header values to their positions.
+    """
+    def __init__(self):
+        self.min = None
+        self.positions = {}
+
+
+def _build_static_table_mapping():
+    """
+    Build static table mapping from header name to _HeaderNameSearchResult.
+
+    static_table_mapping used for hash searching.
+    """
+    static_table_mapping = {}
+    for index, (name, value) in enumerate(HeaderTable.STATIC_TABLE):
+        header_name_search_result = static_table_mapping.get(name)
+        if not header_name_search_result:
+            header_name_search_result = _HeaderNameSearchResult()
+            static_table_mapping[name] = header_name_search_result
+        header_name_search_result.positions[value] = index
+
+        min_index = header_name_search_result.min
+        if min_index is not None:
+            new_min_index = min(min_index, index)
+        else:
+            new_min_index = index
+        header_name_search_result.min = new_min_index
+    return static_table_mapping
+
+
+HeaderTable.STATIC_TABLE_MAPPING = _build_static_table_mapping()
