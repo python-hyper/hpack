@@ -24,6 +24,14 @@ def table_entry_size(name, value):
 
 
 class _HeaderNameSearchResult(object):
+    """
+    Helper class for search index of static header
+
+    Attributes:
+        min (int, optional): minimal position of static header value.
+            Required in case when we have some headers with some name.
+        positions (dict): Map static header values to their positions.
+    """
     def __init__(self):
         self.min = None
         self.positions = {}
@@ -111,18 +119,34 @@ class HeaderTable(object):
 
     STATIC_TABLE_LENGTH = len(STATIC_TABLE)
 
-    STATIC_TABLE_MAPPING = {}
-    for index, (name, value) in enumerate(STATIC_TABLE):
-        header_name_search_result = STATIC_TABLE_MAPPING.setdefault(name, _HeaderNameSearchResult())
-        header_name_search_result.positions[value] = index
-        min_index = header_name_search_result.min
-        header_name_search_result.min = min(min_index, index) if min_index is not None else index
-
     def __init__(self):
         self._maxsize = HeaderTable.DEFAULT_SIZE
         self._current_size = 0
         self.resized = False
         self.dynamic_entries = deque()
+
+    @staticmethod
+    def build_static_table_mapping():
+        """
+        Build static table mapping from header name to _HeaderNameSearchResult.
+
+        static_table_mapping used for hash searching.
+        """
+        static_table_mapping = {}
+        for index, (name, value) in enumerate(HeaderTable.STATIC_TABLE):
+            header_name_search_result = static_table_mapping.get(name)
+            if not header_name_search_result:
+                header_name_search_result = _HeaderNameSearchResult()
+                static_table_mapping[name] = header_name_search_result
+            header_name_search_result.positions[value] = index
+
+            min_index = header_name_search_result.min
+            if min_index is not None:
+                new_min_index = min(min_index, index)
+            else:
+                new_min_index = index
+            header_name_search_result.min = new_min_index
+        return static_table_mapping
 
     def get_by_index(self, index):
         """
@@ -229,3 +253,6 @@ class HeaderTable(object):
             cursize -= table_entry_size(name, value)
             log.debug("Evicting %s: %s from the header table", name, value)
         self._current_size = cursize
+
+
+HeaderTable.STATIC_TABLE_MAPPING = HeaderTable.build_static_table_mapping()
