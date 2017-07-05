@@ -173,7 +173,7 @@ class HeaderTable(object):
         partial = None
 
         header_name_search_result = HeaderTable.STATIC_TABLE_MAPPING.get(name)
-        if header_name_search_result is not None:
+        if header_name_search_result:
             index = header_name_search_result[1].get(value)
             if index is not None:
                 return index, name, value
