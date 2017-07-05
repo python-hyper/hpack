@@ -32,7 +32,7 @@ setup(
     name='hpack',
     version=version,
     description='Pure-Python HPACK header compression',
-    long_description=codecs.open('README.rst').read() + '\n\n' + codecs.open('HISTORY.rst',encoding='utf-8').read(),
+    long_description=codecs.open('README.rst',encoding='utf-8').read() + '\n\n' + codecs.open('HISTORY.rst',encoding='utf-8').read(),
     author='Cory Benfield',
     author_email='cory@lukasa.co.uk',
     url='http://hyper.rtfd.org',
