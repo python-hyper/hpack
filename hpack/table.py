@@ -170,17 +170,17 @@ class HeaderTable(object):
             - ``(index, name, None)`` for partial matches on name only.
             - ``(index, name, value)`` for perfect matches.
         """
-        offset = HeaderTable.STATIC_TABLE_LENGTH + 1
         partial = None
 
         header_name_search_result = HeaderTable.STATIC_TABLE_MAPPING.get(name)
         if header_name_search_result is not None:
-            index = header_name_search_result.positions.get(value)
+            index = header_name_search_result[1].get(value)
             if index is not None:
-                return index + 1, name, value
+                return index, name, value
             else:
-                partial = (header_name_search_result.min + 1, name, None)
+                partial = (header_name_search_result[0], name, None)
 
+        offset = HeaderTable.STATIC_TABLE_LENGTH + 1
         for (i, (n, v)) in enumerate(self.dynamic_entries):
             if n == name:
                 if v == value:
@@ -218,40 +218,17 @@ class HeaderTable(object):
         self._current_size = cursize
 
 
-class _HeaderNameSearchResult(object):
-    """
-    Helper class for search index of static header
-
-    Attributes:
-        min (int, optional): minimal position of static header value.
-            Required in case when we have some headers with some name.
-        positions (dict): Map static header values to their positions.
-    """
-    def __init__(self):
-        self.min = None
-        self.positions = {}
-
-
 def _build_static_table_mapping():
     """
-    Build static table mapping from header name to _HeaderNameSearchResult.
+    Build static table mapping from header name to tuple with next structure:
+    (<minimal index of header>, <mapping from header value to it index>).
 
     static_table_mapping used for hash searching.
     """
     static_table_mapping = {}
-    for index, (name, value) in enumerate(HeaderTable.STATIC_TABLE):
-        header_name_search_result = static_table_mapping.get(name)
-        if not header_name_search_result:
-            header_name_search_result = _HeaderNameSearchResult()
-            static_table_mapping[name] = header_name_search_result
-        header_name_search_result.positions[value] = index
-
-        min_index = header_name_search_result.min
-        if min_index is not None:
-            new_min_index = min(min_index, index)
-        else:
-            new_min_index = index
-        header_name_search_result.min = new_min_index
+    for index, (name, value) in enumerate(HeaderTable.STATIC_TABLE, 1):
+        header_name_search_result = static_table_mapping.setdefault(name, (index, {}))
+        header_name_search_result[1][value] = index
     return static_table_mapping
 
 
