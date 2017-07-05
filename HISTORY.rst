@@ -8,6 +8,8 @@ Release History
 
 **Bugfixes**
 
+- Performance improvement of static header search. Use dict search instead
+  of linear search.
 
 
 3.0.0 (2017-03-29)
