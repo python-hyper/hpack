@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import codecs
 import os
 import re
 import sys
@@ -31,7 +32,7 @@ setup(
     name='hpack',
     version=version,
     description='Pure-Python HPACK header compression',
-    long_description=open('README.rst').read() + '\n\n' + open('HISTORY.rst').read(),
+    long_description=codecs.open('README.rst',encoding='utf-8').read() + '\n\n' + codecs.open('HISTORY.rst',encoding='utf-8').read(),
     author='Cory Benfield',
     author_email='cory@lukasa.co.uk',
     url='http://hyper.rtfd.org',
