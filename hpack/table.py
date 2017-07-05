@@ -156,7 +156,7 @@ class HeaderTable(object):
             self._current_size = 0
         else:
             # Add new entry
-            self.dynamic_entries.appendleft((name, value))
+            self.dynamic_entries.appendleft((name, value, size))
             self._current_size += size
             self._shrink()
 
@@ -178,7 +178,7 @@ class HeaderTable(object):
                     return i + 1, n, v
                 elif partial is None:
                     partial = (i + 1, n, None)
-        for (i, (n, v)) in enumerate(self.dynamic_entries):
+        for (i, (n, v, _)) in enumerate(self.dynamic_entries):
             if n == name:
                 if v == value:
                     return i + offset, n, v
@@ -209,7 +209,7 @@ class HeaderTable(object):
         """
         cursize = self._current_size
         while cursize > self._maxsize:
-            name, value = self.dynamic_entries.pop()
-            cursize -= table_entry_size(name, value)
+            name, value, size = self.dynamic_entries.pop()
+            cursize -= size
             log.debug("Evicting %s: %s from the header table", name, value)
         self._current_size = cursize
