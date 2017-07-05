@@ -131,7 +131,7 @@ class HeaderTable(object):
 
             index -= HeaderTable.STATIC_TABLE_LENGTH
             if index < len(self.dynamic_entries):
-                return self.dynamic_entries[index]
+                return self.dynamic_entries[index][:2]
 
         raise InvalidTableIndex("Invalid table index %d" % original_index)
 
