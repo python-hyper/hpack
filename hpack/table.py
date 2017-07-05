@@ -170,7 +170,6 @@ class HeaderTable(object):
             - ``(index, name, None)`` for partial matches on name only.
             - ``(index, name, value)`` for perfect matches.
         """
-        offset = HeaderTable.STATIC_TABLE_LENGTH + 1
         partial = None
         for (i, (n, v)) in enumerate(HeaderTable.STATIC_TABLE):
             if n == name:
@@ -213,3 +212,20 @@ class HeaderTable(object):
             cursize -= size
             log.debug("Evicting %s: %s from the header table", name, value)
         self._current_size = cursize
+
+
+def _build_static_table_mapping():
+    """
+    Build static table mapping from header name to tuple with next structure:
+    (<minimal index of header>, <mapping from header value to it index>).
+
+    static_table_mapping used for hash searching.
+    """
+    static_table_mapping = {}
+    for index, (name, value) in enumerate(HeaderTable.STATIC_TABLE, 1):
+        header_name_search_result = static_table_mapping.setdefault(name, (index, {}))
+        header_name_search_result[1][value] = index
+    return static_table_mapping
+
+
+HeaderTable.STATIC_TABLE_MAPPING = _build_static_table_mapping()
