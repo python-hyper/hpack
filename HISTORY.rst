@@ -38,7 +38,7 @@ Release History
 - HPACK now tolerates receiving multiple header table size changes in sequence,
   rather than only one.
 - HPACK now forbids header table size changes anywhere but first in a header
-  block, as required by RFC 7541 § 4.2.
+  block, as required by RFC 7541 S 4.2.
 - Other miscellaneous performance improvements.
 
 2.3.0 (2016-08-04)
