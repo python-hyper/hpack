@@ -1,6 +1,5 @@
 language: python
-
-sudo: required
+dist: bionic
 
 python:
   - "2.7"
@@ -15,3 +14,8 @@ install:
 before_script: "flake8 hpack test"
 script:
   - ".travis/run.sh"
+
+branches:
+  only:
+    - master
+

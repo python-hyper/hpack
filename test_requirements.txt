@@ -1,3 +1,5 @@
-pytest==3.3.2
-hypothesis
+pytest==5.2.4; python_version!="2.7"
+pytest==4.6.6; python_version=="2.7"
+hypothesis==4.44.2
 coverage==4.4.2
+attrs==19.2.0
