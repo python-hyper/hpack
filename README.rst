@@ -8,8 +8,7 @@ hpack: HTTP/2 Header Encoding for Python
     :target: https://travis-ci.org/python-hyper/hpack
 
 This module contains a pure-Python HTTP/2 header encoding (HPACK) logic for use
-in Python programs that implement HTTP/2. It also contains a compatibility
-layer that automatically enables the use of ``nghttp2`` if it's available.
+in Python programs that implement HTTP/2.
 
 Documentation
 =============
