@@ -46,7 +46,7 @@ class TestHeaderTable(object):
             tbl.get_by_index(off + 2)
 
         assert (
-            "InvalidTableIndex: Invalid table index %d" % (off + 2) in str(e)
+            "Invalid table index %d" % (off + 2) in str(e.value)
         )
 
     def test_repr(self):

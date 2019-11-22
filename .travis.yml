@@ -1,17 +1,19 @@
 language: python
 
-sudo: required
-
 python:
   - "2.7"
-  - "3.4"
   - "3.5"
   - "3.6"
   - "3.7"
-  - pypy
+  - "3.8"
+  - pypy3
 
 install:
   - ".travis/install.sh"
 before_script: "flake8 hpack test"
 script:
   - ".travis/run.sh"
+
+branches:
+  only:
+    - master
