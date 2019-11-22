@@ -3,10 +3,10 @@ dist: bionic
 
 python:
   - "2.7"
-  - "3.4"
   - "3.5"
   - "3.6"
   - "3.7"
+  - "3.8"
   - pypy
 
 install:
@@ -18,4 +18,3 @@ script:
 branches:
   only:
     - master
-
