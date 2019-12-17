@@ -1,4 +1,4 @@
 pytest<6
 hypothesis<4.55.2
-coverage==4.5.4
+coverage==5.0
 attrs==19.3.0
