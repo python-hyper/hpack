@@ -35,7 +35,7 @@ setup(
     long_description=codecs.open('README.rst',encoding='utf-8').read() + '\n\n' + codecs.open('HISTORY.rst',encoding='utf-8').read(),
     author='Cory Benfield',
     author_email='cory@lukasa.co.uk',
-    url='http://hyper.rtfd.org',
+    url='http://python-hyper.org/hpack',
     packages=packages,
     package_data={'': ['LICENSE', 'README.rst', 'CONTRIBUTORS.rst', 'HISTORY.rst', 'NOTICES']},
     package_dir={'hpack': 'hpack'},
