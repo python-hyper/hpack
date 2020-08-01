@@ -187,7 +187,7 @@ class Encoder(object):
 
         :param headers: The headers to encode. Must be either an iterable of
                         tuples, an iterable of :class:`HeaderTuple
-                        <hpack.struct.HeaderTuple>`, or a ``dict``.
+                        <hpack.HeaderTuple>`, or a ``dict``.
 
                         If an iterable of tuples, the tuples may be either
                         two-tuples or three-tuples. If they are two-tuples, the
@@ -199,10 +199,10 @@ class Encoder(object):
                         ``sensitive`` defaults to ``False``.
 
                         If an iterable of :class:`HeaderTuple
-                        <hpack.struct.HeaderTuple>`, the tuples must always be
+                        <hpack.HeaderTuple>`, the tuples must always be
                         two-tuples. Instead of using ``sensitive`` as a third
                         tuple entry, use :class:`NeverIndexedHeaderTuple
-                        <hpack.struct.NeverIndexedHeaderTuple>` to request that
+                        <hpack.NeverIndexedHeaderTuple>` to request that
                         the field never be indexed.
 
                         .. warning:: HTTP/2 requires that all special headers
