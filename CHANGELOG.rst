@@ -1,8 +1,17 @@
 Release History
 ===============
 
-3.1.0dev0
+4.0.0+dev
 ---------
+
+API Changes (Backward-Incompatible)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Support for Python 2.7 has been removed.
+- Support for Python 3.4 has been removed.
+- Support for Python 3.5 has been removed.
+- Support for PyPy (Python 2.7 compatible) has been removed.
+- Support for Python 3.8 has been added.
 
 **API Changes (Backward Compatible)**
 
@@ -10,6 +19,7 @@ Release History
 
 - Performance improvement of static header search. Use dict search instead
   of linear search.
+- Fix debug output of headers during encoding.
 
 
 3.0.0 (2017-03-29)
