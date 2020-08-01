@@ -10,7 +10,8 @@ import logging
 from .table import HeaderTable, table_entry_size
 from .compat import to_byte, to_bytes
 from .exceptions import (
-    HPACKDecodingError, OversizedHeaderListError, InvalidTableSizeError
+    HPACKDecodingError, OversizedHeaderListError, InvalidTableSizeError,
+    ZeroLengthHeaderNameError,
 )
 from .huffman import HuffmanEncoder
 from .huffman_constants import (
@@ -496,6 +497,7 @@ class Decoder(object):
 
             if header:
                 headers.append(header)
+                self._assert_valid_header_name_size(header)
                 inflated_size += table_entry_size(*header)
 
                 if inflated_size > self.max_header_list_size:
@@ -515,6 +517,13 @@ class Decoder(object):
             return [_unicode_if_needed(h, raw) for h in headers]
         except UnicodeDecodeError:
             raise HPACKDecodingError("Unable to decode headers as UTF-8.")
+
+    def _assert_valid_header_name_size(self, header):
+        """
+        Check that the header name size is valid, i.e. non-zero.
+        """
+        if len(header[0]) == 0:
+            raise ZeroLengthHeaderNameError()
 
     def _assert_valid_table_size(self):
         """

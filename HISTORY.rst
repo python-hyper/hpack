@@ -6,6 +6,10 @@ Release History
 
 **API Changes (Backward Compatible)**
 
+- Added a new ``ZeroLengthHeaderNameError`` that indicates that an
+  invalid header has been received. This places the HPACK decoder into
+  a broken state: it must not be used after this exception is thrown.
+
 **Bugfixes**
 
 - Performance improvement of static header search. Use dict search instead

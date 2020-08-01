@@ -2,7 +2,7 @@
 from hpack.hpack import Encoder, Decoder, _dict_to_iterable, _to_bytes
 from hpack.exceptions import (
     HPACKDecodingError, InvalidTableIndex, OversizedHeaderListError,
-    InvalidTableSizeError
+    InvalidTableSizeError, ZeroLengthHeaderNameError,
 )
 from hpack.struct import HeaderTuple, NeverIndexedHeaderTuple
 import itertools
@@ -636,6 +636,16 @@ class TestHPACKDecoder(object):
         data = b'\x14\x0c/sample/path'
 
         with pytest.raises(OversizedHeaderListError):
+            d.decode(data)
+
+    def test_zero_length_header(self):
+        """
+        If a header has a name of zero length it is invalid and the HPACK
+        decoder raises a ZeroLengthHeaderNameError.
+        """
+        d = Decoder(max_header_list_size=44)
+        data = b"@\x80\x80"
+        with pytest.raises(ZeroLengthHeaderNameError):
             d.decode(data)
 
     def test_can_decode_multiple_header_table_size_changes(self):

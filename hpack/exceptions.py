@@ -47,3 +47,12 @@ class InvalidTableSizeError(HPACKDecodingError):
     .. versionadded:: 3.0.0
     """
     pass
+
+
+class ZeroLengthHeaderNameError(HPACKDecodingError):
+    """
+    An invalid header with a zero length name has been received.
+
+    .. versionadded:: 3.1.0
+    """
+    pass
