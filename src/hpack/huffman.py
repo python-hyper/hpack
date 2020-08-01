@@ -9,7 +9,7 @@ Huffman-coded content where we already know the Huffman table.
 from .compat import to_byte, decode_hex
 
 
-class HuffmanEncoder(object):
+class HuffmanEncoder:
     """
     Encodes a string according to the Huffman encoding table defined in the
     HPACK specification.

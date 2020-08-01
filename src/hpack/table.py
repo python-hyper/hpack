@@ -23,7 +23,7 @@ def table_entry_size(name, value):
     return 32 + len(name) + len(value)
 
 
-class HeaderTable(object):
+class HeaderTable:
     """
     Implements the combined static and dynamic header table
 

@@ -154,7 +154,7 @@ def _to_bytes(string):
     return string if isinstance(string, bytes) else string.encode('utf-8')
 
 
-class Encoder(object):
+class Encoder:
     """
     An HPACK encoder object. This object takes HTTP headers and emits encoded
     HTTP/2 header blocks.
@@ -371,7 +371,7 @@ class Encoder(object):
         return block
 
 
-class Decoder(object):
+class Decoder:
     """
     An HPACK decoder object.
 

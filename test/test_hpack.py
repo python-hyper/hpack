@@ -1,15 +1,21 @@
 # -*- coding: utf-8 -*-
-from hpack.hpack import Encoder, Decoder, _dict_to_iterable, _to_bytes
-from hpack.exceptions import (
-    HPACKDecodingError, InvalidTableIndex, OversizedHeaderListError,
-    InvalidTableSizeError
-)
-from hpack.struct import HeaderTuple, NeverIndexedHeaderTuple
 import itertools
 import pytest
 
 from hypothesis import given
 from hypothesis.strategies import text, binary, sets, one_of
+
+from hpack import (
+    Encoder,
+    Decoder,
+    HeaderTuple,
+    NeverIndexedHeaderTuple,
+    HPACKDecodingError,
+    InvalidTableIndex,
+    OversizedHeaderListError,
+    InvalidTableSizeError,
+)
+from hpack.hpack import _dict_to_iterable, _to_bytes
 
 try:
     unicode = unicode
@@ -17,7 +23,7 @@ except NameError:
     unicode = str
 
 
-class TestHPACKEncoder(object):
+class TestHPACKEncoder:
     # These tests are stolen entirely from the IETF specification examples.
     def test_literal_header_field_with_indexing(self):
         """
@@ -338,7 +344,7 @@ class TestHPACKEncoder(object):
         assert len(e.header_table.dynamic_entries) == 1
 
 
-class TestHPACKDecoder(object):
+class TestHPACKDecoder:
     # These tests are stolen entirely from the IETF specification examples.
     def test_literal_header_field_with_indexing(self):
         """
@@ -737,7 +743,7 @@ class TestHPACKDecoder(object):
             d.decode(data)
 
 
-class TestDictToIterable(object):
+class TestDictToIterable:
     """
     The dict_to_iterable function has some subtle requirements: validates that
     everything behaves as expected.
