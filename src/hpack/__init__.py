@@ -17,4 +17,4 @@ __all__ = [
     'OversizedHeaderListError'
 ]
 
-__version__ = '3.1.0dev0'
+__version__ = '4.0.0+dev'
