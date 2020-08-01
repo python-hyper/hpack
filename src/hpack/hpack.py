@@ -8,7 +8,6 @@ Implements the HPACK header compression algorithm as detailed by the IETF.
 import logging
 
 from .table import HeaderTable, table_entry_size
-from .compat import to_byte, to_bytes
 from .exceptions import (
     HPACKDecodingError, OversizedHeaderListError, InvalidTableSizeError
 )
@@ -46,8 +45,8 @@ def _unicode_if_needed(header, raw):
     Provides a header as a unicode string if raw is False, otherwise returns
     it as a bytestring.
     """
-    name = to_bytes(header[0])
-    value = to_bytes(header[1])
+    name = bytes(header[0])
+    value = bytes(header[1])
     if not raw:
         name = name.decode('utf-8')
         value = value.decode('utf-8')
@@ -106,10 +105,10 @@ def decode_integer(data, prefix_bits):
     mask = (0xFF >> (8 - prefix_bits))
 
     try:
-        number = to_byte(data[0]) & mask
+        number = data[0] & mask
         if number == max_number:
             while True:
-                next_byte = to_byte(data[index])
+                next_byte = data[index]
                 index += 1
 
                 if next_byte >= 128:
@@ -457,7 +456,7 @@ class Decoder:
         while current_index < data_len:
             # Work out what kind of header we're decoding.
             # If the high bit is 1, it's an indexed field.
-            current = to_byte(data[current_index])
+            current = data[current_index]
             indexed = True if current & 0x80 else False
 
             # Otherwise, if the second-highest bit is 1 it's a field that does
@@ -565,11 +564,11 @@ class Decoder:
         # When should_index is false, if the low four bits of the first byte
         # are nonzero the header name is indexed.
         if should_index:
-            indexed_name = to_byte(data[0]) & 0x3F
+            indexed_name = data[0] & 0x3F
             name_len = 6
             not_indexable = False
         else:
-            high_byte = to_byte(data[0])
+            high_byte = data[0]
             indexed_name = high_byte & 0x0F
             name_len = 4
             not_indexable = high_byte & 0x10
@@ -591,7 +590,7 @@ class Decoder:
             if len(name) != length:
                 raise HPACKDecodingError("Truncated header block")
 
-            if to_byte(data[0]) & 0x80:
+            if data[0] & 0x80:
                 name = decode_huffman(name)
             total_consumed = consumed + length + 1  # Since we moved forward 1.
 
@@ -603,7 +602,7 @@ class Decoder:
         if len(value) != length:
             raise HPACKDecodingError("Truncated header block")
 
-        if to_byte(data[0]) & 0x80:
+        if data[0] & 0x80:
             value = decode_huffman(value)
 
         # Updated the total consumed length.

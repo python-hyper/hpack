@@ -17,11 +17,6 @@ from hpack import (
 )
 from hpack.hpack import _dict_to_iterable, _to_bytes
 
-try:
-    unicode = unicode
-except NameError:
-    unicode = str
-
 
 class TestHPACKEncoder:
     # These tests are stolen entirely from the IETF specification examples.
@@ -751,7 +746,7 @@ class TestDictToIterable:
     As much as possible this tries to be exhaustive.
     """
     keys = one_of(
-        text().filter(lambda k: k and not k.startswith(u':')),
+        text().filter(lambda k: k and not k.startswith(':')),
         binary().filter(lambda k: k and not k.startswith(b':'))
     )
 
@@ -765,8 +760,8 @@ class TestDictToIterable:
         with a colon are emitted first.
         """
         def _prepend_colon(k):
-            if isinstance(k, unicode):
-                return u':' + k
+            if isinstance(k, str):
+                return ':' + k
             else:
                 return b':' + k
 
@@ -801,8 +796,8 @@ class TestDictToIterable:
         When encoding a dictionary the special keys all appear first.
         """
         def _prepend_colon(k):
-            if isinstance(k, unicode):
-                return u':' + k
+            if isinstance(k, str):
+                return ':' + k
             else:
                 return b':' + k
 
