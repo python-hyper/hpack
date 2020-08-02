@@ -229,7 +229,7 @@ class Encoder:
         # are already in the header table we can represent them using the
         # indexed representation: the same is true if they are in the static
         # table. Otherwise, a literal representation will be used.
-        log.debug("HPACK encoding %s", headers)
+        log.debug("HPACK encoding %s", list(headers))
         header_block = []
 
         # Turn the headers into a list of tuples if possible. This is the
