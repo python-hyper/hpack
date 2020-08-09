@@ -338,6 +338,16 @@ class TestHPACKEncoder:
 
         assert len(e.header_table.dynamic_entries) == 1
 
+    def test_headers_generator(self):
+        e = Encoder()
+
+        def headers_generator():
+            return (("k" + str(i), "v" + str(i)) for i in range(3))
+
+        header_set = headers_generator()
+        out = e.encode(header_set)
+        assert Decoder().decode(out) == list(headers_generator())
+
 
 class TestHPACKDecoder:
     # These tests are stolen entirely from the IETF specification examples.

@@ -229,7 +229,6 @@ class Encoder:
         # are already in the header table we can represent them using the
         # indexed representation: the same is true if they are in the static
         # table. Otherwise, a literal representation will be used.
-        log.debug("HPACK encoding %s", list(headers))
         header_block = []
 
         # Turn the headers into a list of tuples if possible. This is the
@@ -265,7 +264,12 @@ class Encoder:
         """
         This function takes a header key-value tuple and serializes it.
         """
-        log.debug("Adding %s to the header table", to_add)
+        log.debug(
+            "Adding %s to the header table, sensitive:%s, huffman:%s",
+            to_add,
+            sensitive,
+            huffman
+        )
 
         name, value = to_add
 
