@@ -2,7 +2,7 @@
 
 publish:
 	rm -rf dist/
-	python setup.py sdist bdist_wheel
+	tox -e packaging
 	twine upload -s dist/*
 
 sample_output:
