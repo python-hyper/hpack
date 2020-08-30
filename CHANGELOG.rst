@@ -1,8 +1,8 @@
 Release History
 ===============
 
-4.0.0+dev
----------
+4.0.0 (2020-08-30)
+------------------
 
 API Changes (Backward-Incompatible)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -12,8 +12,6 @@ API Changes (Backward-Incompatible)
 - Support for Python 3.5 has been removed.
 - Support for PyPy (Python 2.7 compatible) has been removed.
 - Support for Python 3.8 has been added.
-
-**API Changes (Backward Compatible)**
 
 **Bugfixes**
 
