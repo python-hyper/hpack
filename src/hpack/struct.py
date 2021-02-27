@@ -6,8 +6,10 @@ hpack/struct
 Contains structures for representing header fields with associated metadata.
 """
 
+from typing import Tuple, Any
 
-class HeaderTuple(tuple):
+
+class HeaderTuple(Tuple[bytes, bytes]):
     """
     A data structure that stores a single header field.
 
@@ -25,7 +27,7 @@ class HeaderTuple(tuple):
 
     indexable = True
 
-    def __new__(cls, *args):
+    def __new__(cls, *args: Any) -> "HeaderTuple":
         return tuple.__new__(cls, args)
 
 

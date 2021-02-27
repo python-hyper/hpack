@@ -7,17 +7,20 @@ An implementation of a bitwise prefix tree specially built for decoding
 Huffman-coded content where we already know the Huffman table.
 """
 
+from typing import List
+
 
 class HuffmanEncoder:
     """
     Encodes a string according to the Huffman encoding table defined in the
     HPACK specification.
     """
-    def __init__(self, huffman_code_list, huffman_code_list_lengths):
+    def __init__(self, huffman_code_list: List[int],
+                 huffman_code_list_lengths: List[int]) -> None:
         self.huffman_code_list = huffman_code_list
         self.huffman_code_list_lengths = huffman_code_list_lengths
 
-    def encode(self, bytes_to_encode):
+    def encode(self, bytes_to_encode: bytes) -> bytes:
         """
         Given a string of bytes, encodes them according to the HPACK Huffman
         specification.
@@ -48,10 +51,14 @@ class HuffmanEncoder:
 
         # Convert the number to hex and strip off the leading '0x' and the
         # trailing 'L', if present.
-        final_num = hex(final_num)[2:].rstrip('L')
+        final_num_hex = hex(final_num)[2:].rstrip('L')
 
         # If this is odd, prepend a zero.
-        final_num = '0' + final_num if len(final_num) % 2 != 0 else final_num
+        final_num_hex = (
+            '0' + final_num_hex
+            if len(final_num_hex) % 2 != 0
+            else final_num_hex
+        )
 
         # This number should have twice as many digits as bytes. If not, we're
         # missing some leading zeroes. Work out how many bytes we want and how
@@ -59,8 +66,8 @@ class HuffmanEncoder:
         total_bytes = (final_int_len + bits_to_be_padded) // 8
         expected_digits = total_bytes * 2
 
-        if len(final_num) != expected_digits:
-            missing_digits = expected_digits - len(final_num)
-            final_num = ('0' * missing_digits) + final_num
+        if len(final_num_hex) != expected_digits:
+            missing_digits = expected_digits - len(final_num_hex)
+            final_num_hex = ('0' * missing_digits) + final_num_hex
 
-        return bytes.fromhex(final_num)
+        return bytes.fromhex(final_num_hex)
