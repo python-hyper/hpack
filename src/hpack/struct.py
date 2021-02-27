@@ -6,10 +6,10 @@ hpack/struct
 Contains structures for representing header fields with associated metadata.
 """
 
-from typing import Tuple, Any
+from typing import Any
 
 
-class HeaderTuple(Tuple[bytes, bytes]):
+class HeaderTuple(tuple):  # type: ignore
     """
     A data structure that stores a single header field.
 

@@ -7,7 +7,7 @@ Implements the HPACK header compression algorithm as detailed by the IETF.
 """
 import logging
 from typing import (
-    Tuple, Dict, List, Iterable, Union, overload, Literal, cast, Optional
+    Tuple, Dict, List, Iterable, Union, overload, TYPE_CHECKING, Optional
 )
 
 from .table import HeaderTable, table_entry_size
@@ -20,6 +20,9 @@ from .huffman_constants import (
 )
 from .huffman_table import decode_huffman
 from .struct import HeaderTuple, NeverIndexedHeaderTuple
+
+if TYPE_CHECKING:
+    from typing import Literal
 
 log = logging.getLogger(__name__)
 
@@ -40,13 +43,13 @@ DEFAULT_MAX_HEADER_LIST_SIZE = 2 ** 16
 
 @overload
 def _unicode_if_needed(
-    header: Tuple[bytes, bytes], raw: Literal[True]
+    header: Tuple[bytes, bytes], raw: "Literal[True]"
 ) -> Tuple[bytes, bytes]: ...
 
 
 @overload
 def _unicode_if_needed(
-    header: Tuple[bytes, bytes], raw: Literal[False]
+    header: Tuple[bytes, bytes], raw: "Literal[False]"
 ) -> Tuple[str, str]: ...
 
 
@@ -66,17 +69,11 @@ def _unicode_if_needed(
     name = bytes(header[0])
     value = bytes(header[1])
     if raw:
-        return cast(
-            Tuple[bytes, bytes],
-            header.__class__(name, value)  # type: ignore
-        )
+        return header.__class__(name, value)  # type: ignore
     else:
-        return cast(
-            Tuple[str, str],
-            header.__class__(
-                name.decode('utf-8'),
-                value.decode('utf-8')
-            )  # type: ignore
+        return header.__class__(  # type: ignore
+            name.decode('utf-8'),
+            value.decode('utf-8')
         )
 
 
@@ -210,12 +207,15 @@ class Encoder:
 
     def encode(
         self,
-        headers: Iterable[Union[
-            Tuple[bytes, bytes],
-            Tuple[bytes, bytes, bool],
-            HeaderTuple,
-            NeverIndexedHeaderTuple
-        ]],
+        headers: Union[
+            Iterable[Union[
+                Tuple[bytes, bytes],
+                Tuple[bytes, bytes, bool],
+                HeaderTuple,
+                NeverIndexedHeaderTuple
+            ]],
+            Dict[bytes, bytes]
+        ],
         huffman: bool = True
     ) -> bytes:
         """
@@ -287,7 +287,7 @@ class Encoder:
             if isinstance(header, HeaderTuple):
                 sensitive = not header.indexable
             elif len(header) > 2:
-                sensitive = cast(Tuple[bytes, bytes, bool], header)[2]
+                sensitive = header[2]  # type: ignore
 
             header = (_to_bytes(header[0]), _to_bytes(header[1]))
             header_block.append(self.add(header, sensitive, huffman))
@@ -493,12 +493,12 @@ class Decoder:
 
     @overload
     def decode(
-        self, data: bytes, raw: Literal[True]
+        self, data: bytes, raw: "Literal[True]"
     ) -> List[Tuple[bytes, bytes]]: ...
 
     @overload
     def decode(
-        self, data: bytes, raw: Literal[False]
+        self, data: bytes, raw: "Literal[False]"
     ) -> List[Tuple[str, str]]: ...
 
     def decode(
@@ -521,7 +521,7 @@ class Decoder:
         log.debug("Decoding %s", data)
 
         data_mem = memoryview(data)
-        headers: List[Tuple[bytes, bytes]] = []
+        headers: List[Union[Tuple[bytes, bytes], HeaderTuple]] = []
         data_len = len(data)
         inflated_size = 0
         current_index = 0
@@ -586,8 +586,8 @@ class Decoder:
 
         try:
             return [
-                _unicode_if_needed(h, raw) for h in headers
-            ]  # type: ignore
+                _unicode_if_needed(h, raw) for h in headers  # type: ignore
+            ]
         except UnicodeDecodeError:
             raise HPACKDecodingError("Unable to decode headers as UTF-8.")
 
