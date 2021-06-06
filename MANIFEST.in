@@ -1,4 +1,4 @@
-graft src
+graft src/hpack
 graft docs
 graft test
 prune bench
@@ -7,5 +7,5 @@ prune utils
 exclude tasks.py
 exclude test/test_fixtures/*/*.json
 exclude test/test_hpack_integration.py
-include README.rst LICENSE CHANGELOG.rst CONTRIBUTORS.rst tox.ini Makefile
+include README.rst LICENSE CHANGELOG.rst CONTRIBUTORS.rst tox.ini
 global-exclude *.pyc *.pyo *.swo *.swp *.map *.yml *.DS_Store
