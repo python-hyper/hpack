@@ -11,3 +11,5 @@ coverage.xml
 .hypothesis
 .benchmarks/
 hpack-test-case/
+
+/src/hpack/version.py
