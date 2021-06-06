@@ -16,8 +16,7 @@ dev
 4.0.0 (2020-08-30)
 ------------------
 
-API Changes (Backward-Incompatible)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**API Changes (Backward Incompatible)**
 
 - Support for Python 2.7 has been removed.
 - Support for Python 3.4 has been removed.
