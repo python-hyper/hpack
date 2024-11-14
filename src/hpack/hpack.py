@@ -147,10 +147,13 @@ def _to_bytes(string):
     """
     Convert string to bytes.
     """
-    if not isinstance(string, basestring):  # pragma: no cover
-        string = str(string)
+    if isinstance(string, bytes):
+        return string
 
-    return string if isinstance(string, bytes) else string.encode('utf-8')
+    # Not doing an `isinstance(string, basestring)` check here
+    # as the cost of it is the same as just running `str()` on
+    # an object that is already a string
+    return str(string).encode("utf-8")
 
 
 class Encoder:
