@@ -147,13 +147,12 @@ def _to_bytes(string):
     """
     Convert string to bytes.
     """
-    if isinstance(string, bytes):
+    t = type(string)
+    if t is bytes:
         return string
-
-    # Not doing an `isinstance(string, basestring)` check here
-    # as the cost of it is the same as just running `str()` on
-    # an object that is already a string
-    return str(string).encode("utf-8")
+    if t is not str:
+        string = str(string)
+    return string.encode("utf-8")
 
 
 class Encoder:
