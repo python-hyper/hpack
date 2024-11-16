@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 create_test_output.py
 ~~~~~~~~~~~~~~~~~~~~~

@@ -29,7 +29,7 @@ setup(
     author_email='cory@lukasa.co.uk',
     url='https://github.com/python-hyper/hpack',
     packages=find_packages(where="src"),
-    package_data={'hpack': []},
+    package_data={'hpack': ['py.typed']},
     package_dir={'': 'src'},
     python_requires='>=3.9.0',
     license='MIT License',

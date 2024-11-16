@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 This module defines substantial HPACK integration tests. These can take a very
 long time to run, so they're outside the main test suite, but they need to be

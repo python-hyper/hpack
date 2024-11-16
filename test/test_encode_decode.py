@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Test for the integer encoding/decoding functionality in the HPACK library.
 """

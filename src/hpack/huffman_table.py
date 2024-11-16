@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 hpack/huffman_table
 ~~~~~~~~~~~~~~~~~~~
@@ -70,13 +69,15 @@ relatively well, particularly on implementations like PyPy where the cost of
 loops at the Python-level is not too expensive. The total number of loop
 iterations is 4x the number of bytes passed to the decoder.
 """
+from typing import Optional, Union
+
 from .exceptions import HPACKDecodingError
 
 
 # This defines the state machine "class" at the top of the file. The reason we
 # do this is to keep the terrifing monster state table at the *bottom* of the
 # file so you don't have to actually *look* at the damn thing.
-def decode_huffman(huffman_string):
+def decode_huffman(huffman_string: Optional[Union[bytes, bytearray]]) -> bytes:
     """
     Given a bytestring of Huffman-encoded data for HPACK, returns a bytestring
     of the decompressed data.
