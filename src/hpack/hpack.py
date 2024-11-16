@@ -143,16 +143,16 @@ def _dict_to_iterable(header_dict):
         yield key, header_dict[key]
 
 
-def _to_bytes(string):
+def _to_bytes(value):
     """
-    Convert string to bytes.
+    Convert anything to bytes through a UTF-8 encoded string
     """
-    t = type(string)
+    t = type(value)
     if t is bytes:
-        return string
+        return value
     if t is not str:
-        string = str(string)
-    return string.encode("utf-8")
+        value = str(value)
+    return value.encode("utf-8")
 
 
 class Encoder:
