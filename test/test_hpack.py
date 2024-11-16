@@ -18,6 +18,14 @@ from hpack import (
 from hpack.hpack import _dict_to_iterable, _to_bytes
 
 
+def test_to_bytes():
+    assert _to_bytes(b"foobar") == b"foobar"
+    assert _to_bytes("foobar") == b"foobar"
+    assert _to_bytes(0xABADBABE) == b'2880289470'
+    assert _to_bytes(True) == b'True'
+    assert _to_bytes(Encoder()).startswith(b"<hpack.hpack.Encoder")
+
+
 class TestHPACKEncoder:
     # These tests are stolen entirely from the IETF specification examples.
     def test_literal_header_field_with_indexing(self):
