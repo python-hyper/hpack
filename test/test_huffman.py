@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from hpack import HPACKDecodingError
 from hpack.huffman import HuffmanEncoder
 from hpack.huffman_constants import REQUEST_CODES, REQUEST_CODES_LENGTH

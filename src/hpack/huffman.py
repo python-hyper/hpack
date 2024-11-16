@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 hpack/huffman_decoder
 ~~~~~~~~~~~~~~~~~~~~~
@@ -13,11 +12,11 @@ class HuffmanEncoder:
     Encodes a string according to the Huffman encoding table defined in the
     HPACK specification.
     """
-    def __init__(self, huffman_code_list, huffman_code_list_lengths):
+    def __init__(self, huffman_code_list: list[int], huffman_code_list_lengths: list[int]) -> None:
         self.huffman_code_list = huffman_code_list
         self.huffman_code_list_lengths = huffman_code_list_lengths
 
-    def encode(self, bytes_to_encode):
+    def encode(self, bytes_to_encode: bytes) -> bytes:
         """
         Given a string of bytes, encodes them according to the HPACK Huffman
         specification.
@@ -48,10 +47,10 @@ class HuffmanEncoder:
 
         # Convert the number to hex and strip off the leading '0x' and the
         # trailing 'L', if present.
-        final_num = hex(final_num)[2:].rstrip('L')
+        s = hex(final_num)[2:].rstrip('L')
 
         # If this is odd, prepend a zero.
-        final_num = '0' + final_num if len(final_num) % 2 != 0 else final_num
+        s = '0' + s if len(s) % 2 != 0 else s
 
         # This number should have twice as many digits as bytes. If not, we're
         # missing some leading zeroes. Work out how many bytes we want and how
@@ -59,8 +58,8 @@ class HuffmanEncoder:
         total_bytes = (final_int_len + bits_to_be_padded) // 8
         expected_digits = total_bytes * 2
 
-        if len(final_num) != expected_digits:
-            missing_digits = expected_digits - len(final_num)
-            final_num = ('0' * missing_digits) + final_num
+        if len(s) != expected_digits:
+            missing_digits = expected_digits - len(s)
+            s = ('0' * missing_digits) + s
 
-        return bytes.fromhex(final_num)
+        return bytes.fromhex(s)

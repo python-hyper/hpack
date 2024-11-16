@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 hpack/huffman_constants
 ~~~~~~~~~~~~~~~~~~~~~~~

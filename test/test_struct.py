@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-test_struct
-~~~~~~~~~~~
-
-Tests for the Header tuples.
-"""
 import pytest
 
 from hpack import HeaderTuple, NeverIndexedHeaderTuple
