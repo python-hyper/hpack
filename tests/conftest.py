@@ -10,8 +10,8 @@ text().example()
 # This pair of generator expressions are pretty lame, but building lists is a
 # bad idea as I plan to have a substantial number of tests here.
 story_directories = (
-    os.path.join('test/test_fixtures', d)
-    for d in os.listdir('test/test_fixtures')
+    os.path.join('tests/test_fixtures', d)
+    for d in os.listdir('tests/test_fixtures')
 )
 story_files = (
     os.path.join(storydir, name)
@@ -20,8 +20,8 @@ story_files = (
     if 'raw-data' not in storydir
 )
 raw_story_files = (
-    os.path.join('test/test_fixtures/raw-data', name)
-    for name in os.listdir('test/test_fixtures/raw-data')
+    os.path.join('tests/test_fixtures/raw-data', name)
+    for name in os.listdir('tests/test_fixtures/raw-data')
 )
 
 

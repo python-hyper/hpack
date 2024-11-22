@@ -17,10 +17,9 @@ dev
 - Support for Python 3.11 has been added.
 - Support for Python 3.12 has been added.
 - Support for Python 3.13 has been added.
-
-**Bugfixes**
-
--
+- Optimization of headers into bytes encoding.
+- Added type hints.
+- Updated packaging and testing infrastructure.
 
 
 4.0.0 (2020-08-30)
