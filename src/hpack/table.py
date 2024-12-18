@@ -1,14 +1,14 @@
 # flake8: noqa
 from collections import deque
 import logging
-from typing import Any, Optional, Union
+from typing import Optional
 
 from .exceptions import InvalidTableIndex
 
 log = logging.getLogger(__name__)
 
 
-def table_entry_size(name: Union[bytes, str], value: Union[bytes, str]) -> int:
+def table_entry_size(name: bytes, value: bytes) -> int:
     """
     Calculates the size of a single entry
 

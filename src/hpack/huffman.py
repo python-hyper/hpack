@@ -7,6 +7,9 @@ Huffman-coded content where we already know the Huffman table.
 """
 
 
+from typing import Optional
+
+
 class HuffmanEncoder:
     """
     Encodes a string according to the Huffman encoding table defined in the
@@ -16,7 +19,7 @@ class HuffmanEncoder:
         self.huffman_code_list = huffman_code_list
         self.huffman_code_list_lengths = huffman_code_list_lengths
 
-    def encode(self, bytes_to_encode: bytes) -> bytes:
+    def encode(self, bytes_to_encode: Optional[bytes]) -> bytes:
         """
         Given a string of bytes, encodes them according to the HPACK Huffman
         specification.

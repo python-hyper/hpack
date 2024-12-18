@@ -5,7 +5,7 @@ hpack/hpack
 Implements the HPACK header compression algorithm as detailed by the IETF.
 """
 import logging
-from typing import Any, Generator, Union
+from typing import Any, Generator, Iterable, Optional, Union
 
 from .table import HeaderTable, table_entry_size
 from .exceptions import (
@@ -16,7 +16,8 @@ from .huffman_constants import (
     REQUEST_CODES, REQUEST_CODES_LENGTH
 )
 from .huffman_table import decode_huffman
-from .struct import HeaderTuple, NeverIndexedHeaderTuple, Headers
+from .struct import HeaderTuple, NeverIndexedHeaderTuple, HeaderWeaklyTyped
+from .table import HeaderTable, table_entry_size
 
 log = logging.getLogger(__name__)
 
@@ -34,17 +35,17 @@ _PREFIX_BIT_MAX_NUMBERS = [(2 ** i) - 1 for i in range(9)]
 DEFAULT_MAX_HEADER_LIST_SIZE = 2 ** 16
 
 
-def _unicode_if_needed(header: HeaderTuple, raw: bool) -> HeaderTuple:
+def _unicode_if_needed(header: HeaderWeaklyTyped, raw: bool) -> HeaderTuple:
     """
     Provides a header as a unicode string if raw is False, otherwise returns
     it as a bytestring.
     """
     name = bytes(header[0])  # type: ignore
     value = bytes(header[1])  # type: ignore
+
     if not raw:
-        return header.__class__(name.decode('utf-8'), value.decode('utf-8'))
-    else:
-        return header.__class__(name, value)
+        return header.__class__(name.decode("utf-8"), value.decode("utf-8"))  # type: ignore
+    return header.__class__(name, value)  # type: ignore
 
 
 def encode_integer(integer: int, prefix_bits: int) -> bytearray:
@@ -123,7 +124,7 @@ def decode_integer(data: bytes, prefix_bits: int) -> tuple[int, int]:
 
 
 def _dict_to_iterable(header_dict: Union[dict[bytes, bytes], dict[str, str]]) \
-        -> Generator[Union[tuple[bytes, bytes], tuple[str, str]], None, None]:
+        -> Generator[Union[tuple[bytes, bytes, Optional[bool]], tuple[str, str, Optional[bool]]], None, None]:
     """
     This converts a dictionary to an iterable of two-tuples. This is a
     HPACK-specific function because it pulls "special-headers" out first and
@@ -177,7 +178,7 @@ class Encoder:
             self.table_size_changes.append(value)
 
     def encode(self,
-               headers: Headers,
+               headers: Union[Iterable[tuple[Union[bytes, str], Union[bytes, str], Optional[bool]]], dict[Union[bytes, str], Union[bytes, str, tuple]]],
                huffman: bool = True) -> bytes:
         """
         Takes a set of headers and encodes them into a HPACK-encoded header
@@ -433,7 +434,7 @@ class Decoder:
     def header_table_size(self, value: int) -> None:
         self.header_table.maxsize = value
 
-    def decode(self, data: bytes, raw: bool = False) -> Headers:
+    def decode(self, data: bytes, raw: bool = False) -> Iterable[HeaderTuple]:
         """
         Takes an HPACK-encoded header block and decodes it into a header set.
 
