@@ -5,11 +5,12 @@ hpack/struct
 Contains structures for representing header fields with associated metadata.
 """
 
+from typing import Any
 
-from typing import Any, Iterable, Union
+from typing_extensions import Self, TypeAlias
 
 
-class HeaderTuple(tuple[Union[bytes, str], Union[bytes, str]]):
+class HeaderTuple(tuple[bytes, bytes]):
     """
     A data structure that stores a single header field.
 
@@ -27,7 +28,7 @@ class HeaderTuple(tuple[Union[bytes, str], Union[bytes, str]]):
 
     indexable = True
 
-    def __new__(cls, *args: Any) -> "HeaderTuple":
+    def __new__(cls, *args: Any) -> Self:
         return tuple.__new__(cls, args)
 
 
@@ -40,10 +41,9 @@ class NeverIndexedHeaderTuple(HeaderTuple):
 
     indexable = False
 
-    def __new__(cls, *args: Any) -> "NeverIndexedHeaderTuple":
+    def __new__(cls, *args: Any) -> Self:
         return tuple.__new__(cls, args)
 
 
-# explicitly mentioning all valid header types , even if some superseed each other
-Header = Union[HeaderTuple, NeverIndexedHeaderTuple, tuple[bytes, bytes], tuple[str, str]]
-Headers = Iterable[Header]
+Header: TypeAlias = "HeaderTuple | NeverIndexedHeaderTuple | tuple[bytes, bytes]"
+HeaderWeaklyTyped: TypeAlias = "HeaderTuple | NeverIndexedHeaderTuple | tuple[bytes | str, bytes | str]"
