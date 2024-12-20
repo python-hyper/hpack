@@ -25,6 +25,25 @@ Documentation
 
 Documentation is available at https://hpack.readthedocs.io .
 
+Quickstart:
+
+.. code-block:: python
+
+    from hpack import Encoder, Decoder
+
+    headers = [
+        (':method', 'GET'),
+        (':path', '/jimiscool/'),
+        ('X-Some-Header', 'some_value'),
+    ]
+
+    e = Encoder()
+    encoded_bytes = e.encode(headers)
+
+    d = Decoder()
+    decoded_headers = d.decode(encoded_bytes)
+
+
 Contributing
 ============
 
