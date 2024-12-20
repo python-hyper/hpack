@@ -1,13 +1,8 @@
 """
-hpack/huffman_decoder
-~~~~~~~~~~~~~~~~~~~~~
-
 An implementation of a bitwise prefix tree specially built for decoding
 Huffman-coded content where we already know the Huffman table.
 """
-
-
-from typing import Optional
+from __future__ import annotations
 
 
 class HuffmanEncoder:
@@ -15,18 +10,19 @@ class HuffmanEncoder:
     Encodes a string according to the Huffman encoding table defined in the
     HPACK specification.
     """
+
     def __init__(self, huffman_code_list: list[int], huffman_code_list_lengths: list[int]) -> None:
         self.huffman_code_list = huffman_code_list
         self.huffman_code_list_lengths = huffman_code_list_lengths
 
-    def encode(self, bytes_to_encode: Optional[bytes]) -> bytes:
+    def encode(self, bytes_to_encode: bytes | None) -> bytes:
         """
         Given a string of bytes, encodes them according to the HPACK Huffman
         specification.
         """
         # If handed the empty string, just immediately return.
         if not bytes_to_encode:
-            return b''
+            return b""
 
         final_num = 0
         final_int_len = 0
@@ -50,10 +46,10 @@ class HuffmanEncoder:
 
         # Convert the number to hex and strip off the leading '0x' and the
         # trailing 'L', if present.
-        s = hex(final_num)[2:].rstrip('L')
+        s = hex(final_num)[2:].rstrip("L")
 
         # If this is odd, prepend a zero.
-        s = '0' + s if len(s) % 2 != 0 else s
+        s = "0" + s if len(s) % 2 != 0 else s
 
         # This number should have twice as many digits as bytes. If not, we're
         # missing some leading zeroes. Work out how many bytes we want and how
@@ -63,6 +59,6 @@ class HuffmanEncoder:
 
         if len(s) != expected_digits:
             missing_digits = expected_digits - len(s)
-            s = ('0' * missing_digits) + s
+            s = ("0" * missing_digits) + s
 
         return bytes.fromhex(s)

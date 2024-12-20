@@ -9,6 +9,7 @@ dev
 - Support for Python 3.6 has been removed.
 - Support for Python 3.7 has been removed.
 - Support for Python 3.8 has been removed.
+- Renamed `InvalidTableIndex` exception to `InvalidTableIndexError`.
 
 **API Changes (Backward Compatible)**
 
