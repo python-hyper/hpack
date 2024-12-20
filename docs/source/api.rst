@@ -19,6 +19,8 @@ This document provides the HPACK API.
 
 .. autoclass:: hpack.HPACKDecodingError
 
+.. autoclass:: hpack.InvalidTableIndexError
+
 .. autoclass:: hpack.InvalidTableIndex
 
 .. autoclass:: hpack.OversizedHeaderListError

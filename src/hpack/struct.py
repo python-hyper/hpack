@@ -1,13 +1,12 @@
 """
-hpack/struct
-~~~~~~~~~~~~
-
 Contains structures for representing header fields with associated metadata.
 """
+from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from typing_extensions import Self, TypeAlias
+if TYPE_CHECKING:
+    from typing_extensions import Self, TypeAlias  # pragma: no cover
 
 
 class HeaderTuple(tuple[bytes, bytes]):
@@ -24,6 +23,7 @@ class HeaderTuple(tuple[bytes, bytes]):
     This class stores a header that can be added to the compression context. In
     all other ways it behaves exactly like a tuple.
     """
+
     __slots__ = ()
 
     indexable = True
@@ -37,6 +37,7 @@ class NeverIndexedHeaderTuple(HeaderTuple):
     A data structure that stores a single header field that cannot be added to
     a HTTP/2 header compression context.
     """
+
     __slots__ = ()
 
     indexable = False
