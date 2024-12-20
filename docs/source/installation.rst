@@ -15,14 +15,3 @@ Alternatively, feel free to download one of the release tarballs from
     $ python setup.py install
 
 hpack has no external dependencies.
-
-Using nghttp2
--------------
-
-If you want to use nghttp2 with hpack, all you need to do is install it along
-with its Python bindings. Consult `nghttp2's documentation`_ for instructions
-on how to install it.
-
-
-.. _our GitHub page: https://github.com/python-hyper/hpack
-.. _nghttp2's documentation: https://nghttp2.org/documentation/

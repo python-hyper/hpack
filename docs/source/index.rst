@@ -1,10 +1,10 @@
-hpack: HTTP/2 Header Compression for Python
-===========================================
+hpack: Pure-Python HTTP/2 Header Encoding
+=========================================
 
 hpack provides a simple Python interface to the `HPACK`_ compression algorithm,
-used to compress HTTP headers in HTTP/2. Used by some of the most popular
-HTTP/2 implementations in Python, HPACK offers a great Python interface as well
-as optional upgrade to optimised C-based compression routines from `nghttp2`_.
+used to encode HTTP headers in HTTP/2. Used by some of the most popular
+HTTP/2 implementations in Python, the hpack library offers a great and simple
+Python interface without any dependencies, strictly confirming to `RFC 7541`_..
 
 Using hpack is easy:
 
@@ -12,15 +12,18 @@ Using hpack is easy:
 
     from hpack import Encoder, Decoder
 
+    headers = [
+        (':method', 'GET'),
+        (':path', '/jimiscool/'),
+        ('X-Some-Header', 'some_value'),
+    ]
+
     e = Encoder()
     encoded_bytes = e.encode(headers)
 
     d = Decoder()
     decoded_headers = d.decode(encoded_bytes)
 
-hpack will transparently use nghttp2 on CPython if it's available, gaining even
-better compression efficiency and speed, but it also makes available a
-pure-Python implementation that conforms strictly to `RFC 7541`_.
 
 Contents
 --------
@@ -34,5 +37,4 @@ Contents
 
 
 .. _HPACK: https://tools.ietf.org/html/rfc7541
-.. _nghttp2: https://nghttp2.org/
 .. _RFC 7541: https://tools.ietf.org/html/rfc7541
