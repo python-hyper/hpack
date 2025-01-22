@@ -96,6 +96,7 @@ lint.select = [
   "ALL",
 ]
 lint.ignore = [
+  "A005",    # backwards-compatibility: Module `struct` shadows a Python standard-library module
   "ANN401",  # kwargs with typing.Any
   "CPY",     # not required
   "D101",    # docs readability
@@ -203,11 +204,10 @@ commands = [
 ]
 
 [tool.tox.env.publish]
-base_python = "{[tool.tox.env.packaging]base_python}"
-deps = "{[tool.tox.env.packaging]deps}"
-allowlist_externals = "{[tool.tox.env.packaging]allowlist_externals}"
+base_python = ["python39"]
+dependency_groups = ["packaging"]
+allowlist_externals = ["twine"]
 commands = [
-    "{[testenv:packaging]commands}",
     ["twine", "upload", "dist/*"],
 ]
 

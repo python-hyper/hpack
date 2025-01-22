@@ -1,8 +1,8 @@
 Release History
 ===============
 
-dev
----
+4.1.0 (2025-01-22)
+------------------
 
 **API Changes (Backward Incompatible)**
 
@@ -18,9 +18,10 @@ dev
 - Support for Python 3.11 has been added.
 - Support for Python 3.12 has been added.
 - Support for Python 3.13 has been added.
-- Optimization of headers into bytes encoding.
-- Added type hints.
+- Optimized bytes encoding of headers.
 - Updated packaging and testing infrastructure.
+- Code cleanup and linting.
+- Added type hints.
 
 
 4.0.0 (2020-08-30)

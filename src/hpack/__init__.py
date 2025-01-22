@@ -20,4 +20,4 @@ __all__ = [
     "OversizedHeaderListError",
 ]
 
-__version__ = "4.1.0+dev"
+__version__ = "4.1.0"
