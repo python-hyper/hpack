@@ -1,5 +1,5 @@
 from hpack import HPACKDecodingError
-from hpack.huffman import HuffmanEncoder
+from hpack.py_huffman import HuffmanEncoder
 from hpack.huffman_constants import REQUEST_CODES, REQUEST_CODES_LENGTH
 from hpack.huffman_table import decode_huffman
 

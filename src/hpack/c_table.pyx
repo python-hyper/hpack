@@ -88,7 +88,7 @@ static const char* STATIC_TABLE[61][2] = {
     """
     const char** STATIC_TABLE[61]
 
-cpdef Py_ssize_t _table_entry_size(bytes name, bytes value):
+cpdef Py_ssize_t table_entry_size(bytes name, bytes value):
     """
     Calculates the size of a single entry
 
@@ -200,7 +200,7 @@ cdef class HeaderTable:
         """
         # We just clear the table if the entry is too big
         cdef PyPair nv
-        cdef Py_ssize_t size = _table_entry_size(name, value)
+        cdef Py_ssize_t size = table_entry_size(name, value)
         if size > self._maxsize:
             self.dynamic_entries.clear()
             self._current_size = 0
@@ -281,7 +281,7 @@ cdef class HeaderTable:
             kv = self.dynamic_entries.back()
             name = <object>kv[0]
             value = <object>kv[1]
-            cursize -= _table_entry_size(name, value)
+            cursize -= table_entry_size(name, value)
             log.debug("Evicting %s: %s from the header table", name, value)
             self.dynamic_entries.pop_back()
 

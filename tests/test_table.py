@@ -1,7 +1,7 @@
 import pytest
 
 from hpack import InvalidTableIndex
-from hpack.table import HeaderTable, table_entry_size
+from hpack.py_table import HeaderTable, table_entry_size
 
 
 class TestPackageFunctions:
