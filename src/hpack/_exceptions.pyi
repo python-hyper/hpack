@@ -1,21 +1,15 @@
-"""
-Exceptions used in hpack.
-"""
-from __future__ import annotations
-
-
 class HPACKError(Exception):
     """
-    The base class for all ``hpack`` exceptions.
+    The base cdef class for all ``hpack`` exceptions.
     """
-
+    ...
 
 
 class HPACKDecodingError(HPACKError):
     """
     An error has been encountered while performing HPACK decoding.
     """
-
+    ...
 
 
 class InvalidTableIndexError(HPACKDecodingError):
@@ -24,14 +18,17 @@ class InvalidTableIndexError(HPACKDecodingError):
 
     .. versionadded:: 4.1.0
     """
+    ...
 
-class InvalidTableIndex(InvalidTableIndexError):  # noqa: N818
+
+class InvalidTableIndex(InvalidTableIndexError):
     """
     An invalid table index was received.
 
     .. deprecated:: 4.1.0
        Renamed to :class:`InvalidTableIndexError`, use it instead.
     """
+    ...
 
 
 class OversizedHeaderListError(HPACKDecodingError):
@@ -41,6 +38,7 @@ class OversizedHeaderListError(HPACKDecodingError):
 
     .. versionadded:: 2.3.0
     """
+    ...
 
 
 class InvalidTableSizeError(HPACKDecodingError):
@@ -51,8 +49,6 @@ class InvalidTableSizeError(HPACKDecodingError):
 
     .. versionadded:: 3.0.0
     """
+    ...
 
-try:
-    from ._exceptions import *
-except ImportError:
-    pass
+

@@ -1,31 +1,25 @@
-"""
-Exceptions used in hpack.
-"""
-from __future__ import annotations
-
-
-class HPACKError(Exception):
+cdef class HPACKError(Exception):
     """
-    The base class for all ``hpack`` exceptions.
+    The base cdef class for all ``hpack`` exceptions.
     """
 
 
 
-class HPACKDecodingError(HPACKError):
+cdef class HPACKDecodingError(HPACKError):
     """
     An error has been encountered while performing HPACK decoding.
     """
 
 
 
-class InvalidTableIndexError(HPACKDecodingError):
+cdef class InvalidTableIndexError(HPACKDecodingError):
     """
     An invalid table index was received.
 
     .. versionadded:: 4.1.0
     """
 
-class InvalidTableIndex(InvalidTableIndexError):  # noqa: N818
+cdef class InvalidTableIndex(InvalidTableIndexError):  # noqa: N818
     """
     An invalid table index was received.
 
@@ -34,7 +28,7 @@ class InvalidTableIndex(InvalidTableIndexError):  # noqa: N818
     """
 
 
-class OversizedHeaderListError(HPACKDecodingError):
+cdef class OversizedHeaderListError(HPACKDecodingError):
     """
     A header list that was larger than we allow has been received. This may be
     a DoS attack.
@@ -43,7 +37,7 @@ class OversizedHeaderListError(HPACKDecodingError):
     """
 
 
-class InvalidTableSizeError(HPACKDecodingError):
+cdef class InvalidTableSizeError(HPACKDecodingError):
     """
     An attempt was made to change the decoder table size to a value larger than
     allowed, or the list was shrunk and the remote peer didn't shrink their
@@ -51,8 +45,3 @@ class InvalidTableSizeError(HPACKDecodingError):
 
     .. versionadded:: 3.0.0
     """
-
-try:
-    from ._exceptions import *
-except ImportError:
-    pass
