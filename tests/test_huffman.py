@@ -1,7 +1,7 @@
 from hpack import HPACKDecodingError
 from hpack.huffman import HuffmanEncoder
 from hpack.huffman_constants import REQUEST_CODES, REQUEST_CODES_LENGTH
-from hpack.huffman_table import decode_huffman
+from hpack.huffman_table import decode_huffman, HuffmanDecoder
 
 from hypothesis import given, example
 from hypothesis.strategies import binary
@@ -38,7 +38,7 @@ class TestHuffmanDecoder:
     @example(b'\xff')
     @example(b'\x5f\xff\xff\xff\xff')
     @example(b'\x00\x3f\xff\xff\xff')
-    def test_huffman_decoder_properly_handles_all_bytestrings(self, data):
+    def test_huffman_decoder_properly_handles_all_bytestrings(self, data: bytes) -> None:
         """
         When given random bytestrings, either we get HPACKDecodingError or we
         get a bytestring back.
@@ -51,4 +51,25 @@ class TestHuffmanDecoder:
         except HPACKDecodingError:
             result = b''
 
+        assert isinstance(result, bytes)
+
+    @given(data=binary())
+    @example(b'\xff')
+    @example(b'\x5f\xff\xff\xff\xff')
+    @example(b'\x00\x3f\xff\xff\xff')
+    def test_huffman_class_decoder_properly_handles_all_bytestrings(self, data:bytes) -> None:
+        """
+        When given random bytestrings, either we get HPACKDecodingError or we
+        get a bytestring back. This new version attempts to do a better
+        job at being threadsafe and allowing mutliple threads to easily 
+        share the workload under heavier conditions
+        """
+        decoder = HuffmanDecoder()
+        try:
+            # will not be as fast as the other function because it isn't fully merged yet.
+            # This is still a draft and it's not fully merged yet...
+            result = decoder.decode(data)
+        except HPACKDecodingError:
+            result = b''
+        
         assert isinstance(result, bytes)

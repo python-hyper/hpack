@@ -75,7 +75,9 @@ from .exceptions import HPACKDecodingError
 # This defines the state machine "class" at the top of the file. The reason we
 # do this is to keep the terrifing monster state table at the *bottom* of the
 # file so you don't have to actually *look* at the damn thing.
-def decode_huffman(huffman_string: bytes | bytearray | None) -> bytes:
+
+# TODO: Move decode_huffman function to the new class object
+def decode_huffman(huffman_string: bytes | bytearray | None, huffman_table:list[tuple[int, int, int]]) -> bytes:
     """
     Given a bytestring of Huffman-encoded data for HPACK, returns a bytestring
     of the decompressed data.
@@ -98,7 +100,7 @@ def decode_huffman(huffman_string: bytes | bytearray | None) -> bytes:
     # a bit longer, but that's ok.
     for input_byte in huffman_string:
         index = (state * 16) + (input_byte >> 4)
-        state, flags, output_byte = HUFFMAN_TABLE[index]
+        state, flags, output_byte = huffman_table[index]
 
         if flags & HUFFMAN_FAIL:
             msg = "Invalid Huffman string"
@@ -108,7 +110,7 @@ def decode_huffman(huffman_string: bytes | bytearray | None) -> bytes:
             decoded_bytes.append(output_byte)
 
         index = (state * 16) + (input_byte & 0x0F)
-        state, flags, output_byte = HUFFMAN_TABLE[index]
+        state, flags, output_byte = huffman_table[index]
 
         if flags & HUFFMAN_FAIL:
             msg = "Invalid Huffman string"
@@ -130,6 +132,9 @@ HUFFMAN_EMIT_SYMBOL = (1 << 1)
 HUFFMAN_FAIL = (1 << 2)
 
 # This is the monster table. Avert your eyes, children.
+
+# TODO: (Vizonex) Might transform this into a array.array object 
+# for better speed and less memory wasted.
 HUFFMAN_TABLE = [
     # Node 0 (Root Node, never emits symbols.)
     (4, 0, 0),
@@ -4739,3 +4744,22 @@ HUFFMAN_TABLE = [
     (0, HUFFMAN_FAIL, 0),
     (0, HUFFMAN_FAIL, 0),
 ]
+
+
+class HuffmanDecoder:
+    """Helps decode huffman-tables without needing to share
+    a large global variable accross multiple threads"""
+    def __init__(
+        self, 
+        huffman_table:list[tuple[int, int, int]] = HUFFMAN_TABLE
+    ) -> None:
+        self.huffman_table = huffman_table
+
+    def decode(self, bytes_to_decode: bytes | bytearray | None) -> bytes:
+        """
+        Given a bytestring of Huffman-encoded data for HPACK, returns a bytestring of the decompressed data.
+        """
+        # TODO: Move-Decode-Huffman function over to this function instead...
+        return decode_huffman(bytes_to_decode, self.huffman_table)
+
+

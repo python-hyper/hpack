@@ -4,6 +4,8 @@ but c'est la vie.
 """
 # flake8: noqa
 
+# TODO: Try Transforming these objects an array.arry objects for better speed since it's constant
+
 REQUEST_CODES = [
     0x1ff8,
     0x7fffd8,

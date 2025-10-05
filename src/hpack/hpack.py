@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any
 from .exceptions import HPACKDecodingError, InvalidTableSizeError, OversizedHeaderListError
 from .huffman import HuffmanEncoder
 from .huffman_constants import REQUEST_CODES, REQUEST_CODES_LENGTH
-from .huffman_table import decode_huffman
+from .huffman_table import HuffmanDecoder
 from .struct import HeaderTuple, HeaderWeaklyTyped, NeverIndexedHeaderTuple
 from .table import HeaderTable, table_entry_size
 
@@ -445,6 +445,11 @@ class Decoder:
         #: to confirm that it fits in this size.
         self.max_allowed_table_size = self.header_table.maxsize
 
+
+        #: Threadsafe attribute allowing for multiple threads
+        #: to share one large huffman-table without extereme lagging.
+        self.decoder = HuffmanDecoder()
+
     @property
     def header_table_size(self) -> int:
         """
@@ -614,7 +619,7 @@ class Decoder:
                 raise HPACKDecodingError(msg)
 
             if data[0] & 0x80:
-                name = decode_huffman(name)
+                name = self.decoder.decode(name)
             total_consumed = consumed + length + 1  # Since we moved forward 1.
 
         data = data[consumed + length:]
@@ -627,7 +632,7 @@ class Decoder:
             raise HPACKDecodingError(msg)
 
         if data[0] & 0x80:
-            value = decode_huffman(value)
+            value = self.decoder.decode(value)
 
         # Updated the total consumed length.
         total_consumed += length + consumed
