@@ -1,6 +1,7 @@
 """
 HTTP/2 header encoding for Python.
 """
+
 from __future__ import annotations
 
 from .exceptions import HPACKDecodingError, HPACKError, InvalidTableIndex, InvalidTableIndexError, InvalidTableSizeError, OversizedHeaderListError

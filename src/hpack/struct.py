@@ -1,6 +1,7 @@
 """
 Contains structures for representing header fields with associated metadata.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any

@@ -1,6 +1,7 @@
 """
 Exceptions used in hpack.
 """
+
 from __future__ import annotations
 
 
@@ -10,12 +11,10 @@ class HPACKError(Exception):
     """
 
 
-
 class HPACKDecodingError(HPACKError):
     """
     An error has been encountered while performing HPACK decoding.
     """
-
 
 
 class InvalidTableIndexError(HPACKDecodingError):
@@ -24,6 +23,7 @@ class InvalidTableIndexError(HPACKDecodingError):
 
     .. versionadded:: 4.1.0
     """
+
 
 class InvalidTableIndex(InvalidTableIndexError):  # noqa: N818
     """
