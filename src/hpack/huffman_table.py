@@ -72,58 +72,7 @@ from __future__ import annotations
 from .exceptions import HPACKDecodingError
 
 
-# This defines the state machine "class" at the top of the file. The reason we
-# do this is to keep the terrifing monster state table at the *bottom* of the
-# file so you don't have to actually *look* at the damn thing.
 
-# TODO: Move decode_huffman function to the new class object
-def decode_huffman(huffman_string: bytes | bytearray | None, huffman_table:list[tuple[int, int, int]]) -> bytes:
-    """
-    Given a bytestring of Huffman-encoded data for HPACK, returns a bytestring
-    of the decompressed data.
-    """
-    if not huffman_string:
-        return b""
-
-    state = 0
-    flags = 0
-    decoded_bytes = bytearray()
-
-    # Perversely, bytearrays are a lot more convenient across Python 2 and
-    # Python 3 because they behave *the same way* on both platforms. Given that
-    # we really do want numerical bytes when we iterate here, let's use a
-    # bytearray.
-    huffman_string = bytearray(huffman_string)
-
-    # This loop is unrolled somewhat. Because we use a nibble, not a byte, we
-    # need to handle each nibble twice. We unroll that: it makes the loop body
-    # a bit longer, but that's ok.
-    for input_byte in huffman_string:
-        index = (state * 16) + (input_byte >> 4)
-        state, flags, output_byte = huffman_table[index]
-
-        if flags & HUFFMAN_FAIL:
-            msg = "Invalid Huffman string"
-            raise HPACKDecodingError(msg)
-
-        if flags & HUFFMAN_EMIT_SYMBOL:
-            decoded_bytes.append(output_byte)
-
-        index = (state * 16) + (input_byte & 0x0F)
-        state, flags, output_byte = huffman_table[index]
-
-        if flags & HUFFMAN_FAIL:
-            msg = "Invalid Huffman string"
-            raise HPACKDecodingError(msg)
-
-        if flags & HUFFMAN_EMIT_SYMBOL:
-            decoded_bytes.append(output_byte)
-
-    if not (flags & HUFFMAN_COMPLETE):
-        msg = "Incomplete Huffman string"
-        raise HPACKDecodingError(msg)
-
-    return bytes(decoded_bytes)
 
 
 # Some decoder flags to control state transitions.
@@ -4763,3 +4712,53 @@ class HuffmanDecoder:
         return decode_huffman(bytes_to_decode, self.huffman_table)
 
 
+# NOTE: Temporarly moving here until I merge it with decode above...
+
+# TODO: Move decode_huffman function to the new class object
+def decode_huffman(huffman_string: bytes | bytearray | None, huffman_table:list[tuple[int, int, int]] = HUFFMAN_TABLE) -> bytes:
+    """
+    Given a bytestring of Huffman-encoded data for HPACK, returns a bytestring
+    of the decompressed data.
+    """
+    if not huffman_string:
+        return b""
+
+    state = 0
+    flags = 0
+    decoded_bytes = bytearray()
+
+    # Perversely, bytearrays are a lot more convenient across Python 2 and
+    # Python 3 because they behave *the same way* on both platforms. Given that
+    # we really do want numerical bytes when we iterate here, let's use a
+    # bytearray.
+    huffman_string = bytearray(huffman_string)
+
+    # This loop is unrolled somewhat. Because we use a nibble, not a byte, we
+    # need to handle each nibble twice. We unroll that: it makes the loop body
+    # a bit longer, but that's ok.
+    for input_byte in huffman_string:
+        index = (state * 16) + (input_byte >> 4)
+        state, flags, output_byte = huffman_table[index]
+
+        if flags & HUFFMAN_FAIL:
+            msg = "Invalid Huffman string"
+            raise HPACKDecodingError(msg)
+
+        if flags & HUFFMAN_EMIT_SYMBOL:
+            decoded_bytes.append(output_byte)
+
+        index = (state * 16) + (input_byte & 0x0F)
+        state, flags, output_byte = huffman_table[index]
+
+        if flags & HUFFMAN_FAIL:
+            msg = "Invalid Huffman string"
+            raise HPACKDecodingError(msg)
+
+        if flags & HUFFMAN_EMIT_SYMBOL:
+            decoded_bytes.append(output_byte)
+
+    if not (flags & HUFFMAN_COMPLETE):
+        msg = "Incomplete Huffman string"
+        raise HPACKDecodingError(msg)
+
+    return bytes(decoded_bytes)
