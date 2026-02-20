@@ -320,7 +320,7 @@ class Encoder:
         # can use the indexed literal.
         index, name, perfect = match
 
-        if perfect:
+        if perfect is not None:
             # Indexed representation.
             encoded = self._encode_indexed(index)
         else:
