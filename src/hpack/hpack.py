@@ -284,15 +284,21 @@ class Encoder:
     def add(self, to_add: tuple[bytes, bytes], sensitive: bool, huffman: bool = False) -> bytes:
         """
         Serializes a header key-value tuple.
+
+        When sensitive is True, the header will not be added to the header table,
+        furthermore, the header value will be redacted in debug logs, as "SENSITIVE_REDACTED",
+        to prevent accidental exposure of sensitive information.
         """
+        name, value = to_add
+
+        display_value = value if not sensitive else b"SENSITIVE_REDACTED"
         log.debug(
-            "Adding %s to the header table, sensitive:%s, huffman:%s",
-            to_add,
+            "Adding %s=%s to the header table, sensitive:%s, huffman:%s",
+            name,
+            display_value,
             sensitive,
             huffman,
         )
-
-        name, value = to_add
 
         # Set our indexing mode
         indexbit = INDEX_INCREMENTAL if not sensitive else INDEX_NEVER

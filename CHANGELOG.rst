@@ -14,10 +14,9 @@ dev
 - Support for Python 3.14 has been added.
 - Support for PyPy 3.11 has been added.
 
-
 **Bugfixes**
 
--
+- Prevent sensitive headers from being leaked
 
 4.1.0 (2025-01-22)
 ------------------
