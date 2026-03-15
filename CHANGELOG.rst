@@ -16,7 +16,7 @@ dev
 
 **Bugfixes**
 
-- Prevent sensitive headers from being leaked
+- Headers marked as `sensitive` will no longer log their value at DEBUG level. Instead a placeholder value of `SENSITIVE_REDACTED` is logged.
 
 4.1.0 (2025-01-22)
 ------------------
