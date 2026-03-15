@@ -285,7 +285,8 @@ class Encoder:
         """
         Serializes a header key-value tuple.
 
-        When sensitive is True, the header will not be added to the header table,
+        When sensitive is True, the header will not be added to the header table
+        (see https://www.rfc-editor.org/rfc/rfc7541.html#section-7.1.3 for details),
         furthermore, the header value will be redacted in debug logs, as "SENSITIVE_REDACTED",
         to prevent accidental exposure of sensitive information.
         """
