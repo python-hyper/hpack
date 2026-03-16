@@ -58,6 +58,7 @@ testing = [
   "pytest-cov>=6.0.0,<7",
   "pytest-xdist>=3.6.1,<4",
   "hypothesis>=6.119.4,<7",
+  "pytest-codspeed>=4.0.0<5",
 ]
 
 linting = [
