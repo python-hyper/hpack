@@ -126,6 +126,18 @@ class TestHPACKEncoder:
         assert e.encode(header_set, huffman=False) == result
         assert list(e.header_table.dynamic_entries) == []
 
+    def test_indexed_header_field_empty_value_string(self):
+        """
+        The header field representation uses an indexed header field, from
+        the static table.
+        """
+        e = Encoder()
+        header_set = {':authority': ''}
+        result = b'\x81'
+
+        assert e.encode(header_set, huffman=False) == result
+        assert list(e.header_table.dynamic_entries) == []
+
     def test_indexed_header_field_from_static_table(self):
         e = Encoder()
         e.header_table_size = 0
