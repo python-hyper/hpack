@@ -1,8 +1,8 @@
 Release History
 ===============
 
-dev
----
+4.2.0 (2026-06-22)
+------------------
 
 **API Changes (Backward Incompatible)**
 
@@ -20,6 +20,7 @@ dev
 - Restricted variable integer decoding to uint32 to prevent run-away computation. With thanks to `Hiroki Nishino`_.
 
 .. _Hiroki Nishino: https://github.com/tawAsh1
+
 
 4.1.0 (2025-01-22)
 ------------------
