@@ -74,7 +74,7 @@ packaging = [
 ]
 
 docs = [
-  "sphinx>=9.1.0,<10",
+  'sphinx>=9.1.0,<10 ; python_version >= "3.12"',
 ]
 
 [tool.setuptools.packages.find]
@@ -186,7 +186,7 @@ commands = [
 ]
 
 [tool.tox.env.packaging]
-base_python = ["python3.10"]
+base_python = ["python3.14"]
 dependency_groups = ["packaging"]
 allowlist_externals = ["rm"]
 commands = [
@@ -197,7 +197,7 @@ commands = [
 ]
 
 [tool.tox.env.publish]
-base_python = ["python3.10"]
+base_python = ["python3.14"]
 dependency_groups = ["packaging"]
 allowlist_externals = ["twine"]
 commands = [
@@ -214,7 +214,7 @@ commands = [
 ]
 
 [tool.tox.env.create_test_output]
-base_python = ["python3.10"]
+base_python = ["python3.14"]
 commands = [
   ["python", "{toxinidir}/utils/create_test_output.py", { replace = "posargs", extend = true }],
 ]

@@ -14,3 +14,4 @@ include README.rst LICENSE CHANGELOG.rst CONTRIBUTORS.rst pyproject.toml
 
 global-exclude *.pyc *.pyo *.swo *.swp *.map *.yml *.DS_Store
 exclude .readthedocs.yaml
+exclude uv.lock
