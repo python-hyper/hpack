@@ -125,7 +125,7 @@ class TestEncodingProperties:
             assert consumed > 0
 
     @given(
-        integer=integers(min_value=0),
+        integer=integers(min_value=0, max_value=2**32),
         prefix_bits=integers(min_value=1, max_value=8)
     )
     def test_encode_decode_round_trips(self, integer, prefix_bits):
@@ -138,3 +138,10 @@ class TestEncodingProperties:
         )
         assert integer == decoded_integer
         assert consumed > 0
+
+    def test_decode_too_long_fails(self):
+        """
+        If the variable integer representation is too long, the decoder fails.
+        """
+        with pytest.raises(HPACKDecodingError):
+            decode_integer(b'\xff\xff\xff\xff\xff\xff', 5)

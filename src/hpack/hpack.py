@@ -22,6 +22,8 @@ INDEX_NONE = b"\x00"
 INDEX_NEVER = b"\x10"
 INDEX_INCREMENTAL = b"\x40"
 
+VARINT_MAX_LENGTH = 5 # octets, enough for encoding prefix + uint32
+
 # Precompute 2^i for 1-8 for use in prefix calcs.
 # Zero index is not used but there to save a subtraction
 # as prefix numbers are not zero indexed.
@@ -105,6 +107,17 @@ def decode_integer(data: bytes | memoryview, prefix_bits: int) -> tuple[int, int
                     number += next_byte << shift
                     break
                 shift += 7
+
+                if index > VARINT_MAX_LENGTH:  # sanity check to prevent infinite loops
+                    # We have consumed more than enough bytes for a typical unsigned integer.
+                    # The maximum size is not defined in HPACK RFC7541 Section 5.1:
+                    #   > This integer representation allows for values of indefinite size.  It
+                    #   > is also possible for an encoder to send a large number of zero
+                    #   > values, which can waste octets and could be used to overflow integer
+                    #   > values.  Integer encodings that exceed implementation limits -- in
+                    #   > value or octet length -- MUST be treated as decoding errors.
+                    msg = f"Variable integer representation is too long: {data!r}"
+                    raise HPACKDecodingError(msg)
 
     except IndexError as err:
         msg = f"Unable to decode HPACK integer representation from {data!r}"
