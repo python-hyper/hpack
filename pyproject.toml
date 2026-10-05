@@ -39,6 +39,7 @@ classifiers = [
 ]
 
 [project.urls]
+"Changelog" = "https://github.com/python-hyper/hpack/blob/master/CHANGELOG.rst"
 "Homepage" = "https://github.com/python-hyper/hpack/"
 "Bug Reports" = "https://github.com/python-hyper/hpack/issues"
 "Source" = "https://github.com/python-hyper/hpack/"
