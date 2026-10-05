@@ -6,6 +6,8 @@ dev
 
 **API Changes (Backward Incompatible)**
 
+- Support for Python 3.10 has been removed.
+
 **API Changes (Backward Compatible)**
 
 **Bugfixes**
