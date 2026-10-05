@@ -20,7 +20,7 @@ maintainers = [
   { name = "Thomas Kriechbaumer", email = "thomas@kriechbaumer.name" },
 ]
 
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = []
 dynamic = ["version"]
 
@@ -31,7 +31,6 @@ classifiers = [
   "Programming Language :: Python",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
@@ -88,7 +87,7 @@ version = { attr = "hpack.__version__" }
 
 [tool.ruff]
 line-length = 150
-target-version = "py310"
+target-version = "py311"
 format.preview = true
 format.docstring-code-line-length = 100
 format.docstring-code-format = true
@@ -149,12 +148,11 @@ source = [
 
 [tool.tox]
 min_version = "4.23.2"
-env_list = [ "py310", "py311", "py312", "py313", "py314", "lint", "docs", "packaging" ]
+env_list = [ "py311", "py312", "py313", "py314", "lint", "docs", "packaging" ]
 
 [tool.tox.gh-actions]
 python = """
-  3.10: py310, h2spec, lint, packaging
-  3.11: py311
+  3.11: py311, h2spec, lint, packaging
   3.12: py312
   3.13: py313, docs
   3.14: py314
@@ -186,7 +184,7 @@ commands = [
 ]
 
 [tool.tox.env.packaging]
-base_python = ["python3.14"]
+base_python = ["python3.11"]
 dependency_groups = ["packaging"]
 allowlist_externals = ["rm"]
 commands = [
@@ -197,7 +195,7 @@ commands = [
 ]
 
 [tool.tox.env.publish]
-base_python = ["python3.14"]
+base_python = ["python3.11"]
 dependency_groups = ["packaging"]
 allowlist_externals = ["twine"]
 commands = [
