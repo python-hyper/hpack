@@ -137,7 +137,41 @@ class TestEncodingProperties:
             bytes(encoded_result), prefix_bits
         )
         assert integer == decoded_integer
-        assert consumed > 0
+        assert consumed == len(encoded_result)
+
+    @given(
+        integer=integers(min_value=0, max_value=2**32),
+        prefix_bits=integers(min_value=1, max_value=8),
+        flags=integers(min_value=0, max_value=255),
+        suffix=binary()
+    )
+    def test_decode_ignores_prefix_flags_and_trailing_data(
+        self, integer, prefix_bits, flags, suffix
+    ):
+        """
+        Prefix flags and trailing data do not affect the decoded integer.
+        """
+        encoded = encode_integer(integer, prefix_bits)
+        encoded[0] |= flags & (255 ^ ((1 << prefix_bits) - 1))
+        buffer = bytes(encoded) + suffix
+        for data in (buffer, memoryview(buffer)):
+            assert decode_integer(data, prefix_bits) == (integer, len(encoded))
+
+    @given(
+        integer=integers(min_value=255, max_value=2**32),
+        prefix_bits=integers(min_value=1, max_value=8)
+    )
+    def test_decode_incomplete_integer_representations_fails(
+        self, integer, prefix_bits
+    ):
+        """
+        Every incomplete prefix of an encoded integer is rejected.
+        """
+        encoded = bytes(encode_integer(integer, prefix_bits))
+        for length in range(len(encoded)):
+            for data in (encoded[:length], memoryview(encoded)[:length]):
+                with pytest.raises(HPACKDecodingError):
+                    decode_integer(data, prefix_bits)
 
     def test_decode_too_long_fails(self):
         """
