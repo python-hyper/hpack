@@ -1,17 +1,19 @@
 Installing hpack
 ================
 
-hpack is trivial to install from the Python Package Index. Simply run:
+Install hpack from the Python Package Index with:
 
 .. code-block:: console
 
-    $ pip install hpack
+    $ python -m pip install hpack
 
-Alternatively, feel free to download one of the release tarballs from
-`our GitHub page`_, extract it to your favourite directory, and then run
+Alternatively, download a source archive from `our GitHub page`_, extract it,
+and run the following command from the extracted directory:
 
 .. code-block:: console
 
-    $ python setup.py install
+    $ python -m pip install .
 
 hpack has no external dependencies.
+
+.. _our GitHub page: https://github.com/python-hyper/hpack/tags
