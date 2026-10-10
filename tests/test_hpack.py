@@ -321,6 +321,25 @@ class TestHPACKEncoder:
         out = e.encode(header_set, huffman=True)
         assert out == b'\x3F\x09\x3F\x45\x3F\x09\x82'
 
+    @pytest.mark.parametrize("sizes", [(0,), (128,), (0, 4096)])
+    def test_repeated_table_size_preserves_pending_updates(self, sizes):
+        # 2026-10-11: A no-op assignment must not suppress pending wire updates.
+        e = Encoder()
+        d = Decoder()
+        header_set = [('custom-key', 'custom-value')]
+        assert d.decode(e.encode(header_set)) == header_set
+
+        for size in sizes:
+            e.header_table_size = size
+        e.header_table_size = sizes[-1]
+        d.max_allowed_table_size = sizes[-1]
+
+        assert d.decode(e.encode([])) == []
+        assert d.header_table_size == sizes[-1]
+        assert list(d.header_table.dynamic_entries) == list(e.header_table.dynamic_entries)
+        assert d.decode(e.encode(header_set)) == header_set
+        assert e.encode([(':method', 'GET')]) == b'\x82'
+
     def test_resizing_header_table_sends_context_update(self):
         e = Encoder()
 
