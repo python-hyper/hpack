@@ -17,6 +17,15 @@ from hpack import (
 from hpack.hpack import _dict_to_iterable, _to_bytes
 
 
+class BytesSubclass(bytes):
+    pass
+
+
+@pytest.mark.parametrize('value', [b'', b'foobar', b'\x00\xff'])
+def test_to_bytes_preserves_bytes_subclasses(value):
+    assert _to_bytes(BytesSubclass(value)) == value
+
+
 def test_to_bytes():
     assert _to_bytes(b"foobar") == b"foobar"
     assert _to_bytes("foobar") == b"foobar"
@@ -26,6 +35,23 @@ def test_to_bytes():
 
 
 class TestHPACKEncoder:
+    @pytest.mark.parametrize('huffman', [False, True])
+    @pytest.mark.parametrize('as_dict', [False, True])
+    def test_bytes_subclass_headers(self, huffman, as_dict):
+        headers = [
+            (BytesSubclass(b':method'), BytesSubclass(b'GET')),
+            (BytesSubclass(b'custom-key'), BytesSubclass(b'\x00\xff')),
+        ]
+        expected = [(b':method', b'GET'), (b'custom-key', b'\x00\xff')]
+        if as_dict:
+            # Dictionary pseudo-headers must move ahead of ordinary headers.
+            headers = dict(reversed(headers))
+
+        encoded = Encoder().encode(headers, huffman=huffman)
+
+        assert encoded == Encoder().encode(expected, huffman=huffman)
+        assert Decoder().decode(encoded, raw=True) == expected
+
     # These tests are stolen entirely from the IETF specification examples.
     def test_literal_header_field_with_indexing(self):
         """
