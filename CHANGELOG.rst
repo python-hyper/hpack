@@ -12,6 +12,9 @@ dev
 
 **Bugfixes**
 
+- Preserve header fields when copying or pickling ``HeaderTuple`` and
+  ``NeverIndexedHeaderTuple`` objects.
+
 
 4.2.0 (2026-06-22)
 ------------------

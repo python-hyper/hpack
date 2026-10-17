@@ -1,6 +1,9 @@
+import copy
+import pickle
+
 import pytest
 
-from hpack import HeaderTuple, NeverIndexedHeaderTuple
+from hpack import Decoder, Encoder, HeaderTuple, NeverIndexedHeaderTuple
 
 
 class TestHeaderTuple:
@@ -68,3 +71,42 @@ class TestHeaderTuple:
 
         assert t1 == t2
         assert t1 is not t2
+
+    @pytest.mark.parametrize('cls', (HeaderTuple, NeverIndexedHeaderTuple))
+    @pytest.mark.parametrize('copier', (copy.copy, copy.deepcopy))
+    def test_copy_preserves_header(self, cls, copier):
+        """
+        Copying a header preserves its fields and concrete type.
+        """
+        header = cls(b'name', b'\xff')
+
+        restored = copier(header)
+
+        assert restored == header
+        assert type(restored) is cls
+        assert restored.indexable == header.indexable
+
+    @pytest.mark.parametrize('cls', (HeaderTuple, NeverIndexedHeaderTuple))
+    @pytest.mark.parametrize('protocol', range(pickle.HIGHEST_PROTOCOL + 1))
+    def test_pickle_preserves_header(self, cls, protocol):
+        """
+        Every pickle protocol preserves the fields and concrete type.
+        """
+        header = cls(b'name', b'\xff')
+
+        restored = pickle.loads(pickle.dumps(header, protocol=protocol))
+
+        assert restored == header
+        assert type(restored) is cls
+        assert restored.indexable == header.indexable
+
+    @pytest.mark.parametrize('raw', (False, True))
+    def test_deepcopied_decoded_headers_can_be_encoded(self, raw):
+        """
+        A copied decoder result can be passed back to the encoder.
+        """
+        headers = Decoder().decode(Encoder().encode([('x-demo', 'value')]), raw=raw)
+
+        encoded = Encoder().encode(copy.deepcopy(headers))
+
+        assert Decoder().decode(encoded, raw=raw) == headers
