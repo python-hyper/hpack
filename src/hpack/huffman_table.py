@@ -87,11 +87,9 @@ def decode_huffman(huffman_string: bytes | bytearray | memoryview | None) -> byt
     flags = 0
     decoded_bytes = bytearray()
 
-    # Perversely, bytearrays are a lot more convenient across Python 2 and
-    # Python 3 because they behave *the same way* on both platforms. Given that
-    # we really do want numerical bytes when we iterate here, let's use a
-    # bytearray.
-    huffman_string = bytearray(huffman_string)
+    # Exact bytes already yield the octets this table expects, so skip the copy.
+    if type(huffman_string) is not bytes:
+        huffman_string = bytearray(huffman_string)
 
     # This loop is unrolled somewhat. Because we use a nibble, not a byte, we
     # need to handle each nibble twice. We unroll that: it makes the loop body
