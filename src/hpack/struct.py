@@ -31,6 +31,9 @@ class HeaderTuple(tuple[bytes, bytes]):
     def __new__(cls, *args: Any) -> Self:
         return tuple.__new__(cls, args)
 
+    def __getnewargs__(self) -> tuple[bytes, ...]:
+        return tuple(self)
+
 
 class NeverIndexedHeaderTuple(HeaderTuple):
     """
