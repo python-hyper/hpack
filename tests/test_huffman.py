@@ -7,6 +7,21 @@ from hypothesis import given, example
 from hypothesis.strategies import binary
 
 
+class BytesWithCustomConversion(bytes):
+    def __bytes__(self):
+        return b'\xff'
+
+
+class BytearrayWithCustomConversion(bytearray):
+    def __bytes__(self):
+        return b'\xff'
+
+
+class BytesWithCustomIteration(bytes):
+    def __iter__(self):
+        return iter(b'\xff')
+
+
 class TestHuffman:
 
     def test_request_huffman_decoder(self):
@@ -34,6 +49,23 @@ class TestHuffman:
 
 
 class TestHuffmanDecoder:
+    def test_huffman_decoder_accepts_byte_buffers(self):
+        encoded = b'\xa8\xeb\x10d\x9c\xbf'
+        interleaved = bytes(value for byte in encoded for value in (byte, 0))
+        buffers = (
+            encoded,
+            BytesWithCustomConversion(encoded),
+            BytesWithCustomIteration(encoded),
+            bytearray(encoded),
+            BytearrayWithCustomConversion(encoded),
+            memoryview(encoded),
+            memoryview(encoded).cast('H'),
+            memoryview(interleaved)[::2],
+        )
+
+        for buffer in buffers:
+            assert decode_huffman(buffer) == b'no-cache'
+
     @given(data=binary())
     @example(b'\xff')
     @example(b'\x5f\xff\xff\xff\xff')

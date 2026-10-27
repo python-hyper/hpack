@@ -12,6 +12,8 @@ dev
 
 **Bugfixes**
 
+- Avoided copying exact ``bytes`` inputs before Huffman decoding.
+
 
 4.2.0 (2026-06-22)
 ------------------
