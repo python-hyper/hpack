@@ -152,11 +152,11 @@ def _to_bytes(value: bytes | str | Any) -> bytes:
     Convert anything to bytes through a UTF-8 encoded string
     """
     t = type(value)
-    if t is bytes:
-        return value  # type: ignore
+    if isinstance(value, bytes):
+        return value
     if t is not str:
         value = str(value)
-    return value.encode("utf-8")  # type: ignore
+    return value.encode("utf-8")
 
 
 class Encoder:
