@@ -22,6 +22,8 @@ INDEX_NONE = b"\x00"
 INDEX_NEVER = b"\x10"
 INDEX_INCREMENTAL = b"\x40"
 
+_INDEXED_BYTES = tuple(bytes([index | 0x80]) for index in range(127))
+
 VARINT_MAX_LENGTH = 5 # octets, enough for encoding prefix + uint32
 
 # Precompute 2^i for 1-8 for use in prefix calcs.
@@ -354,6 +356,8 @@ class Encoder:
         """
         Encodes a header using the indexed representation.
         """
+        if type(index) is int and 0 <= index < 127 and not log.isEnabledFor(logging.DEBUG):
+            return _INDEXED_BYTES[index]
         field = encode_integer(index, 7)
         field[0] |= 0x80  # we set the top bit
         return bytes(field)

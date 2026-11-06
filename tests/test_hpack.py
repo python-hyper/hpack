@@ -856,3 +856,39 @@ class TestDictToIterable:
 
         assert expected_special == received_special
         assert expected_boring == received_boring
+
+
+def test_debug_logging_preserves_roundtrip(caplog):
+    import logging
+    caplog.set_level(logging.DEBUG, logger='hpack')
+    encoder, decoder = Encoder(), Decoder()
+    encoder.header_table_size = 1024
+    headers = [(b':method', b'GET'), (b'custom-name', b'value'),
+               (b'authorization', b'private', True)]
+    for huffman in (False, True):
+        assert decoder.decode(encoder.encode(headers, huffman=huffman), raw=True) == [
+            (b':method', b'GET'), (b'custom-name', b'value'),
+            (b'authorization', b'private'),
+        ]
+    messages = [record.getMessage() for record in caplog.records]
+    assert any('SENSITIVE_REDACTED' in message for message in messages)
+    encoding_records = [record for record in caplog.records if record.getMessage().startswith('Encoding ')]
+    assert encoding_records
+    assert all(record.funcName == 'encode_integer' for record in encoding_records)
+    assert any(message.startswith('Decoded ') for message in messages)
+
+
+@pytest.mark.parametrize('index, wire', [
+    (0, b'\x80'), (1, b'\x81'), (126, b'\xfe'),
+    (127, b'\xff\x00'), (128, b'\xff\x01'), (255, b'\xff\x80\x01'),
+    (True, b'\x81'),
+])
+def test_indexed_encoding_at_prefix_boundary(index, wire):
+    assert Encoder()._encode_indexed(index) == wire
+
+
+def test_indexed_encoding_invalid_values():
+    with pytest.raises(ValueError, match='Can only encode positive integers, got -1'):
+        Encoder()._encode_indexed(-1)
+    with pytest.raises(TypeError):
+        Encoder()._encode_indexed(1.5)
