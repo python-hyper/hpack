@@ -10,6 +10,8 @@ dev
 
 **API Changes (Backward Compatible)**
 
+- Encoding indexed header fields no longer allocates temporary buffers.
+
 **Bugfixes**
 
 
