@@ -24,6 +24,24 @@ class HuffmanEncoder:
         if not bytes_to_encode:
             return b""
 
+        # For longer byte strings, assemble the bits in C instead of repeatedly
+        # shifting an ever-growing Python integer. Build the symbol map for this
+        # call so changes to caller-owned coding tables are always observed.
+        if type(bytes_to_encode) is bytes and len(bytes_to_encode) >= 256 and type(self) is HuffmanEncoder:
+            codes = self.huffman_code_list
+            lengths = self.huffman_code_list_lengths
+            if type(codes) is list and type(lengths) is list and len(codes) >= 256 and len(lengths) >= 256:
+                symbols = {}
+                for symbol in set(bytes_to_encode):
+                    code, length = codes[symbol], lengths[symbol]
+                    if type(code) is not int or type(length) is not int or not 1 <= length <= 30 or not 0 <= code < (1 << length):
+                        break
+                    symbols[symbol] = f"{code:0{length}b}"
+                else:
+                    bits = "".join(map(symbols.__getitem__, bytes_to_encode))
+                    bits += "1" * (-len(bits) % 8)
+                    return int(bits, 2).to_bytes(len(bits) // 8, "big")
+
         final_num = 0
         final_int_len = 0
 

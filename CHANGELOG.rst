@@ -10,6 +10,8 @@ dev
 
 **API Changes (Backward Compatible)**
 
+- Encoding long header values with Huffman coding is no longer quadratic in the value length.
+
 **Bugfixes**
 
 

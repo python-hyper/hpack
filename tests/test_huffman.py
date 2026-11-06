@@ -52,3 +52,29 @@ class TestHuffmanDecoder:
             result = b''
 
         assert isinstance(result, bytes)
+
+
+def test_long_huffman_encoding_observes_mutable_tables():
+    codes, lengths = REQUEST_CODES[:], REQUEST_CODES_LENGTH[:]
+    encoder = HuffmanEncoder(codes, lengths)
+    assert decode_huffman(encoder.encode(b'a' * 512)) == b'a' * 512
+    codes[ord('a')], lengths[ord('a')] = codes[ord('b')], lengths[ord('b')]
+    assert decode_huffman(encoder.encode(b'a' * 512)) == b'b' * 512
+
+
+def test_long_huffman_encoding_custom_table_fallbacks():
+    # Over-wide code words preserve the original masking and overlap behavior.
+    encoder = HuffmanEncoder([3] * 256, [1] * 256)
+    assert encoder.encode(b'x' * 256) == b'\x01' + b'\xff' * 32
+    encoder = HuffmanEncoder([0] * 256, [0] * 256)
+    assert encoder.encode(b'x' * 256) == b'\x00'
+    class Code(int):
+        pass
+    encoder = HuffmanEncoder([Code(0)] * 256, [1] * 256)
+    assert encoder.encode(b'x' * 256) == b'\x00' * 32
+    class Codes(list):
+        pass
+    encoder = HuffmanEncoder(Codes([0] * 256), [1] * 256)
+    assert encoder.encode(b'x' * 256) == b'\x00' * 32
+    encoder = HuffmanEncoder([0] * 120, [1] * 120)
+    assert encoder.encode(b'a' * 256) == b'\x00' * 32
